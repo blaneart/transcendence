@@ -7,15 +7,25 @@ export const db = knex({
     client: 'pg',
     connection: {
       host : '127.0.0.1',
-      user : 'art',
-      password : '',
-      database : 'pong'
+      user : 'docker',
+      port: '8001',
+      password : 'docker',
+      database : 'docker'
     }
   });
-
-db.select('*').from('users').then(data => {
-    console.log(data)
-});
+  db.schema.hasTable('users2').then(function(exists) {
+    if (!exists) {
+      return db.schema.createTable('users2', function(t) {
+        t.increments('id').primary();
+        t.string('first_name', 100);
+        t.string('last_name', 100);
+        t.text('bio');
+      });
+    }
+  });
+// db.select('*').from('users').then(data => {
+    // console.log(data)
+// });
 export const database = {
     users: [
         {

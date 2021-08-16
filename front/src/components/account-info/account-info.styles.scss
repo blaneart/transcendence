@@ -1,0 +1,19 @@
+.scores {
+    width: 32%;
+    display: flex;
+    justify-content: space-between;
+    height: 100px;
+    align-items: center;
+    .tables {
+        width: 50%;
+        height: 5%;
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+        text-align: center;
+
+        font-size: 18px;
+        margin-top: 5%;
+    }
+}

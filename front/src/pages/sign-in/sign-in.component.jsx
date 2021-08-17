@@ -8,7 +8,7 @@ class Signin extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: '',
+      name: '',
       password: ''
     }
   }
@@ -16,7 +16,7 @@ class Signin extends React.Component {
 
   handleSubmit = event => {
     event.preventDefault();
-    this.setState({ email:'', password:''});
+    this.setState({ name:'', password:''});
 }
 
 handleChange = event => {
@@ -37,7 +37,7 @@ handleChange = event => {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        email: this.state.email,
+        name: this.state.name,
         password: this.state.password
       })
         })
@@ -57,11 +57,11 @@ handleChange = event => {
     return (
       <div className='sign-in'>
       <h2>I already have an account</h2>
-      <span>Sign in with your email and password</span>
+      <span>Sign in with your name and password</span>
       <form onSubmit={this.handleSubmit}>
-          <FormInput name="email" type="email"
-          value={this.state.email} handleChange={this.handleChange}
-          label='email' required/>
+          <FormInput name="name" type="name"
+          value={this.state.name} handleChange={this.handleChange}
+          label='name' required/>
           <FormInput name="password" type="password"
           value={this.state.password} handleChange={this.handleChange}
            label='password' required/>

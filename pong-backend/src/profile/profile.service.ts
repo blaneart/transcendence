@@ -1,10 +1,11 @@
 import { Injectable, Res } from '@nestjs/common';
-import { database } from 'src/signin/signin.controller';
+import { db } from 'src/signin/signin.controller';
+
 @Injectable()
 export class ProfileService {
     show(id : string, res) {
         let found = false;
-        database.users.forEach(user => {
+        db.users.forEach(user => {
             if (user.id === id) {
                 found = true;
                 return res.json(user);

@@ -13,39 +13,22 @@ export const db = knex({
       database : 'docker'
     }
   });
-  db.schema.hasTable('users2').then(function(exists) {
+
+  db.schema.hasTable('users').then(function(exists) {
     if (!exists) {
-      return db.schema.createTable('users2', function(t) {
+      return db.schema.createTable('users', function(t) {
         t.increments('id').primary();
-        t.string('first_name', 100);
-        t.string('last_name', 100);
-        t.text('bio');
+        t.string('name', 100).unique();
+        t.string('avatar', 100);
+        t.integer('games');
+        t.integer('wins');
       });
     }
   });
 // db.select('*').from('users').then(data => {
     // console.log(data)
 // });
-export const database = {
-    users: [
-        {
-            id: '123',
-            name: 'John',
-            email: 'john@gmail.com',
-            password: 'cookies',
-            games: 0,
-            joined: new Date()
-        },
-        {
-            id: '124',
-            name: 'Sally',
-            email: 'sally@gmail.com',
-            password: 'bananas',
-            entries: 0,
-            joined: new Date()
-        }
-    ]
-}
+
 @Controller('signin')
 export class SigninController {
     constructor( private readonly signinService: SigninService)
@@ -55,7 +38,7 @@ export class SigninController {
     @Get()
     just()
     {
-        return database;
+        return db;
     }
 
     @Post()

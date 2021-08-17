@@ -17,7 +17,9 @@ class App extends Component
           user: {
             id: '',
             name: '',
-            email: '',
+            avatar: '',
+            games: 0,
+            wins: 0
             
           }
         }
@@ -31,9 +33,9 @@ class App extends Component
     this.setState({user: {
       id: data.id,
       name: data.name,
-      email: data.email,
+      avatar: data.avatar,
       games: data.games,
-      joined: data.joined
+      wins: data.wins
     }})
   }
   render(){

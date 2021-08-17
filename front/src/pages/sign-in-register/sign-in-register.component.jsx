@@ -5,7 +5,7 @@ import './sign-in-register.styles.scss';
 const SignInRegister = (props) =>  (
         <div className='sign-in-register'>
             <Signin loadUser={props.loadUser} user={props.user}/>
-            <Register/>
+            <Register loadUser={props.loadUser} user={props.user}/>
         </div>
     
 );

@@ -20,6 +20,7 @@ export const db = knex({
         t.increments('id').primary();
         t.string('name', 100).unique();
         t.string('avatar', 100);
+        t.string('auth_token', 100);
         t.integer('games');
         t.integer('wins');
       });

@@ -1,0 +1,30 @@
+body {
+	background: linear-gradient(-45deg, black, darkblue, #10035a, rgb(70, 4, 4));
+	background-size: 400% 400%;
+	animation: gradient 7s ease infinite;
+}
+
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+
+body {
+  font-family: 'Anton';
+  padding: 20px 60px;
+  color: white;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}

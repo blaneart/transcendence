@@ -1,9 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import  logo from '../../assets/trlogo.png';
+import Login from '../login/login.component';
+
 import './header.styles.scss';
 
-const Header = ({user}) => {
+
+interface IHeaderProps {
+    user?: {
+        id: string,
+        name: string,
+        avatar: string,
+        games: number,
+        wins: number
+       } | null
+}
+
+const Header: React.FC<IHeaderProps> = ({user}) => {
     console.log({user});
 
     return(
@@ -12,17 +25,12 @@ const Header = ({user}) => {
             <img src={logo} className='logo' />
         </Link>
         <div className='options'>
-            <Link className='option' to='/play'>
-                PLAY
-            </Link>
-            <Link className='option' to='/account'>
-                ACCOUNT
-            </Link>
         {
-            user.id ? 
+            user ? 
             <div className='option'>SIGN OUT</div>
             :
-            <Link className='option-right' to='signin'>SIGN IN</Link>
+            <div className='option-right'><Login/></div>
+
         }    
         </div>
     </div>

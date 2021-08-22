@@ -1,0 +1,23 @@
+.header {
+    height: 50px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 35px;
+    .logo {
+      height: 100%;
+      width: 30px;
+      padding: 10px;
+    }
+    .options {
+      display: flex;
+      .option {
+        margin-top: 15px;
+      }
+      .option-right {
+        float: right;
+        margin-top: 15px;
+      }
+    }
+  }
+  

@@ -33,7 +33,7 @@ interface User42 {
 }
 
 // Ask 42's api's for our login and user id
-async function getLogin(authToken: string): Promise<string> {
+async function getLogin(authToken: string): Promise<User42> {
   const response = await axios({
     url: 'https://api.intra.42.fr/v2/me',
     headers: { Authorization: `Bearer ${authToken}` },
@@ -52,9 +52,8 @@ async function getOrCreateUser(user: User42, authToken: string): Promise<any> {
     // Create a new user
     const new_user = await db('users')
       .returning('*')
-      .insert({ name: user.login, id42: user.id })
-      .first();
-    return new_user;
+      .insert({ name: user.login, id42: user.id });
+    return new_user[0];
   }
   // Return old user
   return response[0];
@@ -62,6 +61,11 @@ async function getOrCreateUser(user: User42, authToken: string): Promise<any> {
 
 @Controller('auth')
 export class AuthController {
+  @Get('/whoami')
+  whoami(@Session() session: Record<string, any>,) { // TODO remove
+    return `User id: ${session.user_id}`;
+  }
+
   @Get('/signUp')
   async handleOauth(
     @Session() session: Record<string, any>,
@@ -87,7 +91,6 @@ export class AuthController {
         },
       };
     } catch (err) {
-      console.log(err);
       return {
         status: -1,
         message: '42 api is drunk, come back later',

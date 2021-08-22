@@ -8,19 +8,15 @@
       height: 100%;
       width: 30px;
       padding: 10px;
-
     }
-  
     .options {
-      width: 70%;
-      height: 100%;
       display: flex;
-      align-items: center;
-      justify-content: flex-end;
-
       .option {
-        padding: 25px 25px;
-        margin-top: 20px;
+        margin-top: 15px;
+      }
+      .option-right {
+        float: right;
+        margin-top: 15px;
       }
     }
   }

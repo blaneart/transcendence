@@ -1,0 +1,44 @@
+.custom-button {
+    color: black;
+    background-color: white;
+    display: flex;
+    min-width: 120px;
+    min-height: 35px;
+    flex-direction: row;
+    border-radius: 30px;
+    margin-bottom: 20px;
+    border: 2px solid black;
+    // border-radius:50%;
+
+    cursor: pointer;
+    font-weight: bolder;
+    .text {
+        margin-top: 5px;
+        margin-left: 10px;
+        text-decoration: solid;
+        font-family: 'Anton';
+        font-size: medium;
+        font-weight: lighter;
+
+    }
+    .image {
+        position: static;
+        height: 30px;
+        width: 30px;
+        max-height: 50%;
+        max-width: 50%;
+        background-size: cover;
+        background-position: center;
+        border: 2px solid white;
+        border-radius:50%;
+
+
+      }
+    &:hover {
+      background-color: black;
+      color: white;
+      border: 1px solid black;
+    }
+    
+  }
+  

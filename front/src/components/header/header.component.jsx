@@ -22,7 +22,7 @@ const Header = ({user}) => {
             user.id ? 
             <div className='option'>SIGN OUT</div>
             :
-            <Link className='option' to='signin'>SIGN IN</Link>
+            <Link className='option-right' to='signin'>SIGN IN</Link>
         }    
         </div>
     </div>

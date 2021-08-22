@@ -20,7 +20,7 @@ async function getAuthToken(authCode: string): Promise<string> {
     grant_type: 'authorization_code',
     client_id: API_UID,
     client_secret: API_SECRET,
-    redirect_uri: 'https://transcendence-dev.netlify.app',
+    redirect_uri: 'http://127.0.0.1:3001',
     code: authCode,
   });
   return response.data.access_token;
@@ -85,11 +85,15 @@ export class AuthController {
       return {
         status: 1,
         user: {
-          username: user.name,
           id: user.id, // here, ID is OUR id, not 42's
+          name: user.name,
+          avatar: user.avatar,
+          games: user.games,
+          wins: user.wins,
         },
       };
     } catch (err) {
+      console.log(err);
       return {
         status: -1,
         message: '42 api is drunk, come back later',

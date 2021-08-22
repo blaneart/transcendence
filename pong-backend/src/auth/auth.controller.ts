@@ -7,7 +7,6 @@ const axios = require('axios');
 // Add visits to session object
 declare module 'express-session' {
   interface SessionData {
-    visits: number;
     user_id: number;
   }
 }

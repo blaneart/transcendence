@@ -65,6 +65,13 @@ export class AuthController {
     return `User id: ${session.user_id}`;
   }
 
+  @Get('/signOut')
+  handleSignOut(@Session() session: Record<string, any>,) {
+    console.log("Logged out");
+    session.user_id = null;
+    return {status: 1, user: null};
+  }
+
   @Get('/signUp')
   async handleOauth(
     @Session() session: Record<string, any>,

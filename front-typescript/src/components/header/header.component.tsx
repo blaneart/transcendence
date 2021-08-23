@@ -13,10 +13,11 @@ interface IHeaderProps {
         avatar: string,
         games: number,
         wins: number
-       } | null
+       } | null,
+    logoutHandler: React.MouseEventHandler<HTMLDivElement>
 }
 
-const Header: React.FC<IHeaderProps> = ({user}) => {
+const Header: React.FC<IHeaderProps> = ({user, logoutHandler}) => {
     console.log({user});
 
     return(
@@ -27,7 +28,7 @@ const Header: React.FC<IHeaderProps> = ({user}) => {
         <div className='options'>
         {
             user ? 
-            <div className='option'>SIGN OUT</div>
+            <div className='option' onClick={logoutHandler}>SIGN OUT</div>
             :
             <div className='option-right'><Login/></div>
 

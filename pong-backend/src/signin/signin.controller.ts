@@ -19,10 +19,10 @@ export const db = knex({
       return db.schema.createTable('users', function(t) {
         t.increments('id').primary();
         t.string('name', 100).unique();
-        t.string('avatar', 100);
+        t.string('avatar', 100).defaultTo('TyomaRules');
         t.integer('id42').unique(); // mustn't be able to sign up twice
-        t.integer('games');
-        t.integer('wins');
+        t.integer('games').defaultTo(0);
+        t.integer('wins').defaultTo(0);
       });
     }
   });

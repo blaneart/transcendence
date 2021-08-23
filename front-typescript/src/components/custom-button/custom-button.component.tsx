@@ -7,7 +7,7 @@ interface IButtonProps {
     onClick: React.MouseEventHandler<HTMLButtonElement>
 }
 
-const CustomButton: React.FC<IButtonProps> = ({children, ...otherProps }) => (
+const CustomButton: React.FC<IButtonProps> = ({children, ...otherProps }) => ( 
      <button className='custom-button' {...otherProps }>
                       <div
       className='image'

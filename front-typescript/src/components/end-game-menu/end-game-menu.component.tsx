@@ -1,21 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
 interface IButtonProps {
+    result: string,
     onClick: React.MouseEventHandler<HTMLButtonElement>
+
 }
 
-const EndGameMenu: React.FC<IButtonProps> = ({...changeGameState}) => {
+
+const EndGameMenu: React.FC<IButtonProps> = ({result, ...changeGameState}) => {
 
     return (
 
         // <div className='end-game-menu'>
         <div className='game end'>
-            <h1>GAME ENDED</h1>
+            <h1 style={{fontSize: 72}}>{result === 'won' ? "YOU WON!" : "YOU LOST!"}</h1>
 
-            <button {...changeGameState}>RESTART</button>
+            <button className='element' {...changeGameState}>RESTART</button>
+            
 
-            <Link to="/">Back to the menu</Link>
+            <div className='element'>
+                  <Link  to="/">BACK TO THE MENU</Link>
+            </div>
 
         </div>
     );

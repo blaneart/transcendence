@@ -5,11 +5,22 @@ import EndGameMenu from '../../components/end-game-menu/end-game-menu.component'
 
 import './game.styles.scss';
 
-const Game = () => {
-    const [isGameEnded, setIsGameEnded] = useState<Boolean>(false);
+
+interface IGameProps {
+  user: {
+    id: string,
+    name: string,
+    avatar: string,
+    games: number,
+    wins: number
+  } | null
+}
+const Game: React.FC<IGameProps> = ({user}) => {
+
+    const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
     useEffect(() => {
-        setIsGameEnded(false)
+        setIsGameEnded('game')
         let canvas = document.getElementById('forCanvas');
         if (canvas)
           canvas.style.opacity = '1';
@@ -28,16 +39,24 @@ const Game = () => {
     }
   }, [restart]);
 
-  const changeGameState = () => {
-    setIsGameEnded(true);
+  const changeGameState = (result: string) => {
+    if (user)
+    {
+      user.games += 1;
+      if (result === 'won')
+        user.wins += 1;
+    }
+      setIsGameEnded(result);
+
   }
   const restartGame = () => {
     setRestart(!restart);
   }
+
     return(
       <div className='game'>
         <canvas id="forCanvas" width={800} height={600}></canvas>
-        { isGameEnded  && <EndGameMenu onClick={restartGame}/>
+        { isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
         }
       </div>
     );

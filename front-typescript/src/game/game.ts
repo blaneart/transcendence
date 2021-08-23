@@ -107,7 +107,10 @@ class Pong {
     const callback = (millis: number) => {
       if (this.isGameEnded())
       {
-          fn();
+          if (this.players[0].score >= 10)
+            fn('won');
+          else
+            fn('lost');
           this.end();
           if (this._context !== null)
           {

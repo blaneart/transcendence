@@ -16,8 +16,8 @@ interface IScoresProps {
 }
 const Tables: React.FC<ITableProps> = ({name, score}) => (
     <div className='tables'>
-    <span className='name'>{name}</span>
-    <span className='score'>{score}</span>
+    <span >{name}</span>
+    <span >{score}</span>
     </div>
 )
 const Scores: React.FC<IScoresProps> = ({wins, loses, games}) => (

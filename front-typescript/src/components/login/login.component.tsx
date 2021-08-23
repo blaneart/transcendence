@@ -58,7 +58,7 @@ const Login = () => {
         {/* <Form></Form> */}
         {/* <Modal show={show} handleClose={hideModal}> */}
         {/* </Modal> */}
-        <CustomButton onClick={signUpButtonClicked}>SIGN IN</CustomButton>
+        <CustomButton isLogged={0} onClick={signUpButtonClicked}>SIGN IN</CustomButton>
     </div>
     );
 }

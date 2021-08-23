@@ -14,6 +14,18 @@ declare module 'express-session' {
 const API_UID: string = process.env.API_UID;
 const API_SECRET: string = process.env.API_SECRET;
 
+// generate random string
+function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * 
+  charactersLength));
+   }
+   return result;
+  }
+
 // Exchange auth code for 42 api access code
 async function getAuthToken(authCode: string): Promise<string> {
   const response = await axios.post(`https://api.intra.42.fr/oauth/token`, {
@@ -51,7 +63,7 @@ async function getOrCreateUser(user: User42, authToken: string): Promise<any> {
     // Create a new user
     const new_user = await db('users')
       .returning('*')
-      .insert({ name: user.login, id42: user.id });
+      .insert({ name: user.login, id42: user.id, avatar: makeid(10) });
     return new_user[0];
   }
   // Return old user

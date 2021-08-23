@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import  logo from '../../assets/trlogo.png';
 import Login from '../login/login.component';
-
+import CustomButton from '../custom-button/custom-button.component';
 import './header.styles.scss';
 
 
@@ -14,7 +14,8 @@ interface IHeaderProps {
         games: number,
         wins: number
        } | null,
-    logoutHandler: React.MouseEventHandler<HTMLDivElement>
+    // logoutHandler: React.MouseEventHandler<HTMLDivElement>
+    logoutHandler: React.MouseEventHandler<HTMLButtonElement>
 }
 
 const Header: React.FC<IHeaderProps> = ({user, logoutHandler}) => {
@@ -28,7 +29,10 @@ const Header: React.FC<IHeaderProps> = ({user, logoutHandler}) => {
         <div className='options'>
         {
             user ? 
-            <div className='option' onClick={logoutHandler}>SIGN OUT</div>
+            <div className='option-right'>
+            <CustomButton isLogged={1} onClick={logoutHandler} avatar_name={user.avatar}>SIGN OUT</CustomButton>
+            </div>
+            // <div className='option' onClick={logoutHandler}>SIGN OUT</div>
             :
             <div className='option-right'><Login/></div>
 

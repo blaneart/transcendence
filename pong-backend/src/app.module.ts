@@ -6,11 +6,11 @@ import { RegisterController } from './register/register.controller';
 import { ProfileController } from './profile/profile.controller';
 import { ProfileService } from './profile/profile.service';
 import { SigninService } from './signin/signin.service';
-import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController, SigninController, RegisterController, ProfileController, AuthController],
+  imports: [AuthModule],
+  controllers: [AppController, SigninController, RegisterController, ProfileController],
   providers: [AppService, ProfileService, SigninService],
 })
 export class AppModule {}

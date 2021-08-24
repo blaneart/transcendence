@@ -12,4 +12,5 @@ export class ProfileController {
     {
         return this.profileService.show(id, res);
     }
+    
 }

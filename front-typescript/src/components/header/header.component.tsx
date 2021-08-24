@@ -19,6 +19,7 @@ interface IHeaderProps {
 }
 
 const Header: React.FC<IHeaderProps> = ({user, logoutHandler}) => {
+    
     console.log({user});
 
     return(

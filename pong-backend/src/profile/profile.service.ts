@@ -47,5 +47,12 @@ async getOrCreateUser(user: User42): Promise<any> {
   return response[0];
 }
 
+async updateUserById(id: number, change: any)
+{
+  const response = await db('users').where({id: id}).update(change);
+  console.log(response);
+  return response;
+}
+
 
 }

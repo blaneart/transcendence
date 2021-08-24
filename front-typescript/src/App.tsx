@@ -24,58 +24,49 @@ interface IState {
 }
 
 interface AuthResponse {
-  status: number;
   user: User;
+  access_token: string;
 }
 
-async function process42ApiRedirect(code: string): Promise<User> {
-  const response = await fetch(
-    `http://127.0.0.1:3000/auth/signUp?code=${code}`
-  );
+async function process42ApiRedirect(code: string): Promise<AuthResponse> {
+  const data = {
+    code: code
+  };
+  const response = await fetch('http://127.0.0.1:3000/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(data),
+  });
   //   console.log(data);
   const jsonData = await response.json();
-  const typedResponse: AuthResponse = jsonData as AuthResponse;
-  if (typedResponse.status !== 1) {
-    alert("42 auth failed.");
-  }
-  const loggedUser: User = {
-    id: typedResponse.user.id,
-    name: typedResponse.user.name,
-    avatar: typedResponse.user.avatar,
-    games: typedResponse.user.games,
-    wins: typedResponse.user.wins,
-  };
-  return loggedUser;
+  return jsonData as AuthResponse;
 }
 
-// Ask the backend to forget us
-async function backendSignOut() {
-  const response = await fetch(`http://127.0.0.1:3000/auth/signOut`);
 
-  const jsonData = await response.json();
-  const typedResponse: AuthResponse = jsonData as AuthResponse;
-  if (typedResponse.status !== 1) {
-    alert("Couldn't sign out :(");
-  }
-}
 
-async function set42User(setUser: Function, code: string) {
-  const loggedUser: User = await process42ApiRedirect(code);
-  setUser(loggedUser);
+async function set42User(setUser: Function, setAuthToken: Function, code: string) {
+  const authResponse: AuthResponse = await process42ApiRedirect(code);
+  setUser(authResponse.user);
+  setAuthToken(authResponse.access_token)
   // Save user in browser state
-  localStorage.setItem("pongUser", JSON.stringify(loggedUser));
+  localStorage.setItem("pongUser", JSON.stringify(authResponse.user));
+  localStorage.setItem("pongToken", authResponse.access_token);
 }
 
-function logoutHandler(setUser: Function) {
+function logoutHandler(setUser: Function, setAuthToken: Function) {
   return function () {
-    backendSignOut();
     localStorage.removeItem("pongUser");
+    localStorage.removeItem("pongToken");
     setUser(null);
+    setAuthToken(null);
   };
 }
 
 function App() {
   const [user, setUser] = useState<IState["user"]>();
+  const [authToken, setAuthToken] = useState("");
   const [isSigned, setIsSigned] = useState(false);
 
   let history = useHistory();
@@ -84,16 +75,20 @@ function App() {
     const localStoragePongUser: string | null = localStorage.getItem(
       "pongUser"
     );
-    if (!user && localStoragePongUser) {
+    const localStoragePongToken: string | null = localStorage.getItem(
+      "pongToken"
+    );
+    if (!user && localStoragePongUser && localStoragePongToken) {
       const localStorageUser = JSON.parse(localStoragePongUser) as User;
       setUser(localStorageUser);
+      setAuthToken(localStoragePongToken);
     }
 
     if (searchParams.get("code")) {
       // if we catch an auth redirect from 42 api
       let code: string | null = searchParams.get("code");
       if (code) {
-        set42User(setUser, code);
+        set42User(setUser, setAuthToken, code);
         history.replace("/");
       }
     }
@@ -104,7 +99,7 @@ function App() {
 
   return (
     <div className="App">
-      <Header user={user} logoutHandler={logoutHandler(setUser)} />
+      <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route path="/play" component={Game} />

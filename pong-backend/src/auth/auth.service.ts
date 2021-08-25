@@ -57,10 +57,35 @@ export class AuthService {
   async login(user: any) {
     console.log('USER');
     console.log(user);
-    const payload = { user: user };
+
+    if (user.twofa)
+    {
+      const payload = { id: user.id }; // we're only sending id
+      return {
+        twofa: true,
+        access_token: this.jwtService.sign(payload)
+      };
+    }
+    else
+    {
+      const payload = { id: user.id };
+      return {
+        twofa: false,
+        user: user,
+        access_token: this.jwtService.sign(payload)
+      };
+    }
+    
+  }
+
+  async loginAndTwofa(user: any) {
+    const payload = {
+      id: user.id,
+      twofaSuccess: true,
+     };
     return {
       user: user,
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload)
     };
   }
 }

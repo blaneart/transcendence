@@ -18,6 +18,7 @@ interface User {
   games: number;
   wins: number;
   twofa: boolean;
+  twofaSecret: string
 }
 
 interface IState {
@@ -25,7 +26,8 @@ interface IState {
 }
 
 interface AuthResponse {
-  user: User;
+  twofa: boolean,
+  user: User | null;
   access_token: string;
 }
 
@@ -45,12 +47,46 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse> {
   return jsonData as AuthResponse;
 }
 
+// Use a temporary grant and a 2fa code to obtain the permanent JWT
+async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
+  const data = {
+    code: code
+  };
+  const response = await fetch('http://127.0.0.1:3000/auth/check2fa', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${tempAuthCode}`
+  },
+  body: JSON.stringify(data),
+  });
+  //   console.log(data);
+  const jsonData = await response.json();
+  return jsonData as AuthResponse;
+}
 
 
 async function set42User(setUser: Function, setAuthToken: Function, code: string) {
-  const authResponse: AuthResponse = await process42ApiRedirect(code);
+  let authResponse: AuthResponse = await process42ApiRedirect(code);
+  // If user has 2fa, we need to confirm 2fa first
+  if (authResponse.twofa)
+  {
+    const twofaCode = window.prompt("Please enter your 2fa code");
+    if (!twofaCode)
+    {
+      alert('Next time, enter the code.');
+      return;
+    }
+    authResponse = await validate2fa(twofaCode, authResponse.access_token); // rewrite authResponse with the complete one
+    if (!authResponse.user) // if the backend didn't send us the user, the code wasn't OK
+    {
+      alert('Wrong or expired code. Try again.');
+      return;
+    }
+  }
+
   setUser(authResponse.user);
-  setAuthToken(authResponse.access_token)
+  setAuthToken(authResponse.access_token);
   // Save user in browser state
   localStorage.setItem("pongUser", JSON.stringify(authResponse.user));
   localStorage.setItem("pongToken", authResponse.access_token);

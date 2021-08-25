@@ -5,7 +5,7 @@ import { jwtConstants } from './constants';
 import { ProfileService } from '../profile/profile.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class TemporaryJwtStrategy extends PassportStrategy(Strategy, 'temporary-jwt') {
   constructor(private profileService: ProfileService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -15,16 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const thisUser = await this.profileService.getUserById(payload.id);
-    if (!thisUser)
-      return null;
-    if (thisUser.twofa) // we check the actual 2fa state, not jwt
-    {
-      if (payload.twofaSuccess)
-        return thisUser;
-      else
-        return null;
-    }
-    return thisUser;
+    return payload; // in a temporary JWT, we don't check 2fa.
+    // This strategy is only for 2fa code check request.
   }
 }

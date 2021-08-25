@@ -6,6 +6,7 @@ import type { FormEvent} from 'react';
 import "./account.styles.scss";
 import EventEmitter from 'events';
 import { setupMaster } from 'cluster';
+import Modal from '../../components/modal/modal.component';
 
 function makeid(length: number): string {
     var result           = '';
@@ -25,6 +26,7 @@ interface User {
     games: number;
     wins: number;
     twofa: boolean;
+    twofaSecret: string
 }
 
 interface IState {
@@ -38,7 +40,8 @@ interface IAccountPageProps {
         avatar: string,
         games: number,
         wins: number,
-        twofa: boolean
+        twofa: boolean,
+        twofaSecret: string
       } | null,
       setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
       authToken: string
@@ -49,7 +52,7 @@ const SendForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 }
 
-async function toggleTwofa(user: User, setUser: Function, authToken: string)
+async function toggleTwofa(user: User, setUser: Function, authToken: string, setQrModal: Function)
 {
   const data = {
     value: user.twofa ? false : true, // toggle to the inverse of the actual value
@@ -65,8 +68,11 @@ async function toggleTwofa(user: User, setUser: Function, authToken: string)
   const jsonData = await response.json();
   console.log(jsonData);
   const userUpdate = jsonData as User;
-
   setUser(userUpdate);
+  if (data.value === true)
+  {
+    setQrModal(true);
+  }
 }
 
 async function updateName(user: User, setUser: Function, newName: string, authToken: string)
@@ -90,6 +96,8 @@ async function updateName(user: User, setUser: Function, newName: string, authTo
 }
 
 const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) => {
+    const [qrModal, setQrModal] = useState(false);
+
     return(
     <div className='account-page'>
         {
@@ -111,7 +119,17 @@ const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) =>
             </form>
         </div>
         <p>2FA enabled: {user.twofa === true ? "Yes" : "No"}</p>
-        <button onClick={(e) => toggleTwofa(user, setUser, authToken)}>{user.twofa ? "Disable 2FA" : "Enable 2FA"}</button>
+        <button onClick={(e) => toggleTwofa(user, setUser, authToken, setQrModal)}>{user.twofa ? "Disable 2FA" : "Enable 2FA"}</button>
+        <Modal show={qrModal} handleClose={()=>setQrModal(false)}>
+          <p className="twofa-text">Save this qr-code in your auth app: </p>
+          <div className="twofa-code">
+            <img src={`https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/Transcendence:${user.name}%3Fsecret=${user.twofaSecret}%26issuer=Transcendence`}></img>
+          </div>
+          <div className="twofa-secret">
+            <p>Secret (backup in your password manager)</p>
+            <p>{user.twofaSecret}</p>
+          </div>
+        </Modal>
         </div>
         :
         <h1>

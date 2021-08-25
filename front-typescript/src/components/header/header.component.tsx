@@ -12,7 +12,8 @@ interface IHeaderProps {
         name: string,
         avatar: string,
         games: number,
-        wins: number
+        wins: number,
+        twofa: boolean
        } | null,
     // logoutHandler: React.MouseEventHandler<HTMLDivElement>
     logoutHandler: React.MouseEventHandler<HTMLButtonElement>

@@ -24,6 +24,7 @@ interface User {
     avatar: string;
     games: number;
     wins: number;
+    twofa: boolean;
 }
 
 interface IState {
@@ -36,7 +37,8 @@ interface IAccountPageProps {
         name: string,
         avatar: string,
         games: number,
-        wins: number
+        wins: number,
+        twofa: boolean
       } | null,
       setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>
       
@@ -67,7 +69,7 @@ const AccountPage: React.FC<IAccountPageProps> = ({user, setUser}) => {
                 <button type="button" onClick={(e) => {
                 var val = (document.getElementById("name") as HTMLInputElement).value;
                 if (val != "" /* && UnusedName()*/)
-                    setUser({id: user.id, avatar: user.avatar, games: user.games , wins: user.wins, name: val})
+                    setUser({id: user.id, avatar: user.avatar, games: user.games , wins: user.wins, name: val, twofa: user.twofa})
             }}> Submit </button>
             </form>
         </div>

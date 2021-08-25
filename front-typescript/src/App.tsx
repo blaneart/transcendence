@@ -17,6 +17,7 @@ interface User {
   avatar: string;
   games: number;
   wins: number;
+  twofa: boolean;
 }
 
 interface IState {

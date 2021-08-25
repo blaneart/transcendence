@@ -23,6 +23,7 @@ export const db = knex({
         t.integer('id42').unique(); // mustn't be able to sign up twice
         t.integer('games').defaultTo(0);
         t.integer('wins').defaultTo(0);
+        t.boolean('twofa').defaultTo(false);
       });
     }
   });

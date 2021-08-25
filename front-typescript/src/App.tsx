@@ -105,7 +105,7 @@ function App() {
         <Route exact path="/" component={HomePage} />
         <Route path="/play" component={Game} />
         <Route path="/account">
-          <AccountPage user={user} setUser={setUser}/>
+          <AccountPage user={user} setUser={setUser} authToken={authToken}/>
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

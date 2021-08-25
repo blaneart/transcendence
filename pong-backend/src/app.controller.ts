@@ -28,15 +28,15 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard)
   @Post('auth/set2fa')
-  set2fa(@Request() req) {
+  async set2fa(@Request() req) {
     const val = req.body.value;
     console.log(val);
     console.log(req.user);
     if (val !== true && val !== false) 
       return {status: -1};
     const futureValue : boolean = val === true ? true : false;
-    this.profileService.updateUserById(req.user.id, {twofa: futureValue});
-    return req.user;
+    const response = await this.profileService.updateUserById(req.user.id, {twofa: futureValue});
+    return response;
   }
 
 

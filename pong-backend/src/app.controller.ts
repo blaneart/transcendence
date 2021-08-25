@@ -39,5 +39,18 @@ export class AppController {
     return response;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('account/setName')
+  async setName(@Request() req) {
+    const val = req.body.value;
+    console.log(val);
+    console.log(req.user);
+    console.log("here :)");
+    if (val == "")
+      return req.user;
+    const response = await this.profileService.updateUserById(req.user.id, {name: val});
+    return response;
+  }
+
 
 }

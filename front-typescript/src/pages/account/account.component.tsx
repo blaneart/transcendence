@@ -69,6 +69,26 @@ async function toggleTwofa(user: User, setUser: Function, authToken: string)
   setUser(userUpdate);
 }
 
+async function updateName(user: User, setUser: Function, newName: string, authToken: string)
+{
+  const data = {
+    value: newName
+  };
+  const response = await fetch('http://127.0.0.1:3000/account/setName', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`
+    },
+    body: JSON.stringify(data),
+  });
+  const jsonData = await response.json();
+  console.log(jsonData);
+  const userUpdate = jsonData as User;
+
+  setUser(userUpdate);
+}
+
 const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) => {
     return(
     <div className='account-page'>
@@ -87,11 +107,7 @@ const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) =>
             Change name :
             <form onSubmit={SendForm}>
                 <input type="text" id="name"/>
-                <button type="button" onClick={(e) => {
-                var val = (document.getElementById("name") as HTMLInputElement).value;
-                if (val != "" /* && UnusedName()*/)
-                    setUser({id: user.id, avatar: user.avatar, games: user.games , wins: user.wins, name: val, twofa: user.twofa})
-            }}> Submit </button>
+                <button type="button" onClick={(e) => {updateName(user, setUser, (document.getElementById("name") as HTMLInputElement).value, authToken)}}> Submit </button>
             </form>
         </div>
         <p>2FA enabled: {user.twofa === true ? "Yes" : "No"}</p>

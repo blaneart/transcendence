@@ -36,7 +36,6 @@ export class AppController {
       return {status: -1};
     const futureValue : boolean = val === true ? true : false;
     const response = await this.profileService.updateUserById(req.user.id, {twofa: futureValue});
-    console.log(response);
     return response;
   }
 

@@ -71,7 +71,7 @@ function App() {
 
   let history = useHistory();
 
-  useEffect(() => {
+    useEffect(() => {
     const localStoragePongUser: string | null = localStorage.getItem(
       "pongUser"
     );
@@ -104,7 +104,7 @@ function App() {
         <Route exact path="/" component={HomePage} />
         <Route path="/play" component={Game} />
         <Route path="/account">
-          <AccountPage user={user} />
+          <AccountPage user={user} setUser={setUser}/>
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from "react";
 import Avatar from "boring-avatars";
 import Scores from '../../components/account-info/account-info.component';
+import type { FormEvent} from 'react';
 
 import "./account.styles.scss";
+import EventEmitter from 'events';
+import { setupMaster } from 'cluster';
+
 function makeid(length: number): string {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -14,6 +18,18 @@ function makeid(length: number): string {
    return result;
   }
 
+interface User {
+    id: string;
+    name: string;
+    avatar: string;
+    games: number;
+    wins: number;
+}
+
+interface IState {
+    user: User | null;
+}
+
 interface IAccountPageProps {
     user?: {
         id: string,
@@ -21,11 +37,16 @@ interface IAccountPageProps {
         avatar: string,
         games: number,
         wins: number
-      } | null
-    
+      } | null,
+      setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>
+      
 }
 
-const AccountPage: React.FC<IAccountPageProps> = ({user}) => {
+const SendForm = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+}
+
+const AccountPage: React.FC<IAccountPageProps> = ({user, setUser}) => {
     return(
     <div className='account-page'>
         {
@@ -39,6 +60,17 @@ const AccountPage: React.FC<IAccountPageProps> = ({user}) => {
         variant="beam"/>
         <Scores wins={user.wins} games={user.games} loses={user.games - user.wins}/>
         <h1>{user.name}</h1>
+        <div>
+            Change name :
+            <form onSubmit={SendForm}>
+                <input type="text" id="name"/>
+                <button type="button" onClick={(e) => {
+                var val = (document.getElementById("name") as HTMLInputElement).value;
+                if (val != "" /* && UnusedName()*/)
+                    setUser({id: user.id, avatar: user.avatar, games: user.games , wins: user.wins, name: val})
+            }}> Submit </button>
+            </form>
+        </div>
         </div>
         :
         <h1>
@@ -46,6 +78,6 @@ const AccountPage: React.FC<IAccountPageProps> = ({user}) => {
         </h1>
         }
     </div>)
+}
 
-    }
 export default AccountPage;

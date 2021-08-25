@@ -24,6 +24,7 @@ interface User {
     avatar: string;
     games: number;
     wins: number;
+    twofa: boolean;
 }
 
 interface IState {
@@ -36,9 +37,11 @@ interface IAccountPageProps {
         name: string,
         avatar: string,
         games: number,
-        wins: number
+        wins: number,
+        twofa: boolean
       } | null,
-      setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>
+      setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
+      authToken: string
       
 }
 
@@ -46,7 +49,27 @@ const SendForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 }
 
-const AccountPage: React.FC<IAccountPageProps> = ({user, setUser}) => {
+async function toggleTwofa(user: User, setUser: Function, authToken: string)
+{
+  const data = {
+    value: user.twofa ? false : true, // toggle to the inverse of the actual value
+  };
+  const response = await fetch('http://127.0.0.1:3000/auth/set2fa', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`
+    },
+    body: JSON.stringify(data),
+  });
+  const jsonData = await response.json();
+  console.log(jsonData);
+  const userUpdate = jsonData as User;
+
+  setUser(userUpdate);
+}
+
+const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) => {
     return(
     <div className='account-page'>
         {
@@ -67,10 +90,12 @@ const AccountPage: React.FC<IAccountPageProps> = ({user, setUser}) => {
                 <button type="button" onClick={(e) => {
                 var val = (document.getElementById("name") as HTMLInputElement).value;
                 if (val != "" /* && UnusedName()*/)
-                    setUser({id: user.id, avatar: user.avatar, games: user.games , wins: user.wins, name: val})
+                    setUser({id: user.id, avatar: user.avatar, games: user.games , wins: user.wins, name: val, twofa: user.twofa})
             }}> Submit </button>
             </form>
         </div>
+        <p>2FA enabled: {user.twofa === true ? "Yes" : "No"}</p>
+        <button onClick={(e) => toggleTwofa(user, setUser, authToken)}>{user.twofa ? "Disable 2FA" : "Enable 2FA"}</button>
         </div>
         :
         <h1>

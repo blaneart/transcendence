@@ -67,7 +67,7 @@ const AccountPage: React.FC<IAccountPageProps> = ({user, setUser}) => {
                 <button type="button" onClick={(e) => {
                 var val = (document.getElementById("name") as HTMLInputElement).value;
                 if (val != "" /* && UnusedName()*/)
-                    setUser({id: user.id, avatar: "aabaa", games: user.games , wins: user.wins, name: val})
+                    setUser({id: user.id, avatar: user.avatar, games: user.games , wins: user.wins, name: val})
             }}> Submit </button>
             </form>
         </div>

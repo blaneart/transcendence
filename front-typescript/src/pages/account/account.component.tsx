@@ -73,6 +73,7 @@ const AccountPage: React.FC<IAccountPageProps> = ({user, setUser}) => {
             }}> Submit </button>
             </form>
         </div>
+        <p>2FA enabled: {user.twofa === true ? "Yes" : "No"}</p>
         </div>
         :
         <h1>

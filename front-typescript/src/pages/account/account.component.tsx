@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Avatar from "boring-avatars";
+
 import Scores from '../../components/account-info/account-info.component';
 import type { FormEvent} from 'react';
 
@@ -7,6 +7,8 @@ import "./account.styles.scss";
 import EventEmitter from 'events';
 import { setupMaster } from 'cluster';
 import Modal from '../../components/modal/modal.component';
+import AvatarUpload from './avatarUpload.component';
+import UserAvatar from './UserAvatar.component';
 
 function makeid(length: number): string {
     var result           = '';
@@ -26,7 +28,8 @@ interface User {
     games: number;
     wins: number;
     twofa: boolean;
-    twofaSecret: string
+    twofaSecret: string;
+    realAvatar: boolean;
 }
 
 interface IState {
@@ -41,7 +44,8 @@ interface IAccountPageProps {
         games: number,
         wins: number,
         twofa: boolean,
-        twofaSecret: string
+        twofaSecret: string,
+        realAvatar: boolean,
       } | null,
       setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
       authToken: string
@@ -97,18 +101,15 @@ async function updateName(user: User, setUser: Function, newName: string, authTo
 
 const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) => {
     const [qrModal, setQrModal] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     return(
     <div className='account-page'>
         {
         user ?
         <div>
-        <Avatar
-        size={150}
-        name={
-            user.avatar
-        }
-        variant="beam"/>
+
+        <UserAvatar user={user}/>
         <Scores wins={user.wins} games={user.games} loses={user.games - user.wins}/>
         <h1>{user.name}</h1>
         <div>
@@ -130,6 +131,7 @@ const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) =>
             <p>{user.twofaSecret}</p>
           </div>
         </Modal>
+          <AvatarUpload user={user} authToken={authToken} setUser={setUser}/>
         </div>
         :
         <h1>

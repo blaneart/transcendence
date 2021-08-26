@@ -1,4 +1,14 @@
-import { Controller, Get, Request, Post, UseGuards, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Request,
+  Post,
+  UseGuards,
+  Body,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
@@ -6,13 +16,17 @@ import { ProfileService } from './profile/profile.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TemporaryJwtAuthGuard } from './auth/temporary-jwt-auth.guard';
 
-const twofactor = require("node-2fa");
-
-
+const twofactor = require('node-2fa');
+const multer = require('multer');
+const crypto = require("crypto");
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private authService: AuthService, private profileService: ProfileService) {}
+  constructor(
+    private readonly appService: AppService,
+    private authService: AuthService,
+    private profileService: ProfileService,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -30,16 +44,14 @@ export class AppController {
   @Post('auth/check2fa')
   async check2fa(@Request() req) {
     const user = await this.profileService.getUserById(req.user.id);
-    if (!user || !req.body.code)
-    {
-      return {message: 'nope'};
+    if (!user || !req.body.code) {
+      return { message: 'nope' };
     }
     const ret = twofactor.verifyToken(user.twofaSecret, req.body.code);
-    if (ret && ret.delta === 0)
-    {
+    if (ret && ret.delta === 0) {
       return this.authService.loginAndTwofa(user);
     }
-    return {message: 'nope'};
+    return { message: 'nope' };
   }
 
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
@@ -54,14 +66,20 @@ export class AppController {
     const val = req.body.value;
     console.log(val);
     console.log(req.user);
-    if (val !== true && val !== false) 
-      return {status: -1};
-    const futureValue : boolean = val === true ? true : false;
-    const response = await this.profileService.updateUserById(req.user.id, {twofa: futureValue});
-    if (futureValue === true)
-    {
-      const newSecret = twofactor.generateSecret({ name: "Transcendence", account: response.name });
-      const responseSecret = await this.profileService.updateUserById(req.user.id, {twofaSecret: newSecret.secret});
+    if (val !== true && val !== false) return { status: -1 };
+    const futureValue: boolean = val === true ? true : false;
+    const response = await this.profileService.updateUserById(req.user.id, {
+      twofa: futureValue,
+    });
+    if (futureValue === true) {
+      const newSecret = twofactor.generateSecret({
+        name: 'Transcendence',
+        account: response.name,
+      });
+      const responseSecret = await this.profileService.updateUserById(
+        req.user.id,
+        { twofaSecret: newSecret.secret },
+      );
       return responseSecret;
     }
     return response; // TODO NOT SEND 2FA SECRET
@@ -73,12 +91,60 @@ export class AppController {
     const val = req.body.value;
     console.log(val);
     console.log(req.user);
-    console.log("here :)");
-    if (val == "")
-      return req.user;
-    const response = await this.profileService.updateUserById(req.user.id, {name: val});
+    console.log('here :)');
+    if (val == '') return req.user;
+    const response = await this.profileService.updateUserById(req.user.id, {
+      name: val,
+    });
     return response;
   }
 
+  // const upload = multer({ storage: storage })
 
+
+
+
+
+  @UseGuards(JwtAuthGuard)
+  @Post('uploadAvatar')
+  @UseInterceptors(
+    FileInterceptor('picture', {
+      storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+          cb(null, '../images/');
+        },
+        filename: function (req, file, cb) {
+          console.log(file);
+          // const uniqueSuffix =
+          //   Date.now() + '-' + Math.round(Math.random() * 1e9);
+          // cb(null, file.fieldname + '-' + uniqueSuffix);
+          let fileExtension = file.originalname.split('.').pop();
+
+          if (!fileExtension)
+            throw("No file extension")
+          const id = crypto.randomUUID();
+          console.log(id + '.' + fileExtension);
+          cb(null, id + '.' + fileExtension);
+          
+        },
+      }),
+    }),
+  )
+  async uploadfile(@UploadedFile() file, @Request() req) {
+     const response = await this.profileService.updateUserById(req.user.id, {
+      avatar: file.filename,
+      realAvatar: true
+    });
+    return response;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('removeAvatar')
+  async removeAvatar(@Request() req) {
+    const response = await this.profileService.updateUserById(req.user.id, {
+      avatar: crypto.randomUUID(),
+      realAvatar: false
+    });
+    return response;
+  }
 }

@@ -140,7 +140,9 @@ function App() {
       <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
         <Route exact path="/" component={HomePage} />
-        <Route path="/play" component={Game} />
+        <Route path="/play">
+          <Game user={user} setUser={setUser} authToken={authToken}/>
+        </Route>
         <Route path="/account">
           <AccountPage user={user} setUser={setUser} authToken={authToken}/>
         </Route>

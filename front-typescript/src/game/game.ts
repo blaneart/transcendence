@@ -82,7 +82,8 @@ class Pong {
   ball: Ball;
   animation: number;
   players: Player [];
-  constructor(fn: Function, canvas: HTMLElement)
+  auth: string;
+  constructor(fn: Function, canvas: HTMLElement, authToken: string)
   {
     this._canvas = <HTMLCanvasElement> canvas;
     this._context = this._canvas.getContext('2d');
@@ -96,7 +97,7 @@ class Pong {
       new Player(),
       new Player(),
     ]
-
+    this.auth = authToken;
     this.players[0].pos.x = 40;
     this.players[1].pos.x = this._canvas.width - 40;
     this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
@@ -108,9 +109,9 @@ class Pong {
       if (this.isGameEnded())
       {
           if (this.players[0].score >= 10)
-            fn('won');
+            fn('won', this.auth);
           else
-            fn('lost');
+            fn('lost', this.auth);
           this.end();
           if (this._context !== null)
           {

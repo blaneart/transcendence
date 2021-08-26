@@ -5,17 +5,35 @@ import EndGameMenu from '../../components/end-game-menu/end-game-menu.component'
 
 import './game.styles.scss';
 
+interface User {
+  id: string;
+  name: string;
+  avatar: string;
+  games: number;
+  wins: number;
+  twofa: boolean;
+  twofaSecret: string;
+  realAvatar: boolean;
+}
+
 
 interface IGameProps {
-  user: {
+  user?: {
     id: string,
     name: string,
     avatar: string,
     games: number,
-    wins: number
-  } | null
+    wins: number,
+    twofa: boolean,
+    twofaSecret: string,
+    realAvatar: boolean,
+  } | null,
+  setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
+  authToken: string
 }
-const Game: React.FC<IGameProps> = ({user}) => {
+
+
+const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
@@ -26,7 +44,7 @@ const Game: React.FC<IGameProps> = ({user}) => {
           canvas.style.opacity = '1';
         if (canvas !== null)
         {
-            var pong = new Pong(changeGameState, canvas);
+            var pong = new Pong(updateGameStats, canvas, authToken);
             canvas.addEventListener('mousemove', event => {
                 pong.players[0].pos.y = event.offsetY;
             });
@@ -39,15 +57,41 @@ const Game: React.FC<IGameProps> = ({user}) => {
     }
   }, [restart]);
 
-  const changeGameState = (result: string) => {
+  const changeGameState = (user: User, result: string) => {
+    return {
+      id: user.id,
+      name: user.name,
+      avatar: user.avatar,
+      games: user.games + 1 ,
+      wins: result === 'won' ? user.wins + 1 : user.wins,
+      twofa: user.twofa,
+      twofaSecret: user.twofaSecret,
+      realAvatar: user.realAvatar
+    }
+  } 
+
+async function  updateGameStats(result: string, authToken: string){
     if (user)
     {
-      user.games += 1;
-      if (result === 'won')
-        user.wins += 1;
+      var data = {
+        games: user.games + 1,
+        wins: result === 'won' ? user.wins + 1 : user.wins,
+      }
+      const response = await fetch('http://127.0.0.1:3000/account/setGames', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(data),
+      });
+      const jsonData = await response.json();
+      const userUpdate = jsonData as User;
+    
+      setUser(userUpdate);
     }
-      setIsGameEnded(result);
-
+    setIsGameEnded(result);
+    return null
   }
   const restartGame = () => {
     setRestart(!restart);

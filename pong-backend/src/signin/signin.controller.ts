@@ -25,6 +25,7 @@ export const db = knex({
         t.integer('wins').defaultTo(0);
         t.boolean('twofa').defaultTo(false);
         t.string('twofaSecret', 32);
+        t.boolean('realAvatar').defaultTo(false);
       });
     }
   });

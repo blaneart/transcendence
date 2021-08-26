@@ -18,7 +18,8 @@ interface User {
   games: number;
   wins: number;
   twofa: boolean;
-  twofaSecret: string
+  twofaSecret: string;
+  realAvatar: boolean
 }
 
 interface IState {

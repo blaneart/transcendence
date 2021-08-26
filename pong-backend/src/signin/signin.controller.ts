@@ -24,6 +24,7 @@ export const db = knex({
         t.integer('games').defaultTo(0);
         t.integer('wins').defaultTo(0);
         t.boolean('twofa').defaultTo(false);
+        t.string('twofaSecret', 32);
       });
     }
   });

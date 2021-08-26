@@ -28,3 +28,12 @@ a {
   text-decoration: none;
   color: white;
 }
+
+.twofa-text {
+    color: black;
+}
+
+.twofa-secret {
+    color: gray;
+    font-size: x-small;
+}

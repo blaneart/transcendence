@@ -30,6 +30,7 @@
     "bcrypt-nodejs": "0.0.3",
     "express-session": "^1.17.2",
     "knex": "^0.21.21",
+    "node-2fa": "^2.0.2",
     "passport": "^0.4.1",
     "passport-custom": "^1.1.1",
     "passport-jwt": "^4.0.0",

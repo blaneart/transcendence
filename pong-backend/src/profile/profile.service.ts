@@ -53,5 +53,11 @@ async updateUserById(id: number, change: any)
   return response[0];
 }
 
+async getUserById(id: number)
+{
+  const response = await db('users').where({ id: id }).select('*');
+  return response[0];
+}
+
 
 }

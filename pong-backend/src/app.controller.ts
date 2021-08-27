@@ -3,10 +3,12 @@ import {
   Get,
   Request,
   Post,
+  Patch,
   UseGuards,
   Body,
   UploadedFile,
   UseInterceptors,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
@@ -99,6 +101,18 @@ export class AppController {
     return response;
   }
 
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('account/setGames')
+  async setGames(@Req() req, @Body() body) {
+    const val = req.body.games;
+    const val2 = req.body.wins;
+    const response = await this.profileService.updateUserById(req.user.id, {
+      games: val,
+      wins: val2
+    });
+    return response;
+  }
   // const upload = multer({ storage: storage })
 
 

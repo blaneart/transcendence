@@ -10,7 +10,9 @@ import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import AccountPage from "./pages/account/account.component";
 import "./App.css";
+import { io, Socket } from 'socket.io-client';
 
+const ENDPOINT = "http://127.0.0.1:3000";
 interface User {
   id: string;
   name: string;
@@ -102,12 +104,32 @@ function logoutHandler(setUser: Function, setAuthToken: Function) {
   };
 }
 
+
+function receiveMessage(msg: string)
+{
+  console.log(msg);
+}
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
   const [isSigned, setIsSigned] = useState(false);
+  const [response, setResponse] = useState("");
+
+  const socket = (io(ENDPOINT));
+
+  useEffect(() => {
+    socket?.on('msgToClient', (msg: string) => {
+      receiveMessage(msg);
+    });
+    socket?.emit("msgToServer", "lel");
+  }, []);
 
   let history = useHistory();
+    const  sendMessage = (event: any) => {
+      console.log('front')
+      event.preventDefault();
+      socket?.emit("msgToServer", event.target.value );
+    }
 
     useEffect(() => {
     const localStoragePongUser: string | null = localStorage.getItem(
@@ -135,8 +157,11 @@ function App() {
   const { search } = useLocation();
   var searchParams: URLSearchParams = new URLSearchParams(search);
 
+
+ 
   return (
     <div className="App">
+      <input type="text" onChange={ sendMessage } />
       <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
         <Route exact path="/" component={HomePage} />

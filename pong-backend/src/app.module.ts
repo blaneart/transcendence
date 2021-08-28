@@ -9,6 +9,7 @@ import { SigninService } from './signin/signin.service';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AppGateway } from './app.gateway';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { join } from 'path';
     }),
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController],
-  providers: [AppService, ProfileService, SigninService],
+  providers: [AppService, ProfileService, SigninService, AppGateway],
 })
 export class AppModule {}

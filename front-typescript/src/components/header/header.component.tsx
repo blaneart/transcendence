@@ -14,13 +14,15 @@ interface IHeaderProps {
         games: number,
         wins: number,
         twofa: boolean
-       } | null,
+        realAvatar: boolean
+    } | null,
     // logoutHandler: React.MouseEventHandler<HTMLDivElement>
     logoutHandler: React.MouseEventHandler<HTMLButtonElement>
 }
 
 const Header: React.FC<IHeaderProps> = ({user, logoutHandler}) => {
     
+    console.log("CUSTOM BUTTON");
     console.log({user});
 
     return(
@@ -32,7 +34,7 @@ const Header: React.FC<IHeaderProps> = ({user, logoutHandler}) => {
         {
             user ? 
             <div className='option-right'>
-            <CustomButton isLogged={1} onClick={logoutHandler} avatar_name={user.avatar}>SIGN OUT</CustomButton>
+            <CustomButton isLogged={1} onClick={logoutHandler} avatar_name={user.avatar} realAvatar={user.realAvatar}>SIGN OUT</CustomButton>
             </div>
             // <div className='option' onClick={logoutHandler}>SIGN OUT</div>
             :

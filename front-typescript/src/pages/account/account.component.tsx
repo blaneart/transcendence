@@ -10,26 +10,16 @@ import Modal from '../../components/modal/modal.component';
 import AvatarUpload from './avatarUpload.component';
 import UserAvatar from './UserAvatar.component';
 
-function makeid(length: number): string {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i <  length; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * 
-  charactersLength));
-   }
-   return result;
-  }
-
 interface User {
-    id: string;
-    name: string;
-    avatar: string;
-    games: number;
-    wins: number;
-    twofa: boolean;
-    twofaSecret: string;
-    realAvatar: boolean;
+  id: string;
+  name: string;
+  id42: number;
+  avatar: string;
+  games: number;
+  wins: number;
+  twofa: boolean;
+  twofaSecret: string;
+  realAvatar: boolean
 }
 
 interface IState {
@@ -40,6 +30,7 @@ interface IAccountPageProps {
     user?: {
         id: string,
         name: string,
+        id42: number,
         avatar: string,
         games: number,
         wins: number,

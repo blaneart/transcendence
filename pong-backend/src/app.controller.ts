@@ -115,10 +115,6 @@ export class AppController {
   }
   // const upload = multer({ storage: storage })
 
-
-
-
-
   @UseGuards(JwtAuthGuard)
   @Post('uploadAvatar')
   @UseInterceptors(
@@ -156,7 +152,7 @@ export class AppController {
   @Post('removeAvatar')
   async removeAvatar(@Request() req) {
     const response = await this.profileService.updateUserById(req.user.id, {
-      avatar: crypto.randomUUID(),
+      avatar: "" + req.user.id42,
       realAvatar: false
     });
     return response;

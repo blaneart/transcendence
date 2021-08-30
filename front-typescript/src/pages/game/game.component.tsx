@@ -8,12 +8,13 @@ import './game.styles.scss';
 interface User {
   id: string;
   name: string;
+  id42: number;
   avatar: string;
   games: number;
   wins: number;
   twofa: boolean;
   twofaSecret: string;
-  realAvatar: boolean;
+  realAvatar: boolean
 }
 
 
@@ -21,6 +22,7 @@ interface IGameProps {
   user?: {
     id: string,
     name: string,
+    id42: number,
     avatar: string,
     games: number,
     wins: number,

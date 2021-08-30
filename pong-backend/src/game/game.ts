@@ -1,17 +1,3 @@
-
-import { io, Socket } from 'socket.io-client';
-
-
-// interface Vec {
-//   x: number,
-//   y: number
-// }
-
-// interface Vec {
-//   x: number,
-//   y: number
-// }
-
 class Vec {
   x: number;
   y: number;
@@ -72,7 +58,7 @@ class Player extends Rect {
   constructor()
   {
     super(20,100);
-    this.score = 8;
+    this.score = 9;
   }
 }
 
@@ -85,9 +71,7 @@ class Pong {
   animation: number;
   players: Player [];
   auth: string;
-  socket: Socket;
-  id: number;
-  constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number)
+  constructor(fn: Function, canvas: HTMLElement, authToken: string)
   {
     this._canvas = <HTMLCanvasElement> canvas;
     this._context = this._canvas.getContext('2d');
@@ -106,13 +90,13 @@ class Pong {
     this.players[1].pos.x = this._canvas.width - 40;
     this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-    this.socket = socket;
+
     let lastTime: number;
-    this.id = id;
+
     const callback = (millis: number) => {
       if (this.isGameEnded())
       {
-          if (this.players[id].score >= 10)
+          if (this.players[0].score >= 10)
             fn('won', this.auth);
           else
             fn('lost', this.auth);
@@ -217,7 +201,6 @@ class Pong {
   update(dt: number) {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
-    this.socket.emit('msgToServer', this.players[0].pos.y);
     if (this.ball.left < 0 || this.ball.right > this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
@@ -230,7 +213,7 @@ class Pong {
     } 
     // this.players[1].pos.y = this.ball.pos.y;
     this.players.forEach(player => this.collide(player, this.ball));
-    this.draw(); 
+    this.draw();
   }
 }
 

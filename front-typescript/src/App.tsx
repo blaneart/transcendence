@@ -115,21 +115,21 @@ function App() {
   const [isSigned, setIsSigned] = useState(false);
   const [response, setResponse] = useState("");
 
-  const socket = (io(ENDPOINT));
+  // const socket = (io(ENDPOINT));
 
-  useEffect(() => {
-    socket?.on('msgToClient', (msg: string) => {
-      receiveMessage(msg);
-    });
-    socket?.emit("msgToServer", "lel");
-  }, []);
-
+  // useEffect(() => {
+    // socket?.on('msgToClient', (msg: string) => {
+      // receiveMessage(msg);
+    // });
+    // socket?.emit("msgToServer", "lel");
+  // }, []);
+ // const  sendMessage = (event: any) => {
+    //   console.log('front')
+    //   event.preventDefault();
+    //   socket?.emit("msgToServer", event.target.value );
+    // }
   let history = useHistory();
-    const  sendMessage = (event: any) => {
-      console.log('front')
-      event.preventDefault();
-      socket?.emit("msgToServer", event.target.value );
-    }
+   
 
     useEffect(() => {
     const localStoragePongUser: string | null = localStorage.getItem(
@@ -161,7 +161,7 @@ function App() {
  
   return (
     <div className="App">
-      <input type="text" onChange={ sendMessage } />
+      {/* <input type="text" onChange={ sendMessage } /> */}
       <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
         <Route exact path="/" component={HomePage} />

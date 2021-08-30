@@ -15,6 +15,7 @@ async function bootstrap() {
       cookie: { secure: false }, // TODO change to true when we have https (if we have https)
     }),
   );
+  app.enableCors();
 
   await app.listen(3000);
 }

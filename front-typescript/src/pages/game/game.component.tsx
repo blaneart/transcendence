@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Pong from '../../game/game';
 import EndGameMenu from '../../components/end-game-menu/end-game-menu.component';
-
-
 import './game.styles.scss';
+
+
+import { io, Socket } from 'socket.io-client';
+
+const ENDPOINT = "http://127.0.0.1:3002";
+
+const socket = (io(ENDPOINT));
+
+
+// socket?.on('msgToClient', (msg: number) => {
+//   // console.log(msg);
+// });
 
 interface User {
   id: string;
@@ -37,26 +47,54 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
+    const [wait, setWait] = useState<Boolean>(true)
+    const [id, setId] = useState<number>(3);
+    // var id = 0;
     useEffect(() => {
-        setIsGameEnded('game')
-        let canvas = document.getElementById('forCanvas');
-        if (canvas)
-          canvas.style.opacity = '1';
-        if (canvas !== null)
-        {
-            var pong = new Pong(updateGameStats, canvas, authToken);
-            canvas.addEventListener('mousemove', event => {
-                pong.players[0].pos.y = event.offsetY;
-            });
-            canvas.addEventListener('click', event => {
-            pong.start();
-        });
-        return () => {
-            pong.end();
-        }    
-    }
-  }, [restart]);
+      socket.emit('joinRoom');
+  }, []);
 
+  useEffect(() => {
+
+    setIsGameEnded('game')
+    if (id !== 3)
+    {
+    let canvas = document.getElementById('forCanvas');
+    if (canvas)
+      canvas.style.opacity = '1';
+    if (canvas !== null)
+    {
+        var pong = new Pong(updateGameStats, canvas, authToken, socket, id);
+        console.log(id);
+        canvas.addEventListener('mousemove', event => {
+            pong.players[id].pos.y = event.offsetY;
+        });
+        canvas.addEventListener('click', event => {
+        pong.start();
+    });
+    return () => {
+      pong.end();
+    }
+  }    
+  }
+}, [restart, id]);
+
+
+socket.on('getId', function(message: number) {
+   setId(message);
+});
+
+
+  // socket.on('returnWaitingResponse', function(message: boolean) {
+  //   if (message)
+  //     setWait(false);
+  // });
+
+
+
+  const gameStart = () => {
+
+  }
   const changeGameState = (user: User, result: string) => {
     return {
       id: user.id,

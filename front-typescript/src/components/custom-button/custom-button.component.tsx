@@ -16,7 +16,7 @@ const CustomButton: React.FC<IButtonProps> = ({children, isLogged, avatar_name, 
       className='image'
       style={{
         backgroundImage: isLogged ?
-        (realAvatar ? `http://127.0.0.1:3000/static/${avatar_name}` : `url(https://source.boringavatars.com/beam/150/${avatar_name})`)
+        (realAvatar ? `url(http://127.0.0.1:3000/static/${avatar_name})` : `url(https://source.boringavatars.com/beam/150/${avatar_name})`)
         :
         `url(${process.env.PUBLIC_URL + '/42.png'})`
       }}

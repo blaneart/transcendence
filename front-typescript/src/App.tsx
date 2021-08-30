@@ -14,6 +14,7 @@ import "./App.css";
 interface User {
   id: string;
   name: string;
+  id42: number;
   avatar: string;
   games: number;
   wins: number;

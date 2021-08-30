@@ -3,12 +3,13 @@ import Avatar from "boring-avatars";
 interface User {
   id: string;
   name: string;
+  id42: number;
   avatar: string;
   games: number;
   wins: number;
   twofa: boolean;
   twofaSecret: string;
-  realAvatar: boolean;
+  realAvatar: boolean
 }
 
 interface UserAvatarProps {
@@ -23,7 +24,7 @@ const UserAvatar = ({ user }: UserAvatarProps) => {
   }
   else
   {
-    return <Avatar size={150} name={user.avatar} variant="beam" />;
+    return <Avatar size={150} name={"" + user.id42} variant="beam" />;
   }
   
 };

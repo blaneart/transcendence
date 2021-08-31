@@ -38,6 +38,7 @@ async function uploadHandler(authToken: string, setUser: Function) {
   const userUpdate = jsonData as User;
 
   setUser(userUpdate);
+  localStorage.setItem("pongUser", JSON.stringify(userUpdate));
   // alert('Im clicked');
 }
 
@@ -55,6 +56,7 @@ async function removeHandler(authToken: string, setUser: Function) {
   const userUpdate = jsonData as User;
 
   setUser(userUpdate);
+  localStorage.setItem("pongUser", JSON.stringify(userUpdate));
   // alert('Im clicked');
 }
 

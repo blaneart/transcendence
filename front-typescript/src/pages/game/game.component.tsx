@@ -91,6 +91,7 @@ async function  updateGameStats(result: string, authToken: string){
       const userUpdate = jsonData as User;
     
       setUser(userUpdate);
+      localStorage.setItem("pongUser", JSON.stringify(userUpdate));
     }
     setIsGameEnded(result);
     return null

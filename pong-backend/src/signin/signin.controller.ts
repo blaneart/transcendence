@@ -29,6 +29,17 @@ export const db = knex({
       });
     }
   });
+
+	db.schema.hasTable('user_achievements').then(function(exists) {
+    if (!exists) {
+      return db.schema.createTable('user_achievements', function(t) {
+        t.integer('user_id');
+        t.integer('achievement_id');
+        t.foreign('user_id').references('users.id').onDelete('CASCADE') // will be destroyed with corresponding user
+        t.primary('user_id', 'achievement_id');
+      });
+    }
+  });
 // db.select('*').from('users').then(data => {
     // console.log(data)
 // });

@@ -88,6 +88,7 @@ async function updateName(user: User, setUser: Function, newName: string, authTo
   const userUpdate = jsonData as User;
 
   setUser(userUpdate);
+  localStorage.setItem("pongUser", JSON.stringify(userUpdate));
 }
 
 const AccountPage: React.FC<IAccountPageProps> = ({user, setUser, authToken}) => {

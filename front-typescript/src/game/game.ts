@@ -87,6 +87,7 @@ class Pong {
   auth: string;
   socket: Socket;
   id: number;
+
   constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number)
   {
     this._canvas = <HTMLCanvasElement> canvas;
@@ -109,6 +110,8 @@ class Pong {
     this.socket = socket;
     let lastTime: number;
     this.id = id;
+
+
     const callback = (millis: number) => {
       if (this.isGameEnded())
       {
@@ -132,6 +135,7 @@ class Pong {
         this.animation = requestAnimationFrame(callback);
       }
   };
+
     callback(0);
   }
   collide(player: Player, ball: Ball)
@@ -155,6 +159,8 @@ class Pong {
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
   }
+
+
 
   isGameEnded() : boolean
   {
@@ -215,9 +221,13 @@ class Pong {
 
   }
   update(dt: number) {
+    this.socket.on('getPosition', (message: number) => {
+      let playerId = this.id ? 0 : 1;
+      this.players[playerId].pos.y = message;
+    })
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
-    this.socket.emit('msgToServer', this.players[0].pos.y);
+    this.socket.emit('msgToServer', this.players[this.id].pos.y);
     if (this.ball.left < 0 || this.ball.right > this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;

@@ -124,7 +124,7 @@ export class AppGateway implements OnGatewayInit {
     //   if (reciever !== client)
     // {
     //     console.log(client.id, reciever)
-        client.broadcast.emit('msgToClient', text);
+        client.broadcast.emit('getPosition', text);
     // }
     // })
   // handleMessage(client: Socket, text: string): void {

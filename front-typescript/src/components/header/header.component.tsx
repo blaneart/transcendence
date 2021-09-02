@@ -17,11 +17,9 @@ interface IHeaderProps {
        } | null,
     // logoutHandler: React.MouseEventHandler<HTMLDivElement>
     logoutHandler: React.MouseEventHandler<HTMLButtonElement>
-}
+} 
 
 const Header: React.FC<IHeaderProps> = ({user, logoutHandler}) => {
-    
-    console.log({user});
 
     return(
     <div className='header'>

@@ -8,7 +8,7 @@ import { io, Socket } from 'socket.io-client';
 
 const ENDPOINT = "http://127.0.0.1:3002";
 
-const socket = (io(ENDPOINT));
+
 
 
 // socket?.on('msgToClient', (msg: number) => {
@@ -49,40 +49,59 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     const [restart, setRestart] = useState<Boolean>(false)
     const [wait, setWait] = useState<Boolean>(true)
     const [id, setId] = useState<number>(3);
+    const [socket, setSocket] = useState<Socket | null>(null);
+    
     // var id = 0;
+
     useEffect(() => {
-      socket.emit('joinRoom');
+      let sock = (io(ENDPOINT, {transports: ['websocket'], upgrade: false}));
+      setSocket(sock);
+      socket?.emit('joinRoom');
+
   }, []);
+
 
   useEffect(() => {
 
     setIsGameEnded('game')
+    socket?.on('getId', function(message: number) {
+      setId(message);
+   });
     if (id !== 3)
     {
-    let canvas = document.getElementById('forCanvas');
-    if (canvas)
-      canvas.style.opacity = '1';
-    if (canvas !== null)
-    {
-        var pong = new Pong(updateGameStats, canvas, authToken, socket, id);
-        console.log(id);
-        canvas.addEventListener('mousemove', event => {
-            pong.players[id].pos.y = event.offsetY;
-        });
-        canvas.addEventListener('click', event => {
-        pong.start();
-    });
-    return () => {
-      pong.end();
+
+      let canvas = document.getElementById('forCanvas');
+      if (canvas)
+        canvas.style.opacity = '1';
+      if (canvas !== null)
+      {
+          var pong = new Pong(updateGameStats, canvas, authToken, socket!, id);
+          console.log(id)
+
+          canvas.addEventListener('mousemove', event => {
+              pong.players[id].pos.y = event.offsetY;
+          });
+        //   window.addEventListener('keydown', event => {
+        //     if (event.code == 'KeyW')
+        //       pong.players[id ? 0 : 1].pos.y = pong.players[0].pos.y - 25;
+        //     else if (event.code == 'KeyS')
+        //       pong.players[id ? 0 : 1].pos.y = pong.players[0].pos.y + 25;
+        // });
+      //     canvas.addEventListener('click', event => {
+      //     pong.start();
+      // });
+      return () => {
+          socket?.emit('quitGame', pong.players[0].score, pong.players[1].score)
+          socket?.disconnect();
+          pong.end()
+          
+        }
+      }    
     }
-  }    
-  }
-}, [restart, id]);
+}, [id]);
 
 
-socket.on('getId', function(message: number) {
-   setId(message);
-});
+
 
 
   // socket.on('returnWaitingResponse', function(message: boolean) {
@@ -108,6 +127,10 @@ socket.on('getId', function(message: number) {
     }
   } 
 
+// socket.on('won', function(result: string, authToken: string) {
+//   updateGameStats('won', authToken);
+// })
+
 async function  updateGameStats(result: string, authToken: string){
     if (user)
     {
@@ -131,6 +154,7 @@ async function  updateGameStats(result: string, authToken: string){
     setIsGameEnded(result);
     return null
   }
+  
   const restartGame = () => {
     setRestart(!restart);
   }
@@ -138,9 +162,12 @@ async function  updateGameStats(result: string, authToken: string){
     return(
       <div className='game'>
         <canvas id="forCanvas" width={800} height={600}></canvas>
-        { isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
+        { 
+        isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
         }
+
       </div>
+
     );
 }
 

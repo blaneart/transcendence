@@ -83,6 +83,7 @@ export class AppGateway implements OnGatewayInit {
   server: Server;
   connectedClients = [];
   data = {}
+
   // @WebSocketServer()
   // server: Server;
   private logger =  new Logger('AppGateway');
@@ -96,6 +97,7 @@ export class AppGateway implements OnGatewayInit {
     this.server.emit(ActionTypes.ClientConnected, this.connectedClients);
     client.emit(ActionTypes.Data, this.data);
   }
+
   handleDisconnect(client: Socket) {
     this.connectedClients = this.connectedClients.filter(
       connectedClient => connectedClient !== client.id
@@ -103,9 +105,16 @@ export class AppGateway implements OnGatewayInit {
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
-    this.server.emit(ActionTypes.ClientConnected, this.connectedClients);
-  }
 
+    // this.server.emit(ActionTypes.ClientConnected, this.connectedClients);
+  }
+  @SubscribeMessage('quitGame')
+  quitGame(clinet: Socket, score1: number, score2: number) 
+  {
+    if ((score1  < 10 && score2 < 10))
+      this.server.emit('won');
+  }
+  
   afterInit(server: any)
   {
       this.logger.log('Initialize');
@@ -129,6 +138,18 @@ export class AppGateway implements OnGatewayInit {
     // })
   // handleMessage(client: Socket, text: string): void {
   }
+  
+
+  @SubscribeMessage('scored')
+  ballLaunch(socket: Socket) {
+    let message = {
+      pos_y: Math.random() * 600,
+      vel_x: 300 * (Math.random() > .5 ? 1 : -1),
+      vel_y: 300 * (Math.random() * 2  -1)
+    }
+    this.server.emit('getBallSpeed', message)
+  }
+
   @SubscribeMessage('joinRoom')
   createRoom(socket: Socket) {
     socket.join('aRoom');

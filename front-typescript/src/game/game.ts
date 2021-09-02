@@ -1,5 +1,6 @@
 
 import { io, Socket } from 'socket.io-client';
+import { threadId } from 'worker_threads';
 
 
 // interface Vec {
@@ -87,21 +88,24 @@ class Pong {
   auth: string;
   socket: Socket;
   id: number;
-
+  game_ended: boolean;
+  fn: Function;
   constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number)
   {
     this._canvas = <HTMLCanvasElement> canvas;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball();
-    this.ball.pos.x = 100;
-    this.ball.pos.y = 100;
-    this.ball.vel.x = 400;
-    this.ball.vel.y = 400;
+    this.ball.pos.x = this._canvas.width / 2;
+    this.ball.pos.y = this._canvas.height / 2;
+    this.ball.vel.x = 0;
+    this.ball.vel.y = 0;
     this.animation = 0;
+    this.game_ended = false;
     this.players = [
       new Player(),
       new Player(),
     ]
+    this.fn = fn;
     this.auth = authToken;
     this.players[0].pos.x = 40;
     this.players[1].pos.x = this._canvas.width - 40;
@@ -113,30 +117,16 @@ class Pong {
 
 
     const callback = (millis: number) => {
-      if (this.isGameEnded())
-      {
-          if (this.players[id].score >= 10)
-            fn('won', this.auth);
-          else
-            fn('lost', this.auth);
-          this.end();
-          if (this._context !== null)
-          {
-            this._canvas.style.opacity = '0.5';
 
-          }
-      }
-      else 
-      {
-        if (lastTime) {
+      if (lastTime) {
           this.update((millis - lastTime) / 1000);
-        }
-        lastTime = millis;
-        this.animation = requestAnimationFrame(callback);
       }
-  };
+      lastTime = millis;
+      this.animation = requestAnimationFrame(callback);
 
-    callback(0);
+  };
+    this.start();
+    callback(0);  
   }
   collide(player: Player, ball: Ball)
   {
@@ -144,22 +134,25 @@ class Pong {
         player.top < ball.bottom && player.bottom > ball.top)
         {
           ball.vel.x = -ball.vel.x;
-          ball.vel.y += 300 * (Math.random() - .5); 
-          ball.vel.len *= 1.05;
+          ball.vel.y += 300 * (1 - .5); 
+          if (ball.vel.len < 500)
+            ball.vel.len *= 1.05;
         }
   }
   end()
   {
     cancelAnimationFrame(this.animation);
   }
+
+
   reset()
   {
     this.ball.pos.x = this._canvas.width / 2;
     this.ball.pos.y = this._canvas.height / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
+    this.start()
   }
-
 
 
   isGameEnded() : boolean
@@ -169,11 +162,38 @@ class Pong {
 
   start()
   {
-    if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
-      this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
-      this.ball.vel.y = 300 * (Math.random() * 2  -1);
-      this.ball.vel.len = 400;
+    if (this.game_ended || this.isGameEnded())
+    {
+        
+        if (this.players[this.id].score >= 10 || this.game_ended)
+          this.fn('won', this.auth);
+        else
+          this.fn('lost', this.auth);
+        // this.end();
+        this.game_ended = true;
+        if (this._context !== null)
+        {
+          this._canvas.style.opacity = '0.5';
+        }
     }
+    this.socket.on('won', message => {
+      this.game_ended = true;
+      this.start();
+    })
+    if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
+
+      this.socket.emit('scored')
+      this.socket.on('getBallSpeed', (message: {pos_y: number, vel_x: number, vel_y: number}) => {
+        this.ball.vel.x = message.vel_x;
+        this.ball.vel.y = message.vel_y;
+        this.ball.pos.y = message.pos_y
+    })
+  }
+    // if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
+    //   this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
+    //   this.ball.vel.y = 300 * (Math.random() * 2  -1);
+    //   this.ball.vel.len = 400;
+    // }
   }
   draw()
   {
@@ -196,10 +216,9 @@ class Pong {
         this._context.fillStyle = 'white';
         this._context.fillRect(this.ball.pos.x, this.ball.pos.y, this.ball.size.x, this.ball.size.y);
       }
-
-
     }
   }
+
   drawScore(scores: string, index: number)
   {
     const align = this._canvas.width / 3;
@@ -228,7 +247,11 @@ class Pong {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
     this.socket.emit('msgToServer', this.players[this.id].pos.y);
-    if (this.ball.left < 0 || this.ball.right > this._canvas.width)
+    if (this.game_ended && (this.ball.left < 0 || this.ball.right > this._canvas.width))
+    {
+      this.ball.vel.x = -this.ball.vel.x;
+    }
+    else if (this.ball.left < 0 || this.ball.right > this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
       this.players[playerId].score++;

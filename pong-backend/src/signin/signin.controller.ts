@@ -37,6 +37,7 @@ export const db = knex({
         t.integer('achievement_id');
         t.foreign('user_id').references('users.id').onDelete('CASCADE') // will be destroyed with corresponding user
         t.primary('user_id', 'achievement_id');
+        t.unique('user_id', 'achievement_id');
       });
     }
   });

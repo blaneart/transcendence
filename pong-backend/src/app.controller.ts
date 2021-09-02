@@ -15,6 +15,7 @@ import { AppService } from './app.service';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { ProfileService } from './profile/profile.service';
+import { AchievementService } from './achievement/achievement.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TemporaryJwtAuthGuard } from './auth/temporary-jwt-auth.guard';
 
@@ -28,6 +29,7 @@ export class AppController {
     private readonly appService: AppService,
     private authService: AuthService,
     private profileService: ProfileService,
+    private achievementService: AchievementService,
   ) {}
 
   @Get()
@@ -66,8 +68,6 @@ export class AppController {
   @Post('auth/set2fa')
   async set2fa(@Request() req) {
     const val = req.body.value;
-    console.log(val);
-    console.log(req.user);
     if (val !== true && val !== false) return { status: -1 };
     const futureValue: boolean = val === true ? true : false;
     const response = await this.profileService.updateUserById(req.user.id, {
@@ -82,6 +82,8 @@ export class AppController {
         req.user.id,
         { twofaSecret: newSecret.secret },
       );
+      // Add 2FA achievement
+      this.achievementService.addAchievement(req.user.id, 2); 
       return responseSecret;
     }
     return response; // TODO NOT SEND 2FA SECRET

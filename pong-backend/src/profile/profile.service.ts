@@ -1,6 +1,8 @@
 import { Injectable, Res } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
 
+import { AchievementService } from '../achievement/achievement.service';
+
 // Information that we get from 42
 interface User42 {
   id: number; // we're going to need the 42 database id for deduplication
@@ -9,6 +11,9 @@ interface User42 {
 
 @Injectable()
 export class ProfileService {
+  constructor(
+    private achievementService: AchievementService) {}
+
     show(id : string, res) {
         let found = false;
         db.users.forEach(user => {
@@ -30,6 +35,10 @@ export class ProfileService {
       const new_user = await db('users')
         .returning('*')
         .insert({ name: user.login, id42: user.id, avatar: "" + user.id });
+      // Add the register achievement
+      this.achievementService.addAchievement(new_user[0].id, 0);
+      // Add the 42 integration achievement
+      this.achievementService.addAchievement(new_user[0].id, 1);
       return new_user[0];
     }
     // Return old user

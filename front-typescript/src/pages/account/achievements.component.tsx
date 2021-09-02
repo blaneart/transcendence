@@ -13,39 +13,6 @@ interface User {
 }
 
 
-async function uploadHandler(authToken: string, setUser: Function) {
-  var input: HTMLInputElement | null = document.querySelector('input[type="file"]')
-
-  if (!input || !input.files)
-  {
-    alert("First select a file");
-    return;
-  }
-  var data = new FormData()
-  data.append('picture', input.files[0])
-  // data.append('user', 'hubot')
-
-  const response = await fetch('http://127.0.0.1:3000/uploadAvatar', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${authToken}`
-    },
-    body: data
-  })
-
-  const jsonData = await response.json();
-  const userUpdate = jsonData as User;
-
-  setUser(userUpdate);
-  localStorage.setItem("pongUser", JSON.stringify(userUpdate));
-  // alert('Im clicked');
-}
-
-interface achievementElement {
-  id: number;
-
-}
-
 
 var achivs = [
   // 0
@@ -83,7 +50,6 @@ async function getAchievements(user_id: string, authToken: string) {
   console.log(achs);
   return achs;
 }
-
 
 
 interface AchievementsProps

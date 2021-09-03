@@ -22,7 +22,7 @@ export class ProfileController {
       return this.profileService.getUserById(req.user.id);
     }
 
-    // @UseGuards(JwtAuthGuard) // only for logged in
+    @UseGuards(JwtAuthGuard) // only for logged in
     @Get(':id/achievements')
     async userAchievements(@Param('id') id: number)
     {

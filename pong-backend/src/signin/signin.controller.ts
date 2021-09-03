@@ -41,6 +41,39 @@ export const db = knex({
       });
     }
   });
+
+  db.schema.hasTable('room').then(function(exists) {
+    if (!exists) {
+      return db.schema.createTable('room', function(t) {
+        t.string('name');
+        t.unique('name');
+      });
+    }
+  });
+
+  db.schema.hasTable('participants').then(function(exists) {
+    if (!exists) {
+      return db.schema.createTable('participants', function(t) {
+        t.integer('userID');
+        t.integer('roomID');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+        t.unique('userID', 'roomID');
+      });
+    }
+  });
+
+    db.schema.hasTable('message').then(function(exists) {
+    if (!exists) {
+      return db.schema.createTable('message', function(t) {
+        t.integer('userID');
+        t.integer('roomID');
+        t.text('message');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+      });
+    }
+  });
 // db.select('*').from('users').then(data => {
     // console.log(data)
 // });

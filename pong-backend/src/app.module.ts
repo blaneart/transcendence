@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AchievementService } from './achievement/achievement.service';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AchievementService } from './achievement/achievement.service';
       rootPath: join(__dirname, '..', '..', 'images'),
       serveRoot: '/static/'
     }),
+    ChatModule,
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController],
   providers: [AppService, ProfileService, SigninService, AchievementService],

@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { TemporaryJwtStrategy } from './temporaryJWT.strategy';
+import { JwtWsStrategy } from './jwt-ws.strategy';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { TemporaryJwtStrategy } from './temporaryJWT.strategy';
       signOptions: { expiresIn: '60h' },
     }),
     ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, TemporaryJwtStrategy, ProfileService, AchievementService],
+  providers: [AuthService, LocalStrategy, JwtStrategy, TemporaryJwtStrategy, ProfileService, AchievementService, JwtWsStrategy],
   exports: [AuthService],
   
 })

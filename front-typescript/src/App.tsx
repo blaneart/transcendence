@@ -10,6 +10,7 @@ import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import AccountPage from "./pages/account/account.component";
 import "./App.css";
+import Chats from "./pages/chats/chats.component";
 
 interface User {
   id: string;
@@ -146,6 +147,9 @@ function App() {
         </Route>
         <Route path="/account">
           <AccountPage user={user} setUser={setUser} authToken={authToken}/>
+        </Route>
+        <Route path="/chats">
+          <Chats authToken={authToken}/>
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

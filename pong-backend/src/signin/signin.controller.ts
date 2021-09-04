@@ -33,6 +33,7 @@ export const db = knex({
 	db.schema.hasTable('user_achievements').then(function(exists) {
     if (!exists) {
       return db.schema.createTable('user_achievements', function(t) {
+        t.increments('id').primary();
         t.integer('user_id');
         t.integer('achievement_id');
         t.foreign('user_id').references('users.id').onDelete('CASCADE') // will be destroyed with corresponding user
@@ -45,6 +46,7 @@ export const db = knex({
   db.schema.hasTable('room').then(function(exists) {
     if (!exists) {
       return db.schema.createTable('room', function(t) {
+        t.increments('id').primary();
         t.string('name');
         t.unique('name');
       });
@@ -54,6 +56,7 @@ export const db = knex({
   db.schema.hasTable('participants').then(function(exists) {
     if (!exists) {
       return db.schema.createTable('participants', function(t) {
+        t.increments('id').primary();
         t.integer('userID');
         t.integer('roomID');
         t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user

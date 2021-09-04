@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AchievementService } from './achievement/achievement.service';
 import { ChatModule } from './chat/chat.module';
+import { ChatGateway } from './chat.gateway';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { ChatModule } from './chat/chat.module';
     ChatModule,
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController],
-  providers: [AppService, ProfileService, SigninService, AchievementService],
+  providers: [AppService, ProfileService, SigninService, AchievementService, ChatGateway],
 })
 export class AppModule {}

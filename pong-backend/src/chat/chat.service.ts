@@ -38,7 +38,6 @@ export class ChatService {
   }
 
   async saveMessage(userID: number, roomID: number, text: string) {
-    
     // Add a new message entry in the database
     const newMessage = await db('message').returning('*').insert({
       userID: userID,
@@ -48,5 +47,4 @@ export class ChatService {
     // Return the newly created message
     return newMessage[0];
   }
-  // send message
 }

@@ -61,7 +61,7 @@ export const db = knex({
         t.integer('roomID');
         t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
         t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
-        t.unique('userID', 'roomID');
+        t.unique('userID'); // a user can only be in one room
       });
     }
   });
@@ -69,6 +69,7 @@ export const db = knex({
     db.schema.hasTable('message').then(function(exists) {
     if (!exists) {
       return db.schema.createTable('message', function(t) {
+        t.increments('id').primary();
         t.integer('userID');
         t.integer('roomID');
         t.text('message');

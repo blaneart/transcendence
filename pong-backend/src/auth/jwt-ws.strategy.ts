@@ -6,9 +6,9 @@ import { ProfileService } from '../profile/profile.service';
 import { Socket } from 'socket.io';
 
 function extractFromSocketQuery(request: Socket): string | null {
-  if (!request.handshake.query.token)
+  if (!request.handshake.auth.token)
     return null;
-  return request.handshake.query.token as string;
+  return request.handshake.auth.token as string;
 }
 
 @Injectable()

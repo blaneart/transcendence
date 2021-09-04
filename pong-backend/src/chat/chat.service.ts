@@ -17,6 +17,17 @@ export class ChatService {
     return rooms;
   }
 
+  //Find the id of the room in our database
+  async findRoomId(roomName: string): Promise<number> {
+    const room = await db('room').where({ name: roomName }).select('*');
+    // Check if the corresponding rooms don't exist
+    // if (!room.length) {
+    //   throw 'Room not found';
+    // }
+    console.log(room[0].id);
+    return room[0].id;
+  }
+
   async joinRoomByID(userID: number, roomID: number) {
     // Create a new participation between the user and the room
     const new_participation = await db('participants')
@@ -28,13 +39,9 @@ export class ChatService {
 
   async joinRoomByName(userID: number, roomName: string) {
     // Find the room ID by name
-    const room = await db('rooms').where({ name: roomName }).select('*');
-    // Check if the corresponding rooms don't exist
-    if (!room.length) {
-      throw 'Room not found';
-    }
+    const id = await this.findRoomId(roomName);
     // Join the room by the new-found ID
-    return await this.joinRoomByID(userID, room[0].id);
+    return await this.joinRoomByID(userID, id);
   }
 
   async saveMessage(userID: number, roomID: number, text: string) {
@@ -46,5 +53,25 @@ export class ChatService {
     });
     // Return the newly created message
     return newMessage[0];
+  }
+
+
+
+  async sendMessage(userID: number, roomName: string, text: string) {
+    // Add a new message entry in the database
+    const roomID = await this.findRoomId(roomName);
+    const newMessage = await db('message').returning('*').insert({
+      userID: userID,
+      roomID: roomID,
+      message: text,
+    });
+    // Return the newly created message
+    return newMessage[0];
+  }
+
+  async getRoomMessages(roomName: string) {
+    const roomID = await this.findRoomId(roomName);
+    const messages = await db('message').where({ roomID: roomID }).join('users', 'users.id', '=', 'message.userID').select('message.id', 'message.message', 'users.name');
+    return messages;
   }
 }

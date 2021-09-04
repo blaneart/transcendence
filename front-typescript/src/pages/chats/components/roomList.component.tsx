@@ -33,6 +33,7 @@ const RoomList: React.FC<RoomListProps> = ({ authToken }) => {
   const refreshRooms = () => {
     // Get all rooms from the backend and add them to state
     getRooms(authToken).then(newRooms => {
+      console.log(newRooms);
       setRooms(newRooms);
     });
   }
@@ -45,7 +46,7 @@ const RoomList: React.FC<RoomListProps> = ({ authToken }) => {
   return (
     <div>
       <h2>Rooms: </h2>
-      {rooms.length ? rooms.map((room) => <Link key={room.id} to={`/chats/${room.name}`}>{room.name}</Link>) : <h2>No rooms for now</h2>}
+      {rooms.map((room) => <div key={room.id}><Link to={`/chats/${room.name}`}>{room.name}</Link></div>)}
       <CreateRoom authToken={authToken} onCreate={() => refreshRooms()} />
     </div>
   );

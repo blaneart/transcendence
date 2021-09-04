@@ -1,4 +1,3 @@
-import { io } from "socket.io-client";
 import React, { useEffect } from "react";
 import { useParams, Switch, Route } from "react-router";
 import RoomList from "./components/roomList.component";
@@ -13,15 +12,6 @@ import RoomView from "./components/roomView.component";
 // socket.on("greetings", (elem1, elem2, elem3) => {
 //   console.log(elem1, elem2, elem3);
 // });
-const socket = io("ws://127.0.0.1:8080");
-
-socket.on("connect", () => {
-  socket.emit("message", "here is some text");
-});
-
-socket.on("response", (msg) => {
-  console.log(msg);
-});
 
 // Create an interface to pass to React Router
 // so that it can safely give us the room nanme

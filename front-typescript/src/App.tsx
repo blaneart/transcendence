@@ -19,6 +19,7 @@ const ENDPOINT = "http://127.0.0.1:3002";
 interface User {
   id: string;
   name: string;
+  id42: number;
   avatar: string;
   games: number;
   wins: number;
@@ -179,12 +180,9 @@ function App() {
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}
       </Switch>
-      <div className="blob">
-
-
-</div>
-    </div>
-
+      {/* We should add this: */}
+      {/* <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> */}
+ </div>
   );
 }
 

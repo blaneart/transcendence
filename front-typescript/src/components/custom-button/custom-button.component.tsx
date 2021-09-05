@@ -7,23 +7,24 @@ interface IButtonProps {
     isLogged: 1 | 0,
     onClick: React.MouseEventHandler<HTMLButtonElement>
     avatar_name?: string | null
+    realAvatar?: boolean | boolean
 }
 
-const CustomButton: React.FC<IButtonProps> = ({children, isLogged, avatar_name,  ...otherProps }) => ( 
-     <button className='custom-button' {...otherProps }>
-                      <div
+const CustomButton: React.FC<IButtonProps> = ({children, isLogged, avatar_name, realAvatar,  ...otherProps }) => (
+    <button className='custom-button' {...otherProps }>
+      <div
       className='image'
       style={{
-        backgroundImage: isLogged ? `url(https://source.boringavatars.com/beam/150/${avatar_name})` :
-          `url(${process.env.PUBLIC_URL + '/42.png'})`
+        backgroundImage: isLogged ?
+        (realAvatar ? `url(http://127.0.0.1:3000/static/${avatar_name})` : `url(https://source.boringavatars.com/beam/150/${avatar_name})`)
+        :
+        `url(${process.env.PUBLIC_URL + '/42.png'})`
       }}
-    />
-         <div className='text'>
-         {children}
-                      </div>
-
-
-     </button>
+      />
+      <div className='text'>
+        {children}
+      </div>
+    </button>
 )
 
-export default CustomButton; 
+export default CustomButton; //<img className="realAvatar" src={`http://127.0.0.1:3000/static/${avatar_name}`} width={150} height={150}></img>

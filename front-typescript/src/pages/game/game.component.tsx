@@ -18,12 +18,13 @@ const ENDPOINT = "http://127.0.0.1:3002";
 interface User {
   id: string;
   name: string;
+  id42: number;
   avatar: string;
   games: number;
   wins: number;
   twofa: boolean;
   twofaSecret: string;
-  realAvatar: boolean;
+  realAvatar: boolean
 }
 
 
@@ -31,6 +32,7 @@ interface IGameProps {
   user?: {
     id: string,
     name: string,
+    id42: number,
     avatar: string,
     games: number,
     wins: number,
@@ -153,6 +155,7 @@ useEffect(() => {
       const userUpdate = jsonData as User;
     
       setUser(userUpdate);
+      localStorage.setItem("pongUser", JSON.stringify(userUpdate));
     }
     setIsGameEnded(result);
     return null;

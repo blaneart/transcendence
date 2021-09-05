@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 
 interface User {
-    id: string;
-    name: string;
-    avatar: string;
-    games: number;
-    wins: number;
-    twofa: boolean;
-    twofaSecret: string;
-    realAvatar: boolean;
+  id: string;
+  name: string;
+  id42: number;
+  avatar: string;
+  games: number;
+  wins: number;
+  twofa: boolean;
+  twofaSecret: string;
+  realAvatar: boolean
 }
 
 
@@ -37,6 +38,7 @@ async function uploadHandler(authToken: string, setUser: Function) {
   const userUpdate = jsonData as User;
 
   setUser(userUpdate);
+  localStorage.setItem("pongUser", JSON.stringify(userUpdate));
   // alert('Im clicked');
 }
 
@@ -54,6 +56,7 @@ async function removeHandler(authToken: string, setUser: Function) {
   const userUpdate = jsonData as User;
 
   setUser(userUpdate);
+  localStorage.setItem("pongUser", JSON.stringify(userUpdate));
   // alert('Im clicked');
 }
 

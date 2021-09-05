@@ -186,7 +186,6 @@ export class AppGateway implements OnGatewayInit {
       this.server.emit('ready');
   }
 
-  getRoomNameByUser
 
   getByValue = (map, searchValue) => {
     for (let [key, value] of map.entries()) {

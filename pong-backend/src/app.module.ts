@@ -26,6 +26,6 @@ import { ChatService } from './chat/chat.service';
     ChatModule,
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController],
-  providers: [AppService, ProfileService, SigninService, AchievementService, ChatGateway, ChatService],
+  providers: [AppService, AppGateway, ProfileService, SigninService, AchievementService, ChatGateway, ChatService],
 })
 export class AppModule {}

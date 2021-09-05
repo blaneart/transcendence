@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import CreateRoom from './createRoom.component';
 import './roomList.styles.scss';
 import { Link } from 'react-router-dom';
@@ -8,7 +8,7 @@ interface RoomListProps {
   authToken: string
 }
 
-// Get all open roomms from the backend
+// Get all open rooms from the backend
 async function getRooms(authToken: string): Promise<Room[]> {
   // Perform the request to backend
   const response = await fetch("http://127.0.0.1:3000/chat/rooms", {
@@ -30,18 +30,18 @@ const RoomList: React.FC<RoomListProps> = ({ authToken }) => {
   
   const [rooms, setRooms] = useState<Room[]>([]);
 
-  const refreshRooms = () => {
+  // useCallback to prevent infinite state updates
+  const refreshRooms = useCallback(() => {
     // Get all rooms from the backend and add them to state
     getRooms(authToken).then(newRooms => {
-      console.log(newRooms);
       setRooms(newRooms);
     });
-  }
+  }, [authToken]);
 
   useEffect(() => {
+    // On setup, we update the rooms
     refreshRooms();
-  }, []);
-
+  }, [rooms, refreshRooms]); // We don't really reupdate.
 
   return (
     <div>

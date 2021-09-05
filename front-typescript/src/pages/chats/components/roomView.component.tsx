@@ -3,20 +3,17 @@ import { useParams } from "react-router";
 import { io, Socket } from "socket.io-client";
 import Composer from "./composer.component";
 
+// We require a token passed as parameter
 interface RoomParams {
   authToken: string
 };
 
+// The parameters we expect in the URL.
 interface RoomRouteParams {
   roomName: string
 }
 
-// const socket = io("ws://127.0.0.1:8080");
-
-// socket.on("connect", () => {
-//   socket.emit("message", "here is some text");
-// });
-
+// This is the front-end message: the sender, and the text.
 interface Message {
   id: number,
   name: string,
@@ -26,7 +23,7 @@ interface Message {
 const RoomView: React.FC<RoomParams> = ({ authToken }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
-  const [socket, setSocket] = useState<Socket>(io("ws://127.0.0.1:8080", {
+  const [ socket ] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
     auth: {
       token: authToken
     }
@@ -34,29 +31,35 @@ const RoomView: React.FC<RoomParams> = ({ authToken }) => {
   const [messages, setMessages] = useState<Message[]>();
 
   useEffect(() => {
-    // setSocket(io("ws://127.0.0.1:8080"));
-    // if (socket)
-    console.log(`AuthToken: ${authToken}`)
-
-    socket.on("response", (msg) => {
-      console.log(`Got response: ${msg}`);
-    });
-
-    socket.on("roomUpdate", (msg) => {
-      console.log(`Got room update: ${msg}`);
-      console.log(msg);
-    })
-
+    // Handle the messages that were sent before we joined
     socket.on("initialMessages", (msg) => {
-      console.log(`Got initialMessages: ${msg}`);
+      // Receive an array of messages
       const newMessages = msg as Message[];
+      // Right now, we sort them on front, maybe we should also sort them on back
+      newMessages.sort((a,b) => a.id - b.id);
+      // Set the state directly
       setMessages(newMessages);
     })
+    
+    // Once someone sends a message, we receive this event
+    socket.on("newMessage", (msg) => {
+      const newMessage = msg as Message; // we receive a single update
+      setMessages((oldMessages) => {
+        if (oldMessages)
+        {
+          // Add the new one to the end
+          return [...oldMessages, newMessage];
+        }
+        // If this is the first message, we have to set the state to an array
+        return [newMessage];
+      });
+    })
 
+    // Ask to add us to this room and send us the initial messages.
     socket.emit("requestJoin", roomName);
 
-
-  }, []);
+  }, [roomName, socket]); // We only re-run setup if room name or socket change
+  // (In other words, we don't.)
 
 
   return (

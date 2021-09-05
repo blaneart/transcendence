@@ -9,8 +9,10 @@ async function createRoom(authToken: string, name: string) {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  return response;
 }
 
+// We need a token to auth, and a way to return a created room.
 interface CreateRoomProps {
   authToken: string
   onCreate: Function
@@ -19,11 +21,17 @@ interface CreateRoomProps {
 const CreateRoom: React.FC<CreateRoomProps> = ({ authToken, onCreate }) => {
   const [roomName, setRoomName] = useState<string>("");
 
+  // A handler for our form
   const submitHandler = (event: any) => {
+    // Prevent the default submit action
     event.preventDefault();
+    // Make sure the room name isn't empty
     if (roomName !== "")
     {
+      // Make the backend call
       createRoom(authToken, roomName);
+
+      // Propagate the change (ask the room list to refresh)
       onCreate();
     }
   }

@@ -18,6 +18,12 @@ interface ChatMessage {
   room: string
 }
 
+interface ChatMessageUpdate {
+  id: number,
+  name: string,
+  message: string
+}
+
 interface User {
   id: number;
   name: string;
@@ -64,18 +70,14 @@ export class ChatGateway {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('chatMessage')
-  handleChatMessage(client: AuthenticatedSocket, message: ChatMessage) {
-    // console.log(client);
-    // const newMessage = JSON.parse(data) as ChatMessage;
-    
-    // In the future, where we will associate 
-    // this.chatService.saveMessage(client.user.id)
-    console.log(`Sender: ${message.room}`);
-    this.chatService.sendMessage(client.user.id, message.room, message.text)
-    
-    // return data;
-    // client.join()
-    // console.log(`Got a chat message: ${data}`);
-    // console.log(data);
+  async handleChatMessage(client: AuthenticatedSocket, message: ChatMessage) {
+
+    const savedMessage = await this.chatService.sendMessage(client.user.id, message.room, message.text);
+    const newMessage: ChatMessageUpdate = {
+      id: savedMessage.id,
+      name: client.user.name,
+      message: message.text
+    }
+    this.server.to(message.room).emit("newMessage", newMessage);
   }
 }

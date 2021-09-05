@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { Socket } from "socket.io-client";
 
-
+// We need a socket and the room we're in to send messages.
 interface ComposerProps {
   socket: Socket
   roomName: string
 }
 
+// The kind of a message (could be extended)
 enum ChatMessageType {
   TEXT,
   GAME_INVITE,
   GAME_SCORE
 }
 
+// This is the back-end representation of the message.
 interface ChatMessage {
   type: ChatMessageType,
   room: string,
@@ -29,7 +31,6 @@ const Composer: React.FC<ComposerProps> = ({ socket, roomName }) => {
       room: roomName,
       text: messageText
     }
-    console.log(socket);
     socket.emit("chatMessage", newMessage);
   }
 

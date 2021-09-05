@@ -161,12 +161,9 @@ function App() {
       "pongToken"
     );
     if (authToken === "" && localStoragePongToken !== null) {
-      console.log(`Setting to ${localStoragePongToken}`);
       setAuthToken(localStoragePongToken);
     }
-    console.log(`auth token: ${authToken}`);
     if (!user && localStoragePongToken !== null) {
-      console.log(`Setting me`);
       getMe(localStoragePongToken).then((me: User) => setUser(me));
     }
 

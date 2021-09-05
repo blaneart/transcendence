@@ -169,6 +169,7 @@ class Pong {
           this.fn('won', this.auth);
         else
           this.fn('lost', this.auth);
+        this.socket.emit('leaveRoom');
         // this.end();
         this.game_ended = true;
         if (this._context !== null)

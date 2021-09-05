@@ -163,9 +163,6 @@ function App() {
   const { search } = useLocation();
   var searchParams: URLSearchParams = new URLSearchParams(search);
 
-  const getSocket = () => {
-    return io(ENDPOINT);
-  }
  
   return (
     <div className="App">
@@ -174,7 +171,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route path="/play">
-          <Game user={user} setUser={setUser} authToken={authToken} socket={getSocket()}/>
+          <Game user={user} setUser={setUser} authToken={authToken}/>
         </Route>
         <Route path="/account">
           <AccountPage user={user} setUser={setUser} authToken={authToken}/>

@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { WSASERVICE_NOT_FOUND } from 'constants';
 import { Socket, Server } from 'socket.io';
+var uuid = require('uuid');
 
 export enum ActionTypes {
   Data = '[Socket] Data',
@@ -82,8 +83,8 @@ export class AppGateway implements OnGatewayInit {
   @WebSocketServer() 
   server: Server;
   connectedClients = [];
-  data = {}
-
+  data = {};
+  playersId = {};
   // @WebSocketServer()
   // server: Server;
   private logger =  new Logger('AppGateway');
@@ -102,6 +103,7 @@ export class AppGateway implements OnGatewayInit {
     this.connectedClients = this.connectedClients.filter(
       connectedClient => connectedClient !== client.id
     );
+
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
@@ -129,14 +131,8 @@ export class AppGateway implements OnGatewayInit {
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, text: number)  {
-    // this.connectedClients.forEach((reciever: Socket) => {
-    //   if (reciever !== client)
-    // {
-    //     console.log(client.id, reciever)
+
         client.broadcast.emit('getPosition', text);
-    // }
-    // })
-  // handleMessage(client: Socket, text: string): void {
   }
   
 
@@ -149,26 +145,100 @@ export class AppGateway implements OnGatewayInit {
     }
     this.server.emit('getBallSpeed', message)
   }
+  getActiveRooms = () => {
+    // Convert map into 2D list:
+    // ==> [['4ziBKG9XFS06NdtVAAAH', Set(1)], ['room1', Set(2)], ...]
+    const arr = Array.from(this.server.sockets.adapter.rooms);
+    // Filter rooms whose name exist in set:
+    // ==> [['room1', Set(2)], ['room2', Set(2)]]
+    const filtered = arr.filter(room => !room[1].has(room[0]))
+    // Return only the room name: 
+    // ==> ['room1', 'room2']
+    const res = filtered.map(i => i[0]);
+    return res;
+}
+
+  getWaitingRoom = (socket: Socket) =>
+  {
+    let playerId;
+    let ready = false;
+    let roomName;
+
+    roomName = this.getActiveRooms().find((roomName) => 
+         this.server.sockets.adapter.rooms.get(roomName).size < 2);
+
+    if (!roomName)
+    {
+      console.log(roomName);
+      roomName = uuid.v4();
+      playerId =  Math.random()>=0.5? 1 : 0;
+      this.playersId[roomName] = playerId;
+    }
+    else
+    {
+      ready = true;
+      playerId  = 1 - this.playersId[roomName];
+    }
+    console.log(roomName);
+    socket.join(roomName);
+    this.server.to(socket.id).emit('getId', playerId)
+    if (ready)
+      this.server.emit('ready');
+  }
+
+  getRoomNameByUser
+
+  getByValue = (map, searchValue) => {
+    for (let [key, value] of map.entries()) {
+      console.log(key, value)
+      if (value === searchValue)
+        return key;
+    }
+  }
+
+  @SubscribeMessage('leaveRoom')
+  leavRoom(socket: Socket)
+  {
+    console.log('leaveRoom')
+    // this.server.sockets.adapter.rooms.forEach(value => {console.log(value)})
+    // let roomName = this.getByValue(this.server.sockets.adapter.rooms, socket.id);
+    const arr = Array.from(socket.rooms);
+    const filtered = arr.filter(room => room !== socket.id)
+
+    // delete this.server.sockets.adapter.rooms[socket.id];
+    console.log(filtered[0]);
+
+
+    // if (this.server.sockets.adapter.rooms[filtered[0]])
+      this.server.of("/").adapter.on("delete-room", (room) => 
+      console.log(room, "room was deleted"));
+  
+      socket.leave(filtered[0])
+  }
+
 
   @SubscribeMessage('joinRoom')
   createRoom(socket: Socket) {
-    socket.join('aRoom');
+    console.log('joinRoom');
+    this.getWaitingRoom(socket);
+
+
     // socket.to('aRoom').emit('roomCreated', {room: 'aRoom'});
-    if (this.server.sockets.adapter.rooms.get('aRoom').size === 1)
-  {
-      this.server.emit('returnWaitingResponse', false);
-  }
-    else if (this.server.sockets.adapter.rooms.get('aRoom').size === 2)
-    {
-      var x = this.server.sockets.adapter.rooms.get('aRoom')
-      var it = x.values();
-      //get first entry:
-      var first = it.next();
-      this.server.sockets.sockets.get(first.value).emit('getId', 0)
-      socket.emit('getId', 1);
+  //   if (this.server.sockets.adapter.rooms.get('aRoom').size === 1)
+  // {
+  //     this.server.emit('returnWaitingResponse', false);
+  // }
+  //   else if (this.server.sockets.adapter.rooms.get('aRoom').size === 2)
+  //   {
+  //     var x = this.server.sockets.adapter.rooms.get('aRoom')
+  //     var it = x.values();
+  //     //get first entry:
+  //     var first = it.next();
+  //     this.server.sockets.sockets.get(first.value).emit('getId', 0)
+  //     socket.emit('getId', 1);
       // socket.broadcast.to(this.server.sockets[first.value].id).emit('getId', 0);
 
       // this.server.emit('returnWaitingResponse', true);
-    }
+    // }
   }
 }

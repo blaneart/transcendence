@@ -40,42 +40,74 @@ interface IGameProps {
   } | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
-  socket: Socket
 }
 
 
-const Game: React.FC<IGameProps> = ({user, setUser, authToken, socket}) => {
+
+const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
-    const [restart, setRestart] = useState<Boolean>(false)
-    const [wait, setWait] = useState<Boolean>(true)
+    const [updateStats, setUpdateStats] = useState<boolean>(false);
+    const [restart, setRestart] = useState<Boolean>(false);
+    const [ready, setReady] = useState<Boolean>(false);
     const [id, setId] = useState<number>(3);
-    
-    // var id = 0;
-
+    const [socket, setSocket] = useState<Socket>(() => {
+      const initialState = io(ENDPOINT);
+      return initialState;
+    });
 
     useEffect(() => {
       console.log(socket);
-      socket?.emit('joinRoom');
-
-  }, [socket]);
+      socket.emit('joinRoom');
+      socket.on('ready', () => {
+        setReady(true);
+      })
+      socket.on('getId', function(message: number) {
+        console.log(message);
+        setId(message);
+     });
+     socket.on('won', function(result: string, authToken: string) {
+      setUpdateStats(true);
+      socket.emit('leaveRoom');
+    })
+  }, []);
 
 
   useEffect(() => {
 
-    setIsGameEnded('game')
-    socket?.on('getId', function(message: number) {
-      setId(message);
-   });
-    if (id !== 3)
-    {
+    async function  updateGameStats(result: string, authToken: string){
+      if (user)
+      {
+        var data = {
+          games: user.games + 1,
+          wins: result === 'won' ? user.wins + 1 : user.wins,
+        }
+        const response = await fetch('http://127.0.0.1:3000/account/setGames', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(data),
+        });
+        const jsonData = await response.json();
+        const userUpdate = jsonData as User;
+      
+        setUser(userUpdate);
+      }
+      setIsGameEnded(result);
+      return null;
+    }
 
+    setIsGameEnded('game')
+    if (ready)
+    {
       let canvas = document.getElementById('forCanvas');
       if (canvas)
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          var pong = new Pong(updateGameStats, canvas, authToken, socket!, id);
+          var pong = new Pong(updateGameStats, canvas, authToken, socket, id);
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {
@@ -98,40 +130,11 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, socket}) => {
         }
       }    
     }
-}, [id]);
+}, [ready]);
 
 
-
-
-
-  // socket.on('returnWaitingResponse', function(message: boolean) {
-  //   if (message)
-  //     setWait(false);
-  // });
-
-
-
-  const gameStart = () => {
-
-  }
-  const changeGameState = (user: User, result: string) => {
-    return {
-      id: user.id,
-      name: user.name,
-      avatar: user.avatar,
-      games: user.games + 1 ,
-      wins: result === 'won' ? user.wins + 1 : user.wins,
-      twofa: user.twofa,
-      twofaSecret: user.twofaSecret,
-      realAvatar: user.realAvatar
-    }
-  } 
-
-// socket.on('won', function(result: string, authToken: string) {
-//   updateGameStats('won', authToken);
-// })
-
-async function  updateGameStats(result: string, authToken: string){
+useEffect(() => {
+  async function  updateGameStats(result: string, authToken: string){
     if (user)
     {
       var data = {
@@ -152,12 +155,38 @@ async function  updateGameStats(result: string, authToken: string){
       setUser(userUpdate);
     }
     setIsGameEnded(result);
-    return null
+    return null;
   }
+  if (updateStats)
+    updateGameStats('won', authToken);
+
+}, [updateStats])
+
+
+  // socket.on('returnWaitingResponse', function(message: boolean) {
+  //   if (message)
+  //     setWait(false);
+  // });
+
+  const changeGameState = (user: User, result: string) => {
+    return {
+      id: user.id,
+      name: user.name,
+      avatar: user.avatar,
+      games: user.games + 1 ,
+      wins: result === 'won' ? user.wins + 1 : user.wins,
+      twofa: user.twofa,
+      twofaSecret: user.twofaSecret,
+      realAvatar: user.realAvatar
+    }
+  } 
+
+
+
   
-  const restartGame = () => {
-    setRestart(!restart);
-  }
+  // const restartGame = () => {
+  //   setRestart(!restart);
+  // }
 
     return(
       <div className='game'>
@@ -167,8 +196,8 @@ async function  updateGameStats(result: string, authToken: string){
         :
          <h1>CONNECTING</h1>
         }
-        {            isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
-}
+        {/* {            isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/> */}
+{/* } */}
       
 
 

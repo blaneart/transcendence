@@ -21,10 +21,9 @@ export class ChatService {
   async findRoomId(roomName: string): Promise<number> {
     const room = await db('room').where({ name: roomName }).select('*');
     // Check if the corresponding rooms don't exist
-    // if (!room.length) {
-    //   throw 'Room not found';
-    // }
-    console.log(room[0].id);
+    if (!room.length) {
+      throw 'Room not found';
+    }
     return room[0].id;
   }
 
@@ -69,9 +68,14 @@ export class ChatService {
     return newMessage[0];
   }
 
+  // Get all messages sent to a given room up until now
   async getRoomMessages(roomName: string) {
+    // Get the ID of the room
     const roomID = await this.findRoomId(roomName);
-    const messages = await db('message').where({ roomID: roomID }).join('users', 'users.id', '=', 'message.userID').select('message.id', 'message.message', 'users.name');
+    // Return the messages populated with user names.
+    const messages = await db('message').where({ roomID: roomID })
+      .join('users', 'users.id', '=', 'message.userID')
+      .select('message.id', 'message.message', 'users.name');
     return messages;
   }
 }

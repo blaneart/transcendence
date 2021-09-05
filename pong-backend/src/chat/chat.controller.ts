@@ -7,15 +7,19 @@ export class ChatController {
   constructor( private readonly chatService: ChatService)  {
   }
 
+  // Return all rooms
   @Get('/rooms')
   async allRooms()
   {
+    // Get the rooms from the service
     return await this.chatService.getAllRooms();
   }
 
+  // Create a new room with a given name
   @Put('/rooms/:name/')
   async createRoom(@Param('name') name: string)
   {
+    // Create the room using the service
     return await this.chatService.createRoom(name);
   }
 

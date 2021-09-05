@@ -21,7 +21,7 @@ async function createUsers() {
 }
 
 async function createAchievements() {
-  const exists = db.schema.hasTable('user_achievements');
+  const exists = await db.schema.hasTable('user_achievements');
 
   if (!exists) {
       await db.schema.createTable('user_achievements', function(t) {
@@ -36,9 +36,9 @@ async function createAchievements() {
 }
 
 async function createRoom() {
-  const exists = db.schema.hasTable('room');
+  const exists = await db.schema.hasTable('room');
     if (!exists) {
-      return db.schema.createTable('room', function(t) {
+      await db.schema.createTable('room', function(t) {
         t.increments('id').primary();
         t.string('name');
         t.unique('name');
@@ -47,7 +47,7 @@ async function createRoom() {
 }
 
 async function createParticipants() {
-  const exists = db.schema.hasTable('participants')
+  const exists = await db.schema.hasTable('participants')
     if (!exists) {
       await db.schema.createTable('participants', function(t) {
         t.increments('id').primary();
@@ -61,7 +61,7 @@ async function createParticipants() {
 }
 
 async function createMessage() {
-  const exists = db.schema.hasTable('message')
+  const exists = await db.schema.hasTable('message')
     if (!exists) {
       await db.schema.createTable('message', function(t) {
         t.increments('id').primary();

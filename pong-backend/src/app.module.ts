@@ -9,7 +9,9 @@ import { SigninService } from './signin/signin.service';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AppGateway } from './app.gateway';
 import { AchievementService } from './achievement/achievement.service';
+
 
 @Module({
   imports: [

@@ -9,7 +9,12 @@ import HomePage from "./pages/homepage/homepage.component";
 import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import AccountPage from "./pages/account/account.component";
-import "./App.css";
+import "./App.scss";
+import { io, Socket } from 'socket.io-client';
+
+
+const ENDPOINT = "http://127.0.0.1:3002";
+
 
 interface User {
   id: string;
@@ -103,12 +108,35 @@ function logoutHandler(setUser: Function, setAuthToken: Function) {
   };
 }
 
+
+function receiveMessage(msg: string)
+{
+  console.log(msg);
+}
+
+
+
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
   const [isSigned, setIsSigned] = useState(false);
+  const [response, setResponse] = useState("");
 
+  // const socket = (io(ENDPOINT));
+
+  // useEffect(() => {
+    // socket?.on('msgToClient', (msg: string) => {
+      // receiveMessage(msg);
+    // });
+    // socket?.emit("msgToServer", "lel");
+  // }, []);
+ // const  sendMessage = (event: any) => {
+    //   console.log('front')
+    //   event.preventDefault();
+    //   socket?.emit("msgToServer", event.target.value );
+    // }
   let history = useHistory();
+   
 
     useEffect(() => {
     const localStoragePongUser: string | null = localStorage.getItem(
@@ -136,8 +164,10 @@ function App() {
   const { search } = useLocation();
   var searchParams: URLSearchParams = new URLSearchParams(search);
 
+ 
   return (
     <div className="App">
+      {/* <input type="text" onChange={ sendMessage } /> */}
       <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
         <Route exact path="/" component={HomePage} />
@@ -152,7 +182,7 @@ function App() {
       </Switch>
       {/* We should add this: */}
       {/* <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> */}
-    </div>
+ </div>
   );
 }
 

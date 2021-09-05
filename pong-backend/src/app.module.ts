@@ -9,10 +9,12 @@ import { SigninService } from './signin/signin.service';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AppGateway } from './app.gateway';
 import { AchievementService } from './achievement/achievement.service';
 import { ChatModule } from './chat/chat.module';
 import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';
+
 
 @Module({
   imports: [

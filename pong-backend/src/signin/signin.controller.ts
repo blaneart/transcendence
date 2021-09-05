@@ -91,17 +91,6 @@ export const db = knex({
     .then(() => createParticipants())
     .then(() => createMessage());
 
-  
-
-
-  
-
-  
-
-    
-// db.select('*').from('users').then(data => {
-    // console.log(data)
-// });
 
 @Controller('signin')
 export class SigninController {

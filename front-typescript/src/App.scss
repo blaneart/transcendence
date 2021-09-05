@@ -1,7 +1,13 @@
 body {
-	background: linear-gradient(-45deg, black, darkblue, #10035a, rgb(70, 4, 4));
+  background-color: black;
+  background-image: url(/assets/blob-haikei-20.svg);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  // background-position: center; 
+  background-position:  55% 170%;
+	/* background: linear-gradient(-45deg, black, darkblue, #10035a, rgb(70, 4, 4));
 	background-size: 400% 400%;
-	animation: gradient 7s ease infinite;
+	animation: gradient 7s ease infinite; */
 }
 
 
@@ -17,7 +23,16 @@ body {
 	}
 }
 
-
+.blob{
+  position: absolute;
+  // transform: translateY(-50%);
+  margin-top: -40%;
+  z-index: -100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 body {
   font-family: 'Anton';
   padding: 20px 60px;

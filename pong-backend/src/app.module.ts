@@ -22,6 +22,6 @@ import { AchievementService } from './achievement/achievement.service';
     }),
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController],
-  providers: [AppService, ProfileService, SigninService, AchievementService],
+  providers: [AppGateway, AppService, ProfileService, SigninService, AchievementService],
 })
 export class AppModule {}

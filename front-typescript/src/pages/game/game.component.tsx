@@ -40,25 +40,25 @@ interface IGameProps {
   } | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
+  socket: Socket
 }
 
 
-const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
+const Game: React.FC<IGameProps> = ({user, setUser, authToken, socket}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
     const [wait, setWait] = useState<Boolean>(true)
     const [id, setId] = useState<number>(3);
-    const [socket, setSocket] = useState<Socket | null>(null);
     
     // var id = 0;
 
+
     useEffect(() => {
-      let sock = (io(ENDPOINT, {transports: ['websocket'], upgrade: false}));
-      setSocket(sock);
+      console.log(socket);
       socket?.emit('joinRoom');
 
-  }, []);
+  }, [socket]);
 
 
   useEffect(() => {
@@ -161,10 +161,16 @@ async function  updateGameStats(result: string, authToken: string){
 
     return(
       <div className='game'>
-        <canvas id="forCanvas" width={800} height={600}></canvas>
-        { 
-        isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
+        {
+          socket ?
+          <canvas id="forCanvas" width={800} height={600}></canvas>
+        :
+         <h1>CONNECTING</h1>
         }
+        {            isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
+}
+      
+
 
       </div>
 

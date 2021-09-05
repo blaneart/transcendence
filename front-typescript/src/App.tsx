@@ -9,10 +9,13 @@ import HomePage from "./pages/homepage/homepage.component";
 import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import AccountPage from "./pages/account/account.component";
-import "./App.css";
+import "./App.scss";
 import { io, Socket } from 'socket.io-client';
 
-const ENDPOINT = "http://127.0.0.1:3000";
+
+const ENDPOINT = "http://127.0.0.1:3002";
+
+
 interface User {
   id: string;
   name: string;
@@ -109,6 +112,9 @@ function receiveMessage(msg: string)
 {
   console.log(msg);
 }
+
+
+
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
@@ -157,7 +163,9 @@ function App() {
   const { search } = useLocation();
   var searchParams: URLSearchParams = new URLSearchParams(search);
 
-
+  const getSocket = () => {
+    return io(ENDPOINT);
+  }
  
   return (
     <div className="App">
@@ -166,7 +174,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route path="/play">
-          <Game user={user} setUser={setUser} authToken={authToken}/>
+          <Game user={user} setUser={setUser} authToken={authToken} socket={getSocket()}/>
         </Route>
         <Route path="/account">
           <AccountPage user={user} setUser={setUser} authToken={authToken}/>
@@ -174,7 +182,12 @@ function App() {
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}
       </Switch>
+      <div className="blob">
+
+
+</div>
     </div>
+
   );
 }
 

@@ -9,12 +9,13 @@ import HomePage from "./pages/homepage/homepage.component";
 import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import AccountPage from "./pages/account/account.component";
+
+import Chats from "./pages/chats/chats.component";
 import "./App.scss";
 import { io, Socket } from 'socket.io-client';
 
 
 const ENDPOINT = "http://127.0.0.1:3002";
-
 
 interface User {
   id: string;
@@ -43,11 +44,11 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse> {
     code: code
   };
   const response = await fetch('http://127.0.0.1:3000/auth/login', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(data),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
   });
   //   console.log(data);
   const jsonData = await response.json();
@@ -60,12 +61,12 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
     code: code
   };
   const response = await fetch('http://127.0.0.1:3000/auth/check2fa', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${tempAuthCode}`
-  },
-  body: JSON.stringify(data),
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${tempAuthCode}`
+    },
+    body: JSON.stringify(data),
   });
   //   console.log(data);
   const jsonData = await response.json();
@@ -76,11 +77,9 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
 async function set42User(setUser: Function, setAuthToken: Function, code: string) {
   let authResponse: AuthResponse = await process42ApiRedirect(code);
   // If user has 2fa, we need to confirm 2fa first
-  if (authResponse.twofa)
-  {
+  if (authResponse.twofa) {
     const twofaCode = window.prompt("Please enter your 2fa code");
-    if (!twofaCode)
-    {
+    if (!twofaCode) {
       alert('Next time, enter the code.');
       return;
     }
@@ -108,6 +107,21 @@ function logoutHandler(setUser: Function, setAuthToken: Function) {
   };
 }
 
+async function getMe(authToken: string): Promise<User> {
+
+  const response = await fetch('http://127.0.0.1:3000/profile/me', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`
+    },
+  });
+  //   console.log(data);
+  const jsonData = await response.json();
+  return jsonData as User;
+}
+
+
 
 function receiveMessage(msg: string)
 {
@@ -121,6 +135,9 @@ function App() {
   const [authToken, setAuthToken] = useState("");
   const [isSigned, setIsSigned] = useState(false);
   const [response, setResponse] = useState("");
+
+
+ 
 
   // const socket = (io(ENDPOINT));
 
@@ -138,17 +155,16 @@ function App() {
   let history = useHistory();
    
 
-    useEffect(() => {
-    const localStoragePongUser: string | null = localStorage.getItem(
-      "pongUser"
-    );
+  useEffect(() => {
+    
     const localStoragePongToken: string | null = localStorage.getItem(
       "pongToken"
     );
-    if (!user && localStoragePongUser && localStoragePongToken) {
-      const localStorageUser = JSON.parse(localStoragePongUser) as User;
-      setUser(localStorageUser);
+    if (authToken === "" && localStoragePongToken !== null) {
       setAuthToken(localStoragePongToken);
+    }
+    if (!user && localStoragePongToken !== null) {
+      getMe(localStoragePongToken).then((me: User) => setUser(me));
     }
 
     if (searchParams.get("code")) {
@@ -172,10 +188,13 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route path="/play">
-          <Game user={user} setUser={setUser} authToken={authToken}/>
+          <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
         <Route path="/account">
-          <AccountPage user={user} setUser={setUser} authToken={authToken}/>
+          <AccountPage user={user} setUser={setUser} authToken={authToken} />
+        </Route>
+        <Route path="/chats">
+          <Chats authToken={authToken} />
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

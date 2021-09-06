@@ -2,18 +2,11 @@ import React, { useEffect, useState } from 'react';
 import Pong from '../../game/game';
 import EndGameMenu from '../../components/end-game-menu/end-game-menu.component';
 import './game.styles.scss';
-
-
+import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
 
 const ENDPOINT = "http://127.0.0.1:3002";
 
-
-
-
-// socket?.on('msgToClient', (msg: number) => {
-//   // console.log(msg);
-// });
 
 interface User {
   id: string;
@@ -44,20 +37,28 @@ interface IGameProps {
   authToken: string
 }
 
-
+function restartGame(setReady: Function, setRestart: Function, restart: boolean, socket: Socket)
+{
+  setReady(false);
+  socket.emit('leaveRoom')
+  setRestart(!restart);
+}
 
 const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
-
+    console.log('game_component');
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [updateStats, setUpdateStats] = useState<boolean>(false);
     const [restart, setRestart] = useState<Boolean>(false);
     const [ready, setReady] = useState<Boolean>(false);
     const [id, setId] = useState<number>(3);
+    const [gameId, setGameId] = useState<string>('no id');
+
     const [socket, setSocket] = useState<Socket>(() => {
       const initialState = io(ENDPOINT);
       return initialState;
     });
 
+    var pong: Pong | null = null;
     useEffect(() => {
       console.log(socket);
       socket.emit('joinRoom');
@@ -68,15 +69,21 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
         console.log(message);
         setId(message);
      });
+     socket.on('gameId', function(message: string) {setGameId(message)})
      socket.on('won', function(result: string, authToken: string) {
       setUpdateStats(true);
       socket.emit('leaveRoom');
     })
-  }, []);
+  }, [restart]);
 
 
   useEffect(() => {
-
+    
+    if (pong)
+    {
+      pong.end();
+      setIsGameEnded('game');
+    }
     async function  updateGameStats(result: string, authToken: string){
       if (user)
       {
@@ -109,11 +116,11 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          var pong = new Pong(updateGameStats, canvas, authToken, socket, id);
+          pong = new Pong(updateGameStats, canvas, authToken, socket, id);
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {
-              pong.players[id].pos.y = event.offsetY;
+              pong!.players[id].pos.y = event.offsetY;
           });
         //   window.addEventListener('keydown', event => {
         //     if (event.code == 'KeyW')
@@ -125,15 +132,19 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       //     pong.start();
       // });
       return () => {
-          socket?.emit('quitGame', pong.players[0].score, pong.players[1].score)
-          socket?.disconnect();
-          pong.end()
-          
+          socket?.emit('quitGame', pong!.players[0].score, pong!.players[1].score)
+          // socket?.disconnect();
+          pong!.end();
         }
-      }    
+      }
     }
 }, [ready]);
 
+useEffect(() => {
+  return () => {
+    socket?.disconnect();
+  }
+}, [])
 
 useEffect(() => {
   async function  updateGameStats(result: string, authToken: string){
@@ -166,11 +177,6 @@ useEffect(() => {
 }, [updateStats])
 
 
-  // socket.on('returnWaitingResponse', function(message: boolean) {
-  //   if (message)
-  //     setWait(false);
-  // });
-
   const changeGameState = (user: User, result: string) => {
     return {
       id: user.id,
@@ -184,26 +190,35 @@ useEffect(() => {
     }
   } 
 
-
-
-  
-  // const restartGame = () => {
-  //   setRestart(!restart);
-  // }
-
     return(
       <div className='game'>
         {
-          socket ?
-          <canvas id="forCanvas" width={800} height={600}></canvas>
+        user ?
+        <>
+        {
+          ready ?
+        <>
+          <GameHeader playerId = {id} userName={user!.name} enemyName="enemy"/>
+        <canvas id="forCanvas" width={800} height={600}></canvas>
+        <h1>{gameId}</h1>
+        </>
         :
-         <h1>CONNECTING</h1>
+        <>
+         <h1>Waiting for opponent...</h1>
+         <div className="lds-hourglass"><div></div><div></div></div>
+         </>
         }
-        {/* {            isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/> */}
-{/* } */}
-      
-
-
+        {            isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={() =>
+         {
+           setReady(false);
+           setRestart(!restart)
+           socket.emit('leaveRoom');
+        }
+        }/> } 
+      </>
+        :
+        <h1>SIGN IN TO PLAY</h1>
+      }
       </div>
 
     );

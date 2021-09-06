@@ -85,6 +85,7 @@ export class AppGateway implements OnGatewayInit {
   connectedClients = [];
   data = {};
   playersId = {};
+  playersScores = [0, 0];
   // @WebSocketServer()
   // server: Server;
   private logger =  new Logger('AppGateway');
@@ -136,14 +137,23 @@ export class AppGateway implements OnGatewayInit {
   }
   
 
-  @SubscribeMessage('scored')
+  @SubscribeMessage('launchBall')
   ballLaunch(socket: Socket) {
     let message = {
+      pos_x: 400,
       pos_y: Math.random() * 600,
       vel_x: 300 * (Math.random() > .5 ? 1 : -1),
       vel_y: 300 * (Math.random() * 2  -1)
     }
     this.server.emit('getBallSpeed', message)
+  }
+
+  @SubscribeMessage('scored')
+  playerScored(socket: Socket, who: number) {
+    console.log(who)
+    console.log(this.playersScores[who])
+    this.playersScores[who] = this.playersScores[who] + 0.5;
+    this.server.emit('changeScore', this.playersScores)
   }
   getActiveRooms = () => {
     // Convert map into 2D list:
@@ -181,7 +191,8 @@ export class AppGateway implements OnGatewayInit {
     }
     console.log(roomName);
     socket.join(roomName);
-    this.server.to(socket.id).emit('getId', playerId)
+    this.server.to(socket.id).emit('gameId', roomName);
+    this.server.to(socket.id).emit('getId', playerId);
     if (ready)
       this.server.emit('ready');
   }
@@ -209,8 +220,8 @@ export class AppGateway implements OnGatewayInit {
 
 
     // if (this.server.sockets.adapter.rooms[filtered[0]])
-      this.server.of("/").adapter.on("delete-room", (room) => 
-      console.log(room, "room was deleted"));
+      // this.server.of("/").adapter.on("delete-room", (room) => 
+      // console.log(room, "room was deleted"));
   
       socket.leave(filtered[0])
   }

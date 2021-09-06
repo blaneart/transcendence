@@ -194,7 +194,7 @@ function App() {
           <AccountPage user={user} setUser={setUser} authToken={authToken} />
         </Route>
         <Route path="/chats">
-          <Chats authToken={authToken} />
+          <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser}/>
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

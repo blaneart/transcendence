@@ -63,6 +63,20 @@ export class AppController {
   getProfile(@Request() req) {
     return req.user;
   }
+  
+  @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
+  @Post('userByName')
+  async getUserByName(@Request() req) {
+    const user = await this.profileService.getUserByName(req.body.name);
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
+  @Get('users')
+  async getUsers() {
+    const users = await this.profileService.getUsers();
+    return users;
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post('auth/set2fa')
@@ -95,7 +109,6 @@ export class AppController {
     const val = req.body.value;
     console.log(val);
     console.log(req.user);
-    console.log('here :)');
     if (val == '') return req.user;
     const response = await this.profileService.updateUserById(req.user.id, {
       name: val,

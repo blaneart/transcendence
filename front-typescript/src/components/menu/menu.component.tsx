@@ -33,6 +33,11 @@ const Menu = () => {
           linkUrl: 'chats',
           id: 4
       },
+      {
+        title: "USERS",
+        linkUrl: 'users',
+        id: 5
+    },
     ])
 
     

@@ -56,4 +56,16 @@ export class ProfileService {
     const response = await db('users').where({ id: id }).select('*');
     return response[0];
   }
+
+  async getUserByName(name: string)
+  {
+    const response = await db('users').where({ name: name }).select('*');
+    return response[0];
+  }
+
+  async getUsers()
+  {
+    const response = await db('users').select('*');
+    return response;
+  }
 }

@@ -191,7 +191,7 @@ function App() {
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
         <Route path="/chats">
-          <Chats authToken={authToken} />
+          <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser}/>
         </Route>
         <Route path="/users">
           <Users user={user} setUser={setUser} authToken={authToken} />

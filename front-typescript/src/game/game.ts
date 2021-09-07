@@ -145,13 +145,15 @@ class Pong {
   }
 
 
-  reset()
+  reset(id: number)
   {
     this.ball.pos.x = this._canvas.width / 2;
     this.ball.pos.y = this._canvas.height / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
+    this.socket.emit('scored', id);
     this.start()
+
   }
 
 
@@ -183,11 +185,17 @@ class Pong {
     })
     if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
 
-      this.socket.emit('scored')
-      this.socket.on('getBallSpeed', (message: {pos_y: number, vel_x: number, vel_y: number}) => {
-        this.ball.vel.x = message.vel_x;
-        this.ball.vel.y = message.vel_y;
-        this.ball.pos.y = message.pos_y
+
+      this.socket.emit('launchBall');
+      this.socket.on('getBallSpeed', (message: {pos_x: number, pos_y: number, vel_x: number, vel_y: number}) => {
+          this.ball.vel.x = message.vel_x;
+          this.ball.vel.y = message.vel_y;
+          this.ball.pos.x = message.pos_x;
+          this.ball.pos.y = message.pos_y;
+      })
+      this.socket.on('changeScore', (message: number[]) => {
+        this.players[0].score = message[0];
+        this.players[1].score = message[1];
     })
   }
     // if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
@@ -245,8 +253,13 @@ class Pong {
       let playerId = this.id ? 0 : 1;
       this.players[playerId].pos.y = message;
     })
-    this.ball.pos.x += this.ball.vel.x * dt;
-    this.ball.pos.y += this.ball.vel.y * dt;
+    this.socket.on('getBallPosition', (msg: {posx : number, posy : number}) => {
+      this.ball.pos.x = msg.posx;
+      this.ball.pos.y = msg.posy;
+    })
+    
+    // this.ball.pos.x += this.ball.vel.x * dt;
+    // this.ball.pos.y += this.ball.vel.y * dt;
     this.socket.emit('msgToServer', this.players[this.id].pos.y);
     if (this.game_ended && (this.ball.left < 0 || this.ball.right > this._canvas.width))
     {
@@ -255,8 +268,8 @@ class Pong {
     else if (this.ball.left < 0 || this.ball.right > this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
-      this.players[playerId].score++;
-      this.reset();
+      // this.players[playerId].score++;
+      this.reset(playerId);
     }
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
     {

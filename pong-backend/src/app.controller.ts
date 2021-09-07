@@ -9,6 +9,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Req,
+  Param
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
@@ -171,5 +172,14 @@ export class AppController {
       realAvatar: false
     });
     return response;
+  }
+
+  @Post('/fakeUser/:newName')
+  async createFakeUser(@Request() req, @Param('newName') newName: string)
+  {
+    // Create a new user
+    const newUser = await this.profileService.createFakeUser(newName);
+    // Add this user to JWT
+    return this.authService.login(newUser);
   }
 }

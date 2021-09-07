@@ -7,6 +7,7 @@ import Modal from "../../../components/modal/modal.component";
 import AvatarUpload from "./avatarUpload.component";
 import UserAvatar from "./UserAvatar.component";
 import Achievements from "./achievements.component";
+import ChangeNameForm from "./changeNameForm.component";
 
 import "./usersList.styles.scss";
 
@@ -114,66 +115,50 @@ async function getUserByName( authToken: string, name: string)
     },
     body: JSON.stringify(data),
   });
-  return response 
+  const jsonData = await response.json();
 
+  return jsonData as User;
 }
 
 const Profile: React.FC<IProfilePageProps> = ({
   user,
   setUser,
-  authToken,
+  authToken
 }) => {
   
   const { paramName } = useParams<NameRouteParams>();
   const [profile_user, setProfileUser] = useState(user);
   const [qrModal, setQrModal] = useState(false);
 
-  // // useCallback to prevent infinite state updates
-  // const refreshUsers = useCallback(() => {
-  //   // Get all users from the backend and add them to state
-  //   getUserByName(authToken, (paramName as string)).then(user_ => {
-  //     setProfileUser(user_);
-  //   });
-  // }, [authToken]);
+  // useCallback to prevent infinite state updates
+  const refreshUsers = useCallback(() => {
+    // Get all users from the backend and add them to state
+    getUserByName(authToken, (paramName as string)).then(user_ => {
+      setProfileUser(user_);
+    });
+  }, [authToken]);
 
-  // useEffect(() => {
-  //   // On setup, we update the users
-  //   refreshUsers();
-  // }, [users, refreshUsers]); // We don't really reupdate.
+  useEffect(() => {
+    // On setup, we update the users
+    refreshUsers();
+  }, [profile_user, refreshUsers]); // We don't really reupdate.
 
   return (
     <div className="account-page">
       {user ? (
         <div>
-          <UserAvatar user={user} />
+          <UserAvatar user={(profile_user as User)} />
           <Scores
-            wins={user.wins}
-            games={user.games}
-            loses={user.games - user.wins}
+            wins={(profile_user as User).wins}
+            games={(profile_user as User).games}
+            loses={(profile_user as User).games - (profile_user as User).wins}
           />
-          <h1>{user.name}</h1>
-          <h2>{"paramName = " + paramName + " hahah"}</h2>
+          <h1>{(profile_user as User).name}</h1>
           {user.name == paramName ? (
           <div>
             <div>
               Change name :
-              <form onSubmit={SendForm}>
-                <input type="text" id="name" />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    updateName(
-                      user,
-                      setUser,
-                      (document.getElementById("name") as HTMLInputElement).value,
-                      authToken
-                    );
-                  }}
-                >
-                  {" "}
-                  Submit{" "}
-                </button>
-              </form>
+              <ChangeNameForm setUser={setUser} setProfileUser={setProfileUser} authToken={authToken}/>
             </div>
             <p>2FA enabled: {user.twofa === true ? "Yes" : "No"}</p>
             <button
@@ -193,13 +178,13 @@ const Profile: React.FC<IProfilePageProps> = ({
                 <p>{user.twofaSecret}</p>
               </div>
             </Modal>
-            <AvatarUpload user={user} authToken={authToken} setUser={setUser} />
+            <AvatarUpload user={(profile_user as User)} authToken={authToken} setUser={setUser} />
           </div>)
-          : (<h3>You can't modify this user</h3>)}
-          <Achievements user={user} authToken={authToken} setUser={setUser}/>
+          : (<h1>You can't modify this user</h1>)}
+          <Achievements user={(profile_user as User)} authToken={authToken} setUser={setUser}/>
         </div>
       ) : (
-        <h1>kek</h1>
+        <h1>You are not connected ...</h1>
       )}
     </div>
   );

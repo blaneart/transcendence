@@ -67,7 +67,7 @@ export class AppController {
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
   @Post('userByName')
   async getUserByName(@Request() req) {
-    const user = await this.profileService.getUserByName(req.body.name);
+    const user = await this.profileService.getUserByName(req.body.value);
     return user;
   }
 

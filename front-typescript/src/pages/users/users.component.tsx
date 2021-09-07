@@ -44,11 +44,11 @@ const Users: React.FC<UsersProps> = ({
   return (
     <div>
     <Switch>
-      <Route path="/users/:paramName">
-        {authToken === "" ? <p>Please log in.</p> : <Profile user={user} setUser={setUser} authToken={authToken} />}
-      </Route>
       <Route exact path="/users/">
         {authToken === "" ? <p>Please log in.</p> : <UsersList user_logged={user} setUser={setUser} authToken={authToken} />}
+      </Route>
+      <Route path="/users/:paramName">
+        {authToken === "" ? <p>Please log in.</p> : <Profile user={user} setUser={setUser} authToken={authToken} />}
       </Route>
     </Switch>
     </div>

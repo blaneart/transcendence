@@ -24,15 +24,15 @@ const Menu = () => {
             id: 2
         },
         {
-            title: "ACCOUNT",
-            linkUrl: 'account',
-            id: 3
-        },
-        {
           title: "CHATS",
           linkUrl: 'chats',
-          id: 4
+          id: 3
       },
+      {
+        title: "USERS",
+        linkUrl: 'users',
+        id: 4
+    },
     ])
 
     

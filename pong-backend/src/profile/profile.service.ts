@@ -57,6 +57,17 @@ export class ProfileService {
     return response[0];
   }
 
+  async getUserByName(name: string)
+  {
+    const response = await db('users').where({ name: name }).select('*');
+    return response[0];
+  }
+
+  async getUsers()
+  {
+    const response = await db('users').select('*');
+    return response;
+  }
   async createFakeUser(newName: string)
   {
     // Insert a new fake user

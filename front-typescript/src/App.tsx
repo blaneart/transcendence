@@ -5,10 +5,10 @@ import {
   useLocation,
   useHistory,
 } from "react-router-dom";
-import HomePage from "./pages/homepage/homepage.component";
+import Menu from "./components/menu/menu.component";
 import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
-import AccountPage from "./pages/account/account.component";
+import Users from "./pages/users/users.component";
 
 import Chats from "./pages/chats/chats.component";
 import "./App.scss";
@@ -186,15 +186,15 @@ function App() {
       {/* <input type="text" onChange={ sendMessage } /> */}
       <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
-        <Route exact path="/" component={HomePage} />
+        <Route exact path="/" component={Menu} />
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
-        <Route path="/account">
-          <AccountPage user={user} setUser={setUser} authToken={authToken} />
-        </Route>
         <Route path="/chats">
           <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser}/>
+        </Route>
+        <Route path="/users">
+          <Users user={user} setUser={setUser} authToken={authToken} />
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

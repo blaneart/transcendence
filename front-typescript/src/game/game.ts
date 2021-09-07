@@ -253,8 +253,13 @@ class Pong {
       let playerId = this.id ? 0 : 1;
       this.players[playerId].pos.y = message;
     })
-    this.ball.pos.x += this.ball.vel.x * dt;
-    this.ball.pos.y += this.ball.vel.y * dt;
+    this.socket.on('getBallPosition', (msg: {posx : number, posy : number}) => {
+      this.ball.pos.x = msg.posx;
+      this.ball.pos.y = msg.posy;
+    })
+    
+    // this.ball.pos.x += this.ball.vel.x * dt;
+    // this.ball.pos.y += this.ball.vel.y * dt;
     this.socket.emit('msgToServer', this.players[this.id].pos.y);
     if (this.game_ended && (this.ball.left < 0 || this.ball.right > this._canvas.width))
     {

@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
+import { time } from 'console';
 import { WSASERVICE_NOT_FOUND } from 'constants';
 import { Socket, Server } from 'socket.io';
 var uuid = require('uuid');
@@ -69,7 +70,7 @@ class Player extends Rect {
   constructor()
   {
     super(20,100);
-    this.score = 9;
+    this.score = 0;
     this.socket_id;
   }
 }
@@ -85,9 +86,7 @@ export class AppGateway implements OnGatewayInit {
   connectedClients = [];
   data = {};
   playersId = {};
-  playersScores = [0, 0];
-  // @WebSocketServer()
-  // server: Server;
+  rooms = [];
   private logger =  new Logger('AppGateway');
 
   handleConnection(client: Socket)
@@ -108,9 +107,8 @@ export class AppGateway implements OnGatewayInit {
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
-
-    // this.server.emit(ActionTypes.ClientConnected, this.connectedClients);
   }
+
   @SubscribeMessage('quitGame')
   quitGame(clinet: Socket, score1: number, score2: number) 
   {
@@ -132,10 +130,21 @@ export class AppGateway implements OnGatewayInit {
 
   @SubscribeMessage('msgToServer')
   handleMessage(client: Socket, text: number)  {
-
         client.broadcast.emit('getPosition', text);
   }
   
+  @SubscribeMessage('subscribe')
+  pushBall(client: Socket)
+  {
+    var msg = {
+      posx: 10,
+      posy: 10
+    }
+    setInterval(() => {
+      msg.posx = msg.posx + 1;
+      this.server.to(this.getRoomNameBySocket(client)).emit('getBallPosition', msg);
+  }, 10);
+  }
 
   @SubscribeMessage('launchBall')
   ballLaunch(socket: Socket) {
@@ -151,20 +160,16 @@ export class AppGateway implements OnGatewayInit {
   @SubscribeMessage('scored')
   playerScored(socket: Socket, who: number) {
     console.log(who)
-    console.log(this.playersScores[who])
-    this.playersScores[who] = this.playersScores[who] + 0.5;
-    this.server.emit('changeScore', this.playersScores)
+    console.log(this.rooms[this.getRoomNameBySocket(socket)].playersScores[who])
+    this.rooms[this.getRoomNameBySocket(socket)].playersScores[who] = this.rooms[this.getRoomNameBySocket(socket)].playersScores[who] + 0.5;
+    this.server.emit('changeScore', this.rooms[this.getRoomNameBySocket(socket)].playersScores)
   }
+
   getActiveRooms = () => {
-    // Convert map into 2D list:
-    // ==> [['4ziBKG9XFS06NdtVAAAH', Set(1)], ['room1', Set(2)], ...]
     const arr = Array.from(this.server.sockets.adapter.rooms);
-    // Filter rooms whose name exist in set:
-    // ==> [['room1', Set(2)], ['room2', Set(2)]]
     const filtered = arr.filter(room => !room[1].has(room[0]))
-    // Return only the room name: 
-    // ==> ['room1', 'room2']
     const res = filtered.map(i => i[0]);
+
     return res;
 }
 
@@ -183,6 +188,8 @@ export class AppGateway implements OnGatewayInit {
       roomName = uuid.v4();
       playerId =  Math.random()>=0.5? 1 : 0;
       this.playersId[roomName] = playerId;
+      if (!this.rooms[roomName]) this.rooms[roomName] = {}
+      this.rooms[roomName].playersScores = [0, 0];
     }
     else
     {
@@ -197,7 +204,11 @@ export class AppGateway implements OnGatewayInit {
       this.server.emit('ready');
   }
 
-
+  getRoomNameBySocket = (socket: Socket) => {
+    const arr = Array.from(socket.rooms);
+    const filtered = arr.filter(room => room !== socket.id)
+    return filtered[0];
+  }
   getByValue = (map, searchValue) => {
     for (let [key, value] of map.entries()) {
       console.log(key, value)
@@ -209,21 +220,8 @@ export class AppGateway implements OnGatewayInit {
   @SubscribeMessage('leaveRoom')
   leavRoom(socket: Socket)
   {
-    console.log('leaveRoom')
-    // this.server.sockets.adapter.rooms.forEach(value => {console.log(value)})
-    // let roomName = this.getByValue(this.server.sockets.adapter.rooms, socket.id);
-    const arr = Array.from(socket.rooms);
-    const filtered = arr.filter(room => room !== socket.id)
-
-    // delete this.server.sockets.adapter.rooms[socket.id];
-    console.log(filtered[0]);
-
-
-    // if (this.server.sockets.adapter.rooms[filtered[0]])
-      // this.server.of("/").adapter.on("delete-room", (room) => 
-      // console.log(room, "room was deleted"));
-  
-      socket.leave(filtered[0])
+    console.log('leaveRoom')  
+    socket.leave(this.getRoomNameBySocket(socket))
   }
 
 
@@ -231,24 +229,5 @@ export class AppGateway implements OnGatewayInit {
   createRoom(socket: Socket) {
     console.log('joinRoom');
     this.getWaitingRoom(socket);
-
-
-    // socket.to('aRoom').emit('roomCreated', {room: 'aRoom'});
-  //   if (this.server.sockets.adapter.rooms.get('aRoom').size === 1)
-  // {
-  //     this.server.emit('returnWaitingResponse', false);
-  // }
-  //   else if (this.server.sockets.adapter.rooms.get('aRoom').size === 2)
-  //   {
-  //     var x = this.server.sockets.adapter.rooms.get('aRoom')
-  //     var it = x.values();
-  //     //get first entry:
-  //     var first = it.next();
-  //     this.server.sockets.sockets.get(first.value).emit('getId', 0)
-  //     socket.emit('getId', 1);
-      // socket.broadcast.to(this.server.sockets[first.value].id).emit('getId', 0);
-
-      // this.server.emit('returnWaitingResponse', true);
-    // }
   }
 }

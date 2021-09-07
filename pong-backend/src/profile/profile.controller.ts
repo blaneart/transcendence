@@ -6,7 +6,9 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('profile')
 export class ProfileController {
-    constructor( private readonly profileService: ProfileService, private readonly achievementService: AchievementService)
+    constructor(
+      private readonly profileService: ProfileService, 
+      private readonly achievementService: AchievementService)
     {}
 
     

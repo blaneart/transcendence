@@ -1,16 +1,5 @@
 import React, { useState } from "react";
-
-interface User {
-  id: string;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean
-}
+import { User } from "../../../App.types";
 
 
 async function uploadHandler(authToken: string, setUser: Function) {

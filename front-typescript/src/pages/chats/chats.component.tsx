@@ -8,19 +8,20 @@ interface ChatsProps {
   authToken: string,
   setAuthToken: Function
   setUser: Function
+  userId: number
 }
 
-const Chats: React.FC<ChatsProps> = ({ authToken, setAuthToken, setUser }) => {
+const Chats: React.FC<ChatsProps> = ({ authToken, setAuthToken, setUser, userId }) => {
 
   return (
     <div>
       <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
     <Switch>
       <Route path="/chats/:roomName">
-        {authToken === "" ? <p>Please log in.</p> : <RoomView authToken={authToken}/>}
+        {authToken === "" ? <p>Please log in.</p> : <RoomView userId={userId} authToken={authToken}/>}
       </Route>
       <Route exact path="/chats/">
-        {authToken === "" ? <p>Please log in.</p> : <RoomList authToken={authToken} />}
+        {authToken === "" ? <p>Please log in.</p> : <RoomList userId={userId} authToken={authToken} />}
       </Route>
     </Switch>
     </div>

@@ -4,18 +4,10 @@ import  logo from '../../assets/trlogo.png';
 import Login from '../login/login.component';
 import CustomButton from '../custom-button/custom-button.component';
 import './header.styles.scss';
-
+import { User } from "../../App.types";
 
 interface IHeaderProps {
-    user?: {
-        id: string,
-        name: string,
-        avatar: string,
-        games: number,
-        wins: number,
-        twofa: boolean
-        realAvatar: boolean
-    } | null,
+    user?: User | null,
     // logoutHandler: React.MouseEventHandler<HTMLDivElement>
     logoutHandler: React.MouseEventHandler<HTMLButtonElement>
 } 

@@ -13,21 +13,10 @@ import Users from "./pages/users/users.component";
 import Chats from "./pages/chats/chats.component";
 import "./App.scss";
 import { io, Socket } from 'socket.io-client';
-
+import { User } from './App.types';
 
 const ENDPOINT = "http://127.0.0.1:3002";
 
-interface User {
-  id: string;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean
-}
 
 interface IState {
   user: User | null;
@@ -191,7 +180,7 @@ function App() {
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
         <Route path="/chats">
-          <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser}/>
+          <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user? user.id : -1}/>
         </Route>
         <Route path="/users">
           <Users user={user} setUser={setUser} authToken={authToken} />

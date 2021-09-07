@@ -3,9 +3,11 @@ import CreateRoom from './createRoom.component';
 import './roomList.styles.scss';
 import { Link } from 'react-router-dom';
 import { Room } from '../chats.types';
+import RoomLink from "./roomLink.component";
 
 interface RoomListProps {
   authToken: string
+  userId: number
 }
 
 // Get all open rooms from the backend
@@ -20,12 +22,13 @@ async function getRooms(authToken: string): Promise<Room[]> {
   });
   // Read response as JSON
   const jsonData = await response.json();
+  console.log(jsonData);
   // Cast response to an array of rooms
   return jsonData as Room[];
 }
 
 
-const RoomList: React.FC<RoomListProps> = ({ authToken }) => {
+const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   
   
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -41,13 +44,13 @@ const RoomList: React.FC<RoomListProps> = ({ authToken }) => {
   useEffect(() => {
     // On setup, we update the rooms
     refreshRooms();
-  }, [rooms, refreshRooms]); // We don't really reupdate.
+  }, []); // We don't really reupdate.
 
   return (
     <div>
       <h2>Rooms: </h2>
-      {rooms.map((room) => <div key={room.id}><Link to={`/chats/${room.name}`}>{room.name}</Link></div>)}
-      <CreateRoom authToken={authToken} onCreate={() => refreshRooms()} />
+      {rooms.map((room) => <RoomLink key={room.id} authToken={authToken} room={room} onDelete={refreshRooms} userId={userId}/>)}
+      <CreateRoom authToken={authToken} onCreate={refreshRooms} />
     </div>
   );
 }

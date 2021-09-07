@@ -1,16 +1,5 @@
 import Avatar from "boring-avatars";
-
-interface User {
-  id: string;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean
-}
+import { User } from "../../../App.types";
 
 interface UserAvatarProps {
   user: User;

@@ -4,35 +4,12 @@ import EndGameMenu from '../../components/end-game-menu/end-game-menu.component'
 import './game.styles.scss';
 import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
+import { User } from "../../App.types";
 
 const ENDPOINT = "http://127.0.0.1:3002";
 
-
-interface User {
-  id: string;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean
-}
-
-
 interface IGameProps {
-  user?: {
-    id: string,
-    name: string,
-    id42: number,
-    avatar: string,
-    games: number,
-    wins: number,
-    twofa: boolean,
-    twofaSecret: string,
-    realAvatar: boolean,
-  } | null,
+  user?: User | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
 }

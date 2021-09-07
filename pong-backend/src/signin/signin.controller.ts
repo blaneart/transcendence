@@ -41,6 +41,10 @@ async function createRoom() {
         t.increments('id').primary();
         t.string('name');
         t.unique('name');
+        t.integer('ownerID');
+        t.boolean('restricted').defaultTo(false);
+        t.string('hash');
+        t.foreign('ownerID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
       });
     }
 }

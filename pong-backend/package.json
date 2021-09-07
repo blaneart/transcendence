@@ -30,6 +30,7 @@
     "@nestjs/serve-static": "^2.2.2",
     "@nestjs/websockets": "^8.0.6",
     "@types/passport-local": "^1.0.34",
+    "bcrypt": "^5.0.1",
     "bcrypt-nodejs": "0.0.3",
     "express-session": "^1.17.2",
     "knex": "^0.21.21",

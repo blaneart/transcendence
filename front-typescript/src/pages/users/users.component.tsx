@@ -2,35 +2,15 @@ import { useState } from "react";
 import { Switch, Route } from "react-router";
 import Profile from "./components/Profile.component";
 import UsersList from "./components/UsersList.component";
+import { User } from "../../App.types";
 
-interface User {
-  id: string;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean;
-}
 
 interface IState {
   user: User | null;
 }
 
 interface UsersProps {
-  user?: {
-    id: string;
-    name: string;
-    id42: number;
-    avatar: string;
-    games: number;
-    wins: number;
-    twofa: boolean;
-    twofaSecret: string;
-    realAvatar: boolean;
-  } | null;
+  user?: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
   authToken: string;
 }

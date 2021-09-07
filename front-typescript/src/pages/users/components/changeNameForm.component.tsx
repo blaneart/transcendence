@@ -1,19 +1,8 @@
 import React, { FormEvent } from "react";
 import { useHistory, withRouter, RouteComponentProps } from "react-router-dom";
 import ChangeNameButton from "./changeNameButton.component";
+import { User } from "../../../App.types";
 
-interface User {
-    id: string;
-    name: string;
-    id42: number;
-    avatar: string;
-    games: number;
-    wins: number;
-    twofa: boolean;
-    twofaSecret: string;
-    realAvatar: boolean;
-  }
-  
   interface ICNFProps {
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
     setProfileUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;

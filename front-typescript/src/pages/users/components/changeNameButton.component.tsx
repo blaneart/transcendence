@@ -1,16 +1,5 @@
 import { useHistory, withRouter, RouteComponentProps } from "react-router-dom";
-
-interface User{
-    id: string;
-    name: string;
-    id42: number;
-    avatar: string;
-    games: number;
-    wins: number;
-    twofa: boolean;
-    twofaSecret: string;
-    realAvatar: boolean;
-  }
+import { User } from "../../../App.types";
   
   interface ICNBProps {
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;

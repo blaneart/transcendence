@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Param } from '@nestjs/common';
+import { Controller, Get, Put, Param, UseGuards, Request } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -16,11 +16,14 @@ export class ChatController {
   }
 
   // Create a new room with a given name
+  @UseGuards(JwtAuthGuard)
   @Put('/rooms/:name/')
-  async createRoom(@Param('name') name: string)
+  async createRoom(@Request() request, @Param('name') name: string)
   {
     // Create the room using the service
-    return await this.chatService.createRoom(name);
+    console.log('here');
+    console.log(request.user);
+    return await this.chatService.createRoom(name, request.user.id);
   }
 
 }

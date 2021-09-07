@@ -3,16 +3,16 @@ import { db } from 'src/signin/signin.controller';
 
 @Injectable()
 export class ChatService {
-  async createRoom(name: string) {
+  async createRoom(name: string, creatorId: number) {
     // Create a new room in the database
-    const new_room = await db('room').returning('*').insert({ name: name });
+    const new_room = await db('room').returning('*').insert({ name: name, ownerID: creatorId });
     // Return the instance of the room
     return new_room[0];
   }
 
   async getAllRooms() {
     // Get all rooms in the database
-    const rooms = await db('room').select('*');
+    const rooms = await db('room').join('users', 'users.id', '=', 'room.ownerID').select('room.id', 'room.name', 'room.ownerID', 'users.name as owner_name');
     // Return all of the rooms
     return rooms;
   }

@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
 import { Room } from './chat.types';
-const bcrypt = require ('bcrypt');
+import * as bcrypt from 'bcrypt';
 // import { bcrypt }  from 'bcrypt-nodejs';
 
 const saltRounds = 10;
-
 
 @Injectable()
 export class ChatService {
@@ -26,7 +25,7 @@ export class ChatService {
     // Get all rooms in the database
     const rooms = await db('room')
       .join('users', 'users.id', '=', 'room.ownerID')
-      .select('room.id', 'room.name', 'room.ownerID', 'users.name as owner_name');
+      .select('room.id', 'room.name', 'room.ownerID', 'room.restricted', 'users.name as owner_name');
     // Return all of the rooms
     return rooms;
   }
@@ -121,6 +120,8 @@ export class ChatService {
     return await bcrypt.compare(attemptedPassword, room.hash);
   }
 
+
+  
   async checkPassword(room: Room, attemptedPassword: string) : Promise<boolean>
   {
     return await bcrypt.compare(attemptedPassword, room.hash);
@@ -152,7 +153,7 @@ export class ChatService {
   {
     const response = await db('room').where({ 'room.name': roomName})
       .join('users', 'users.id', '=', 'room.ownerID')
-      .select('room.id', 'room.name', 'room.ownerID', 'users.name as owner_name')
+      .select('room.id', 'room.name', 'room.ownerID', 'room.restricted', 'users.name as owner_name')
     return response[0];
   }
 }

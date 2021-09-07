@@ -85,6 +85,15 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       history.replace("/chats/");
     })
 
+    socket.on("loginRequest", () => {
+      let pass = undefined;
+      while (!pass)
+      {
+        pass = window.prompt("Please type in your password", undefined);
+      }
+      socket.emit("login", {roomName: roomName, password: pass});
+    })
+
     // Ask to add us to this room and send us the initial messages.
     socket.emit("requestJoin", roomName);
 
@@ -105,7 +114,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
   return (
     <div>
       <h2>Room: {roomName}</h2>
-      {room ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
+      {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
       {messages?.map((msg) => <div key={msg.id}><span>{msg.name}: </span>{msg.message}</div>)}
       <Composer socket={socket} roomName={roomName} />

@@ -101,6 +101,8 @@ export class ChatGateway {
   @SubscribeMessage('login')
   async handleLogin(client: AuthenticatedSocket, data: LoginAttempt)
   {
+    console.log("Got Login");
+    console.log(data);
     const room = await this.chatService.findRoomByName(data.roomName);
 
     if (data.roomName === "")
@@ -132,6 +134,8 @@ export class ChatGateway {
     // Ensure the password was a match
     if (response !== true)
     {
+      // Kick the person out
+      this.server.to(client.id).emit('kickedOut');
       throw new WsException("Wrong password");
     }
 
@@ -201,5 +205,30 @@ export class ChatGateway {
     // Leave all rooms
     if (client.user)
       this.chatService.leaveAllRooms(client.user.id);
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('restrictRoom')
+  async handleRestrict(client: AuthenticatedSocket, attempt: LoginAttempt) {
+    // Find the room
+    const room = await this.chatService.findRoomByName(attempt.roomName);
+
+    // Ensure the room exists
+    if (!room)
+      throw new WsException("Room not found");
+
+      console.log("Exists");
+    // Ensure the sender owns the room
+    if (room.ownerID !== client.user.id)
+      throw new WsException("You have to own the room to make it private");
+
+    // Restrict the room in our database
+    this.chatService.restrictRoom(attempt.roomName, attempt.password);
+
+    // Kick all the users from the room
+    this.server.to(room.name).emit("kickedOut");
+
+    // Delete all participations from the database
+    this.chatService.deleteAllParticipations(room);
   }
 }

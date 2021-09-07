@@ -2,6 +2,7 @@ import { Controller, Get, Put, Param, Delete, UseGuards, Request, HttpException,
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Room } from './chat.types';
+import { request } from 'express';
 
 @Controller('chat')
 export class ChatController {
@@ -26,11 +27,28 @@ export class ChatController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/rooms/:name/')
+  async getRoom(@Request() request, @Param('name') name: string)
+  {
+    const room = await this.chatService.getRoom(name);
+    if (!room)
+    {
+      throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
+    }
+    return room;
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Delete('/rooms/:name/')
   async deleteRoom(@Request() request, @Param('name') name: string)
   {
     // Find the room by name
     const room: Room = await this.chatService.findRoomByName(name);
+
+    if (!room)
+    {
+      throw new HttpException("Room not found", HttpStatus.BAD_REQUEST);
+    }
 
     // Make sure the user owns this room and can delete it
     if (room.ownerID != request.user.id)

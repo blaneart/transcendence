@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
 import { Room } from './chat.types';
+const bcrypt = require ('bcrypt');
+// import { bcrypt }  from 'bcrypt-nodejs';
+
+const saltRounds = 10;
+
 
 @Injectable()
 export class ChatService {
@@ -19,7 +24,9 @@ export class ChatService {
 
   async getAllRooms() {
     // Get all rooms in the database
-    const rooms = await db('room').join('users', 'users.id', '=', 'room.ownerID').select('room.id', 'room.name', 'room.ownerID', 'users.name as owner_name');
+    const rooms = await db('room')
+      .join('users', 'users.id', '=', 'room.ownerID')
+      .select('room.id', 'room.name', 'room.ownerID', 'users.name as owner_name');
     // Return all of the rooms
     return rooms;
   }
@@ -34,16 +41,20 @@ export class ChatService {
     return room[0].id;
   }
 
-  async findRoomByName(roomName: string): Promise<Room> {
+  async findRoomByName(roomName: string): Promise<Room | null> {
     const room = await db('room').where({ name: roomName }).select('*');
     // Check if the corresponding rooms don't exist
     if (!room.length) {
-      throw 'Room not found';
+      return null;
     }
     return room[0];
   }
 
   async joinRoomByID(userID: number, roomID: number) {
+
+    // Ensure the user doesn't participate in another room
+    await this.leaveAllRooms(userID);
+
     // Create a new participation between the user and the room
     const new_participation = await db('participants')
       .returning('*')
@@ -93,5 +104,55 @@ export class ChatService {
       .join('users', 'users.id', '=', 'message.userID')
       .select('message.id', 'message.message', 'users.name');
     return messages;
+  }
+
+  // Restrict a room with a password
+  async restrictRoom(roomName: string, newPassword: string)
+  {
+    const room = await this.findRoomByName(roomName);
+    const hash = await bcrypt.hash(newPassword, saltRounds);
+    const response = await db('room').where({id: room.id}).update({restricted: true, hash: hash});
+    return response[0];
+  }
+
+  async loginToRoom(roomName: string, attemptedPassword: string) : Promise<boolean>
+  {
+    const room = await this.findRoomByName(roomName);
+    return await bcrypt.compare(attemptedPassword, room.hash);
+  }
+
+  async checkPassword(room: Room, attemptedPassword: string) : Promise<boolean>
+  {
+    return await bcrypt.compare(attemptedPassword, room.hash);
+  }
+
+  async checkUserJoined(room: Room, user_id: number): Promise<boolean>
+  {
+    const participation = await db('participants').where({roomID: room.id, userID: user_id}).select('*');
+    if (!participation.length)
+    {
+      return false;
+    }
+    return true;
+  }
+
+  async leaveAllRooms(user_id: number)
+  {
+    const response = await db('participants').where({userID: user_id}).del();
+    return response[0];
+  }
+
+  async deleteAllParticipations(room: Room)
+  {
+    const response = await db('participants').where({roomID: room.id}).del();
+    return response[0];
+  }
+
+  async getRoom(roomName: string)
+  {
+    const response = await db('room').where({ 'room.name': roomName})
+      .join('users', 'users.id', '=', 'room.ownerID')
+      .select('room.id', 'room.name', 'room.ownerID', 'users.name as owner_name')
+    return response[0];
   }
 }

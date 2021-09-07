@@ -2,5 +2,7 @@ export interface Room
 {
   id: number,
   name: string,
-  ownerID: number
+  ownerID: number,
+  restricted: boolean,
+  hash: string
 }

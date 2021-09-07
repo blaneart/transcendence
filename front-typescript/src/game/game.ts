@@ -67,10 +67,12 @@ class Ball extends Rect {
 
 class Player extends Rect {
   score: number;
-  constructor()
+  botDifficulty: number;
+  constructor(difficulty: number)
   {
     super(20,100);
-    this.score = 9;
+    this.score = 0;
+	this.botDifficulty = difficulty;
   }
 }
 
@@ -83,23 +85,23 @@ class Pong {
   animation: number;
   players: Player [];
   auth: string;
-  constructor(fn: Function, canvas: HTMLElement, authToken: string)
+  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: number)
   {
     this._canvas = <HTMLCanvasElement> canvas;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball();
-    this.ball.pos.x = 100;
-    this.ball.pos.y = 100;
-    this.ball.vel.x = 400;
-    this.ball.vel.y = 400;
+    this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
+    this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
+    this.ball.vel.x = 0;
+    this.ball.vel.y = 0;
     this.animation = 0;
     this.players = [
-      new Player(),
-      new Player(),
+      new Player(-1),
+      new Player(difficultyBot + 2),
     ]
     this.auth = authToken;
-    this.players[0].pos.x = 40;
-    this.players[1].pos.x = this._canvas.width - 40;
+    this.players[0].pos.x = 20;
+    this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
     this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
 
@@ -144,12 +146,22 @@ class Pong {
   {
     cancelAnimationFrame(this.animation);
   }
+  changedifficulty(difficulty: number)
+  {
+	  this.players[1].botDifficulty = difficulty;
+	  console.log(difficulty);
+  }
   reset()
   {
-    this.ball.pos.x = this._canvas.width / 2;
-    this.ball.pos.y = this._canvas.height / 2;
+    this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
+    this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
+	if (this.players[1].botDifficulty > 0)
+	{
+		this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
+		this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
+	}
   }
 
   isGameEnded() : boolean
@@ -186,8 +198,6 @@ class Pong {
         this._context.fillStyle = 'white';
         this._context.fillRect(this.ball.pos.x, this.ball.pos.y, this.ball.size.x, this.ball.size.y);
       }
-
-
     }
   }
   drawScore(scores: string, index: number)
@@ -213,8 +223,8 @@ class Pong {
   update(dt: number) {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
-  
-    if (this.ball.left < 0 || this.ball.right > this._canvas.width)
+
+    if (this.ball.left < this.players[0].size.x || this.ball.right > this._canvas.width - this.players[1].size.x)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
       this.players[playerId].score++;
@@ -223,10 +233,18 @@ class Pong {
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
     {
       this.ball.vel.y = -this.ball.vel.y;
-    } 
-    console.log('ell');
+    }
+    // console.log('ell');
     // this.players[1].pos.y = this.ball.pos.y;
     this.players.forEach(player => this.collide(player, this.ball));
+
+	if (this.players[1].botDifficulty > 0)
+	{
+		if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
+			this.players[1].pos.y += this.players[1].botDifficulty;
+		else if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) <= -this.players[1].botDifficulty)
+			this.players[1].pos.y -= this.players[1].botDifficulty;
+	}
     this.draw(); 
   }
 }

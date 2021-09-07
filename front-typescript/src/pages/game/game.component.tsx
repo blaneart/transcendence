@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Pong from '../../game/game';
 import EndGameMenu from '../../components/end-game-menu/end-game-menu.component';
 
-
+import '../../components/difficulty-lvl/difficulty-lvl.scss'
 import './game.styles.scss';
 
 interface User {
@@ -31,33 +31,48 @@ interface IGameProps {
     realAvatar: boolean,
   } | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
-  authToken: string
+  authToken: string,
+  difficultyLvl: number
 }
 
 
-const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
+const Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
+
     useEffect(() => {
+		DifficultyGame();
         setIsGameEnded('game')
         let canvas = document.getElementById('forCanvas');
         if (canvas)
           canvas.style.opacity = '1';
         if (canvas !== null)
         {
-            var pong = new Pong(updateGameStats, canvas, authToken);
+            var pong = new Pong(updateGameStats, canvas, authToken, difficultyLvl);
             canvas.addEventListener('mousemove', event => {
                 pong.players[0].pos.y = event.offsetY;
             });
             canvas.addEventListener('click', event => {
-            pong.start();
+				pong.changedifficulty(difficultyLvl)
+				pong.start();
         });
         return () => {
             pong.end();
         }    
     }
   }, [restart]);
+
+function	DifficultyGame()
+{
+	return (
+		<div
+			className='difficulty-item'
+			onClick={() => {difficultyLvl = 1;}}>
+			<h1>11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111</h1>
+    	</div>		
+	)
+}
 
   const changeGameState = (user: User, result: string) => {
     return {
@@ -70,7 +85,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       twofaSecret: user.twofaSecret,
       realAvatar: user.realAvatar
     }
-  } 
+  }
 
 async function  updateGameStats(result: string, authToken: string){
     if (user)

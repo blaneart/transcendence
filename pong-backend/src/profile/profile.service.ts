@@ -56,4 +56,16 @@ export class ProfileService {
     const response = await db('users').where({ id: id }).select('*');
     return response[0];
   }
+
+  async createFakeUser(newName: string)
+  {
+    // Insert a new fake user
+    const response = await db('users').returning('*')
+      .insert({
+        name: newName,
+        id42: Math.ceil(Math.random()*-1000), // a negative number to distinguish
+        avatar: newName + ""
+      });
+    return response[0];
+  }
 }

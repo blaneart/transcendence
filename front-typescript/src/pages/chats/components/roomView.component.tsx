@@ -116,7 +116,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       <h2>Room: {roomName}</h2>
       {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
-      {messages?.map((msg) => <div key={msg.id}><span>{msg.name}: </span>{msg.message}</div>)}
+      {messages?.map((msg) => <div key={msg.id}><a href={`/users/${msg.name}/`}>{msg.name}: </a>{msg.message}</div>)}
       <Composer socket={socket} roomName={roomName} />
     </div>
   );

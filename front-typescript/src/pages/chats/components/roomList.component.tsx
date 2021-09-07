@@ -7,6 +7,7 @@ import RoomLink from "./roomLink.component";
 
 interface RoomListProps {
   authToken: string
+  userId: number
 }
 
 // Get all open rooms from the backend
@@ -27,7 +28,7 @@ async function getRooms(authToken: string): Promise<Room[]> {
 }
 
 
-const RoomList: React.FC<RoomListProps> = ({ authToken }) => {
+const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   
   
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -48,8 +49,8 @@ const RoomList: React.FC<RoomListProps> = ({ authToken }) => {
   return (
     <div>
       <h2>Rooms: </h2>
-      {rooms.map((room) => <RoomLink key={room.id} authToken={authToken} room={room}/>)}
-      <CreateRoom authToken={authToken} onCreate={() => refreshRooms()} />
+      {rooms.map((room) => <RoomLink key={room.id} authToken={authToken} room={room} onDelete={refreshRooms} userId={userId}/>)}
+      <CreateRoom authToken={authToken} onCreate={refreshRooms} />
     </div>
   );
 }

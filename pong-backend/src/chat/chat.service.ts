@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
+import { Room } from './chat.types';
 
 @Injectable()
 export class ChatService {
@@ -8,6 +9,12 @@ export class ChatService {
     const new_room = await db('room').returning('*').insert({ name: name, ownerID: creatorId });
     // Return the instance of the room
     return new_room[0];
+  }
+
+  // Delete a room
+  async deleteRoom(roomID: number) {
+    const response = await db('room').where({id: roomID}).del();
+    return response;
   }
 
   async getAllRooms() {
@@ -25,6 +32,15 @@ export class ChatService {
       throw 'Room not found';
     }
     return room[0].id;
+  }
+
+  async findRoomByName(roomName: string): Promise<Room> {
+    const room = await db('room').where({ name: roomName }).select('*');
+    // Check if the corresponding rooms don't exist
+    if (!room.length) {
+      throw 'Room not found';
+    }
+    return room[0];
   }
 
   async joinRoomByID(userID: number, roomID: number) {

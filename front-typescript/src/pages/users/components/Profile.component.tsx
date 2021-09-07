@@ -10,21 +10,10 @@ import Achievements from "./achievements.component";
 import ChangeNameForm from "./changeNameForm.component";
 
 import "./usersList.styles.scss";
+import { User } from "../../../App.types";
 
 interface NameRouteParams {
   paramName?: string
-}
-
-interface User {
-  id: string;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean;
 }
 
 interface IState {
@@ -32,17 +21,7 @@ interface IState {
 }
 
 interface IProfilePageProps {
-  user?: {
-    id: string;
-    name: string;
-    id42: number;
-    avatar: string;
-    games: number;
-    wins: number;
-    twofa: boolean;
-    twofaSecret: string;
-    realAvatar: boolean;
-  } | null;
+  user?: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
   authToken: string;
 }

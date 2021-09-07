@@ -28,11 +28,9 @@ const CreateRoom: React.FC<CreateRoomProps> = ({ authToken, onCreate }) => {
     // Make sure the room name isn't empty
     if (roomName !== "")
     {
-      // Make the backend call
-      createRoom(authToken, roomName);
-
-      // Propagate the change (ask the room list to refresh)
-      onCreate();
+      console.log("Doing this");
+      // Make the backend call and propagate the change
+      createRoom(authToken, roomName).then(()=>onCreate());
     }
   }
 

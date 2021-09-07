@@ -1,16 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-interface User {
-  id: string;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean
-}
+import { User } from "../../../App.types";
 
 
 
@@ -36,7 +25,7 @@ var achivs = [
   }
 ]
 
-async function getAchievements(user_id: string, authToken: string) {
+async function getAchievements(user_id: number, authToken: string) {
   const response = await fetch(`http://127.0.0.1:3000/profile/${user_id}/achievements/`, {
     method: 'GET',
     headers: {

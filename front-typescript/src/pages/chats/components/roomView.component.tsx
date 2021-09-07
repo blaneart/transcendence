@@ -4,7 +4,8 @@ import { io, Socket } from "socket.io-client";
 import Composer from "./composer.component";
 import { useHistory } from 'react-router-dom';
 import RoomAdminPanel from "./roomAdminPanel.component";
-import { Room } from "../chats.types";
+import { Room, MessageType } from "../chats.types";
+import Message from "./message.component";
 
 // We require a token passed as parameter
 interface RoomParams {
@@ -17,15 +18,15 @@ interface RoomRouteParams {
   roomName: string
 }
 
-// This is the front-end message: the sender, and the text.
-interface Message {
-  id: number,
-  name: string,
-  message: string
+// The data we get in the blocklist
+interface BlockedUserEntry {
+  blockedID: number
 }
 
+// Get the current room instance
 async function getRoom(authToken:string, roomName: string)
 {
+  // Send the request to the backend
   const response = await fetch(
     `http://127.0.0.1:3000/chat/rooms/${roomName}/`,
     {
@@ -38,6 +39,22 @@ async function getRoom(authToken:string, roomName: string)
   return await response.json() as Room;
 }
 
+// Get the list of all blocked users
+async function getBlockList(authToken: string): Promise<BlockedUserEntry[]>
+{
+  // Send a request to backend
+  const response = await fetch(
+    `http://127.0.0.1:3000/chat/block/`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+  return await response.json() as BlockedUserEntry[];
+}
+
 const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
@@ -46,7 +63,8 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       token: authToken
     }
   }));
-  const [messages, setMessages] = useState<Message[]>();
+  const [messages, setMessages] = useState<MessageType[]>();
+  const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number,boolean>());
   const [room, setRoom] = useState<Room>();
   let history = useHistory();
 
@@ -54,10 +72,26 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
     // Get the current room instance
     getRoom(authToken, roomName).then((room)=>setRoom(room));
 
+    // Get all the blocked users
+    getBlockList(authToken).then((users) => {
+
+      // Mutate the block list
+      setBlockList((oldBlockList) => {
+
+        // For each user, add their ID to the map
+        users.map((user) => {
+          oldBlockList.set(user.blockedID, true);
+        });
+
+        // Replace the old blocklist state
+        return oldBlockList;
+      });
+    });
+
     // Handle the messages that were sent before we joined
     socket.on("initialMessages", (msg) => {
       // Receive an array of messages
-      const newMessages = msg as Message[];
+      const newMessages = msg as MessageType[];
       // Right now, we sort them on front, maybe we should also sort them on back
       newMessages.sort((a,b) => a.id - b.id);
       // Set the state directly
@@ -66,7 +100,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
     // Once someone sends a message, we receive this event
     socket.on("newMessage", (msg) => {
-      const newMessage = msg as Message; // we receive a single update
+      const newMessage = msg as MessageType; // we receive a single update
       setMessages((oldMessages) => {
         if (oldMessages)
         {
@@ -85,12 +119,16 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       history.replace("/chats/");
     })
 
+    // When the backend asks us for password
     socket.on("loginRequest", () => {
+
+      // Get the password from the user
       let pass = undefined;
       while (!pass)
       {
         pass = window.prompt("Please type in your password", undefined);
       }
+      // Send the event to backend
       socket.emit("login", {roomName: roomName, password: pass});
     })
 
@@ -113,10 +151,12 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
   return (
     <div>
+      <h2>Your block list: </h2>
+
       <h2>Room: {roomName}</h2>
       {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
-      {messages?.map((msg) => <div key={msg.id}><a href={`/users/${msg.name}/`}>{msg.name}: </a>{msg.message}</div>)}
+      {messages?.map((msg) => <Message message={msg} blockList={blockList} authToken={authToken} key={msg.id}/>)}
       <Composer socket={socket} roomName={roomName} />
     </div>
   );

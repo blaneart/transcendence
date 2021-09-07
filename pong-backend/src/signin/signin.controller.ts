@@ -49,6 +49,21 @@ async function createRoom() {
     }
 }
 
+async function createBlockList() {
+  const exists = await db.schema.hasTable('blocklist');
+    if (!exists) {
+      await db.schema.createTable('blocklist', function(t) {
+        t.increments('id').primary();
+        t.integer('blockerID');
+        t.integer('blockedID');
+        t.foreign('blockerID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('blockedID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.unique(['blockerID', 'blockedID']); // You can block a user only once
+      });
+    }
+}
+
+
 async function createParticipants() {
   const exists = await db.schema.hasTable('participants')
     if (!exists) {
@@ -92,7 +107,8 @@ export const db = knex({
     .then(() => createRoom())
     .then(() => createAchievements())
     .then(() => createParticipants())
-    .then(() => createMessage());
+    .then(() => createMessage())
+    .then(() => createBlockList());
 
 
 @Controller('signin')

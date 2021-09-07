@@ -23,7 +23,8 @@ interface ChatMessage {
 interface ChatMessageUpdate {
   id: number,
   name: string,
-  message: string
+  message: string,
+  senderID: number
 }
 
 interface User {
@@ -167,7 +168,8 @@ export class ChatGateway {
     const newMessage: ChatMessageUpdate = {
       id: savedMessage.id, // The id comes from our database
       name: client.user.name, // The name is authenticated
-      message: message.text
+      message: message.text,
+      senderID: client.user.id
     };
 
     // Send the update to all other clients, including the sender

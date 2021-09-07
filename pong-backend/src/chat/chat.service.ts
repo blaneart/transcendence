@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
 import { Room } from './chat.types';
 import * as bcrypt from 'bcrypt';
+import { response } from 'express';
 // import { bcrypt }  from 'bcrypt-nodejs';
 
 const saltRounds = 10;
@@ -101,35 +102,47 @@ export class ChatService {
     // Return the messages populated with user names.
     const messages = await db('message').where({ roomID: roomID })
       .join('users', 'users.id', '=', 'message.userID')
-      .select('message.id', 'message.message', 'users.name');
+      .select('message.id', 'message.message', 'users.name', 'users.id as senderID');
     return messages;
   }
 
   // Restrict a room with a password
   async restrictRoom(roomName: string, newPassword: string)
   {
+    // Find the room
     const room = await this.findRoomByName(roomName);
+
+    // Create a hash of the future password
     const hash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Restrict the room and save the hash to the database
     const response = await db('room').where({id: room.id}).update({restricted: true, hash: hash});
     return response[0];
   }
 
+  // Check an attempt to login to a room
   async loginToRoom(roomName: string, attemptedPassword: string) : Promise<boolean>
   {
+    // Find the room
     const room = await this.findRoomByName(roomName);
+
+    // Compare the hash of the attempted password to the saved hash
     return await bcrypt.compare(attemptedPassword, room.hash);
   }
 
-
-  
+  // Check a password against a room's saved hash
   async checkPassword(room: Room, attemptedPassword: string) : Promise<boolean>
   {
+    // Compare the hash of the attempted password to the saved hash
     return await bcrypt.compare(attemptedPassword, room.hash);
   }
 
   async checkUserJoined(room: Room, user_id: number): Promise<boolean>
   {
+    // Find a corresponding participation entry
     const participation = await db('participants').where({roomID: room.id, userID: user_id}).select('*');
+
+    // Ensure such entry exists
     if (!participation.length)
     {
       return false;
@@ -137,23 +150,47 @@ export class ChatService {
     return true;
   }
 
+  // Log user out of all rooms
   async leaveAllRooms(user_id: number)
   {
+    // Remove all participation entries from our database
     const response = await db('participants').where({userID: user_id}).del();
     return response[0];
   }
 
+  // Log all users out from a room
   async deleteAllParticipations(room: Room)
   {
+    // Delete all participation entries linked to this room from our database
     const response = await db('participants').where({roomID: room.id}).del();
     return response[0];
   }
 
+  // Get a room entry from our database
   async getRoom(roomName: string)
   {
+    // Find a corresponding room
     const response = await db('room').where({ 'room.name': roomName})
-      .join('users', 'users.id', '=', 'room.ownerID')
+      .join('users', 'users.id', '=', 'room.ownerID') // Join to users for username
       .select('room.id', 'room.name', 'room.ownerID', 'room.restricted', 'users.name as owner_name')
     return response[0];
+  }
+
+  // Add a block entry for a given pair of users
+  async blockUser(blockerID: number, blockedID: number)
+  {
+    // Insert a block entry to the database
+    const response = await db('blocklist').returning('*').insert({ blockerID: blockerID, blockedID: blockedID });
+    return response[0];
+  }
+
+  // Get all block pairs from our database
+  async getBlockList(blockerID: number)
+  {
+    // Get all corresponding block entries
+    const response = await db('blocklist').where({blockerID: blockerID})
+      .join('users', 'users.id', '=', 'blocklist.blockedID') // Join to users for username
+      .select('blocklist.blockedID', 'users.name');
+    return response;
   }
 }

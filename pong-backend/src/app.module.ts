@@ -12,8 +12,10 @@ import { join } from 'path';
 import { AppGateway } from './app.gateway';
 import { AchievementService } from './achievement/achievement.service';
 import { ChatModule } from './chat/chat.module';
+import { FriendDuoModule } from './friendDuo/friendDuo.module';
 import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';
+import { FriendDuoService } from './friendDuo/friendDuo.service';
 
 
 @Module({
@@ -24,8 +26,9 @@ import { ChatService } from './chat/chat.service';
       serveRoot: '/static/'
     }),
     ChatModule,
+    FriendDuoModule,
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController],
-  providers: [AppService, AppGateway, ProfileService, SigninService, AchievementService, ChatGateway, ChatService],
+  providers: [AppService, AppGateway, ProfileService, SigninService, AchievementService, ChatGateway, ChatService, FriendDuoService],
 })
 export class AppModule {}

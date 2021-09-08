@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { Link } from 'react-router-dom';
+import { User } from '../users.types';
 
 interface IFriendProps {
   id1: number;
-  id2: number;
+  friendUser: User;
   authToken: string;
 }
 
@@ -43,14 +45,14 @@ async function removeFriend(id1: number, id2: number, authToken: string) {
     });
 }
 
-const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
+const Friend: React.FC<IFriendProps> = ({ id1, friendUser, authToken }) => {
 
   const [friend, setFriend] = useState<boolean>(false);
 
   // useCallback to prevent infinite state updates
   const refreshUsers = useCallback(() => {
     // Get relationship
-    getFriend(id1, id2, authToken).then(newRelationship => {
+    getFriend(id1, friendUser.id, authToken).then(newRelationship => {
       setFriend(newRelationship);
     });
   }, [authToken]);
@@ -72,8 +74,9 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
 
   return (
     <div>
-      {friend ? (<button onClick={(e) => handleUnfriend(id1, id2, authToken)}>Unfriend</button>)
-      : <button onClick={(e) => handleBefriend(id1, id2, authToken)} >Befriend</button>}
+      {friend ? (<button onClick={(e) => handleUnfriend(id1, friendUser.id, authToken)}>Unfriend</button>)
+      : <button onClick={(e) => handleBefriend(id1, friendUser.id, authToken)} >Befriend</button>}
+      <Link to={`/chats/dms/` + friendUser.name}>{" "} DM {" "}</Link>
     </div>
   );
 }

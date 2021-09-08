@@ -44,7 +44,7 @@ async function getFriend(id1: number, id2: number, authToken: string) {
 
 const UsersList: React.FC<UsersListProps> = ({ user_logged, setUser,  authToken }) => {
 
-  const [users, setUsers] = useState<User[]>([(user_logged as User)]);
+  const [users, setUsers] = useState<User[]>([(user_logged as User),]);
 
   // useCallback to prevent infinite state updates
   const refreshUsers = useCallback(() => {
@@ -59,7 +59,7 @@ const UsersList: React.FC<UsersListProps> = ({ user_logged, setUser,  authToken 
     refreshUsers();
   }, [users, refreshUsers]); // We don't really reupdate.
 
-  return ( user_logged ? (
+  return ( authToken !== "" && user_logged ? (
     <div>
       <h2>Users: </h2>
       {users.map((user) => <div className='.friend' key={user.id}>

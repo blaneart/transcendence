@@ -32,7 +32,7 @@ async function addFriend(id1: number, id2: number, authToken: string) {
     });
 }
 
-async function deleteFriend(id1: number, id2: number, authToken: string) {
+async function removeFriend(id1: number, id2: number, authToken: string) {
     
     const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
       method: "DELETE",
@@ -43,7 +43,7 @@ async function deleteFriend(id1: number, id2: number, authToken: string) {
     });
 }
 
-const Friend: React.FC<IFriendProps> = ({ id1, id2,  authToken }) => {
+const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
 
   const [friend, setFriend] = useState<boolean>(false);
 
@@ -55,15 +55,25 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2,  authToken }) => {
     });
   }, [authToken]);
 
+  const handleBefriend = async (id1: number, id2: number, authToken: string) => {
+    await addFriend(id1, id2, authToken);
+    refreshUsers();
+  };
+
+  const handleUnfriend = async (id1: number, id2: number, authToken: string) => {
+    await removeFriend(id1, id2, authToken);
+    refreshUsers();
+  };
+
   useEffect(() => {
     // On setup, we update the friend
     refreshUsers();
-  }, [refreshUsers]);
+  }, [friend, refreshUsers]);
 
   return (
     <div>
-      {friend ? (<button onClick={(e) => deleteFriend(id1, id2, authToken)}>Unfriend</button>)
-      : <button onClick={(e) => addFriend(id1, id2, authToken)} >Befriend</button>}
+      {friend ? (<button onClick={(e) => handleUnfriend(id1, id2, authToken)}>Unfriend</button>)
+      : <button onClick={(e) => handleBefriend(id1, id2, authToken)} >Befriend</button>}
     </div>
   );
 }

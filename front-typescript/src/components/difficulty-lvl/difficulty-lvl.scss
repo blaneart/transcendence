@@ -1,13 +1,5 @@
-.menu {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
 
-.difficulty-item {
+.difficulty-iteme {
 	min-width: 30%;
 	height: 100px;
 	border-radius: 25px;
@@ -24,3 +16,30 @@
 		transform: scale(1.2);
 	}
 }
+
+.square {
+	background: #fff;
+	border: 1px solid #999;
+	float: left;
+	font-size: 24px;
+	font-weight: bold;
+	line-height: 34px;
+	height: 80px;
+	margin-right: auto;
+	margin-top: auto;
+	padding: 0;
+	text-align: center;
+	width: 110px;
+  }
+
+.board-row:after {
+	clear: both;
+	content: "";
+	display: table;
+}
+
+.difficulty-item {
+	width: 20px;
+	margin: 30px 150px;
+}
+

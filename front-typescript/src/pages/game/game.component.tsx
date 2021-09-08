@@ -90,7 +90,7 @@ function	DifficultyGame()
     }
   }
 
-async function  updateGameStats(result: string, authToken: string){
+async function  updateGameStats(result: string, authToken: string) {
     if (user)
     {
       var data = {
@@ -120,7 +120,7 @@ async function  updateGameStats(result: string, authToken: string){
     setRestart(!restart);
   }
 
-    return(
+    return (
       <div className='game'>
         <canvas id="forCanvas" width={800} height={600}></canvas>
         { isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>

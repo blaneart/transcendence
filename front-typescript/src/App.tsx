@@ -10,6 +10,7 @@ import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import AccountPage from "./pages/account/account.component";
 import "./App.css";
+import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 
 interface User {
   id: string;
@@ -142,6 +143,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route path="/play">
+		  <Difficulty/>
           <Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={4}/>
         </Route>
         <Route path="/account">

@@ -175,7 +175,9 @@ function App() {
       {/* <input type="text" onChange={ sendMessage } /> */}
       <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
-        <Route exact path="/" component={Menu} />
+        <Route exact path="/">
+          <Menu user={user}/>
+        </Route>
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>

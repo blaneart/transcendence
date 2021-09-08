@@ -54,6 +54,9 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) =
                 pong.players[0].pos.y = event.offsetY;
             });
             canvas.addEventListener('click', event => {
+				difficultyLvl = difficultyLvl - 1;
+				if (difficultyLvl == 0)
+					difficultyLvl = 7;
 				pong.changedifficulty(difficultyLvl)
 				pong.start();
         });
@@ -111,6 +114,8 @@ async function  updateGameStats(result: string, authToken: string){
     setIsGameEnded(result);
     return null
   }
+
+
   const restartGame = () => {
     setRestart(!restart);
   }

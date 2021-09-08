@@ -142,15 +142,17 @@ class Pong {
           ball.vel.len *= 1.05;
         }
   }
+
   end()
   {
     cancelAnimationFrame(this.animation);
   }
+
   changedifficulty(difficulty: number)
   {
 	  this.players[1].botDifficulty = difficulty;
-	  console.log(difficulty);
   }
+  
   reset()
   {
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;

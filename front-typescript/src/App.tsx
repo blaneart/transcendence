@@ -142,7 +142,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route path="/play">
-          <Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={5}/>
+          <Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={4}/>
         </Route>
         <Route path="/account">
           <AccountPage user={user} setUser={setUser} authToken={authToken}/>

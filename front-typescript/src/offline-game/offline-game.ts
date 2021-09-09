@@ -97,7 +97,7 @@ class Offline_Pong {
     this.animation = 0;
     this.players = [
       new Player(-1),
-      new Player(difficultyBot.number + 2),
+      new Player(difficultyBot.number + 1),
     ]
     this.auth = authToken;
     this.players[0].pos.x = 20;
@@ -150,7 +150,7 @@ class Offline_Pong {
 
   changedifficulty(difficulty: any)
   {
-	  this.players[1].botDifficulty = difficulty.number + 2;
+	  this.players[1].botDifficulty = difficulty.number + 1;
   }
 
   reset()
@@ -238,7 +238,6 @@ class Offline_Pong {
     this.players.forEach(player => this.collide(player, this.ball));
 
 	this.changedifficulty(difficulty);
-	console.log('in the bot.ts file: ', difficulty.number)
 	if (this.players[1].botDifficulty > 0)
 	{
 		if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)

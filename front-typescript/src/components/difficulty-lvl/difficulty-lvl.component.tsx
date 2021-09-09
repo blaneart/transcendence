@@ -14,20 +14,17 @@ class Board extends React.Component<{difficultyLvl: any}, {square: string[]}> {
 	constructor(props: any) {
 		super(props);
 		this.state = {
-			square: ['1', '2', '3', 'current', '5', '6', '7'],
+			square: ['Easy', 'CURRENT DIFFICULTY', 'Hard', 'Impossible'],
 		};
 	}
 
 	handleClick = (i: number) => {
-		let squares = []
-		for (let j = 0; j < 7; j++)
-			squares[j] = `${j + 1}`
-			squares[i] = 'current';
+		let squares = ['Easy', 'Medium', 'Hard', 'Impossible']
+		squares[i] = '\\* ' + squares[i] + ' */';
 		this.setState({
 			square: squares,
 		})
-		this.props.difficultyLvl.number = i;
-		console.log('in the difficulty.component.tsx file: ', this.props.difficultyLvl.number)
+		this.props.difficultyLvl.number = i * 3 + 1;
 	}
 
 	renderSquare(i: number)
@@ -48,9 +45,6 @@ class Board extends React.Component<{difficultyLvl: any}, {square: string[]}> {
 					{this.renderSquare(1)}
 					{this.renderSquare(2)}
 					{this.renderSquare(3)}
-					{this.renderSquare(4)}
-					{this.renderSquare(5)}
-					{this.renderSquare(6)}
 				</div>
 			</div>
 		);

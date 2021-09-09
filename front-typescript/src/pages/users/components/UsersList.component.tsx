@@ -63,7 +63,6 @@ const UsersList: React.FC<UsersListProps> = ({ user_logged, setUser,  authToken 
     <div>
       <h2>Users: </h2>
       {users.map((user) => <div className='.friend' key={user.id}>
-        <Link to={`/users/${user.name}`}>{user.name}</Link>
         <Friend id1={user_logged.id} friendUser={user} authToken={authToken} />
       </div>)}
 

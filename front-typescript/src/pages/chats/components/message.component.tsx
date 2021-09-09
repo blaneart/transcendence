@@ -1,5 +1,6 @@
 import React from "react";
-import { MessageType } from "../chats.types";
+import { Socket } from "socket.io-client";
+import { MessageType, Room } from "../chats.types";
 
 interface MessageParams {
   message: MessageType
@@ -7,9 +8,17 @@ interface MessageParams {
   blockList: Map<number, boolean>
   userId: number
   onBlock: Function
+  room: Room
+  socket: Socket
 }
 
-const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId, onBlock}) => {
+interface BanRequest {
+  roomName: string,
+  userId: number
+  minutes: number
+}
+
+const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId, onBlock, room, socket}) => {
 
   // Block a user
   const handleBlock = async () => {
@@ -24,6 +33,20 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
         },
       });
       onBlock();
+  }
+
+  const handleBan = async () => {
+    let min = undefined
+    while (!min)
+    {
+      min = window.prompt("How long should the ban be in integer minutes?");
+    }
+    const req: BanRequest = {
+      userId: message.senderID,
+      roomName: room.name,
+      minutes: parseInt(min)
+    };
+    socket.emit("banUser", req);
   }
 
   // If the sender of the message is blocked
@@ -42,6 +65,7 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
     <div>
       <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message}
       {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
+      {userId === room.ownerID && userId !== message.senderID ? <button onClick={handleBan}>Ban sender</button> : null}
     </div>
   );
 

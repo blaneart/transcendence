@@ -110,6 +110,7 @@ async function createBanList() {
         t.increments('id').primary();
         t.integer('userID');
         t.integer('roomID');
+        t.datetime('until');
         t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
         t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
         t.unique(['userID', 'roomID']); // You can only ban a user once

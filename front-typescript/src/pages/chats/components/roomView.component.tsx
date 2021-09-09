@@ -87,6 +87,13 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       history.replace("/chats/");
     })
 
+    // When we get banned from the room, we have to return to the chat screen.
+    socket.on("banned", ()=> {
+      alert("You are banned from this room");
+      socket.disconnect();
+      history.replace("/chats/");
+    })
+
     // When the backend asks us for password
     socket.on("loginRequest", () => {
 
@@ -123,7 +130,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       <h2>Room: {roomName}</h2>
       {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
-      <MessageList messages={messages} userId={userId} authToken={authToken}/>
+      {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket}/> : null}
       <Composer socket={socket} roomName={roomName} />
     </div>
   );

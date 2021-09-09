@@ -52,7 +52,8 @@ interface LoginAttempt {
 // The message we receive when an admin wants to ban a user
 interface BanRequest {
   roomName: string,
-  userId: number
+  userId: number,
+  minutes: number
 }
 
 @WebSocketGateway(8080, { cors: true })
@@ -104,7 +105,7 @@ export class ChatGateway {
 
     // Ensure the user is not banned in this room
     if (await this.chatService.isBanned(client.user.id, room.id))
-      return this.server.to(client.id).emit("kickedOut");
+      return this.server.to(client.id).emit("banned");
 
     // Finalize room join
     this.join_room(client, room);
@@ -114,8 +115,6 @@ export class ChatGateway {
   @SubscribeMessage('login')
   async handleLogin(client: AuthenticatedSocket, data: LoginAttempt)
   {
-    console.log("Got Login");
-    console.log(data);
     const room = await this.chatService.findRoomByName(data.roomName);
 
     if (data.roomName === "")
@@ -163,6 +162,12 @@ export class ChatGateway {
 
     // Find the room in our database
     const room = await this.chatService.findRoomByName(message.room);
+
+    // Ensure room exists
+    if (!room)
+    {
+      throw new WsException("Room not found");
+    }
 
     // Check if the user has joined this room
     const canMessage = await this.chatService.checkUserJoined(room, client.user.id);
@@ -252,11 +257,16 @@ export class ChatGateway {
   @SubscribeMessage('banUser')
   async handleBanUser(client: AuthenticatedSocket, data: BanRequest) {
     const room = await this.chatService.findRoomByName(data.roomName);
+    if (!room) 
+      throw new WsException("Room not found");
 
     if (client.user.id !== room.ownerID)
       throw new WsException("You must be the room owner to ban people");
     
-    const response = await this.chatService.banUser(data.userId, room.id);
+    if (data.minutes <= 0 || isNaN(data.minutes))
+      throw new WsException("Incorrect number of minutes");
+
+    const response = await this.chatService.banUser(data.userId, room.id, data.minutes);
 
     // Kick the user out from the room
     const socketsInTheRoom =  await this.server.in(room.name).fetchSockets()
@@ -264,7 +274,7 @@ export class ChatGateway {
     {
       if (socket.data.user && socket.data.user.id === data.userId )
       {
-        this.server.to(socket.id).emit("kickedOut");
+        this.server.to(socket.id).emit("banned");
         socket.leave(room.name);
       }
     }

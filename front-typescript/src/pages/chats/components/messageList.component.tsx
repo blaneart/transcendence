@@ -1,13 +1,16 @@
 import React from "react";
-import { MessageType } from "../chats.types";
+import { MessageType, Room } from "../chats.types";
 import Message from "./message.component";
 import { useState, useEffect } from "react";
+import { Socket } from "socket.io-client";
 
 
 interface MessageListParams {
   messages: MessageType[];
   userId: number;
   authToken: string;
+  room: Room;
+  socket: Socket;
 }
 
 // Get the list of all blocked users
@@ -32,7 +35,7 @@ interface BlockedUserEntry {
   blockedID: number
 }
 
-const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId }) => {
+const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket }) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
   useEffect(() => {
@@ -64,7 +67,7 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId 
         <h3>Blocklist: </h3>
       </div>
 
-      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} key={msg.id} />)}
+      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} room={room} socket={socket} key={msg.id} />)}
     </div>
   );
 }

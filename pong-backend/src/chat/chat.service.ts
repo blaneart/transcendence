@@ -195,9 +195,17 @@ export class ChatService {
   }
 
   // Ban a user in a given room
-  async banUser(userId: number, roomId: number)
+  async banUser(userId: number, roomId: number, minutes: number)
   {
-    const response = await db('banlist').returning('*').insert({userID: userId, roomID: roomId});
+    const now = new Date();
+    const banEnd = new Date(now.getTime() + minutes * 1000 * 60);
+    const response = await db('banlist').returning('*').insert({userID: userId, roomID: roomId, until: banEnd});
+    return response[0];
+  }
+
+  async removeBan(userId: number, roomId: number)
+  {
+    const response = await db('banlist').where({userID: userId, roomID: roomId}).del();
     return response[0];
   }
 
@@ -205,7 +213,14 @@ export class ChatService {
   {
     const response = await db('banlist').where({userID: userId, roomID: roomId}).select('*');
     if (response.length)
-      return true;
+    {
+      const now = new Date()
+      if (response[0].until.getTime() > now.getTime())
+        return true;
+      // Remove the ban
+      this.removeBan(userId, roomId);
+      return false;
+    }
     return false;
   }
 }

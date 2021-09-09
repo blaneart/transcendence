@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Pong from '../../offline-game/offline-game';
+import Offline_Pong from '../../offline-game/offline-game';
 import EndGameMenu from '../../components/end-game-menu/end-game-menu.component';
 
 import '../../components/difficulty-lvl/difficulty-lvl.scss'
@@ -36,7 +36,7 @@ interface IGameProps {
 }
 
 
-const Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) => {
+const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
@@ -49,7 +49,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) =
           canvas.style.opacity = '1';
         if (canvas !== null)
         {
-            var pong = new Pong(updateGameStats, canvas, authToken, difficultyLvl);
+            var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl);
             canvas.addEventListener('mousemove', event => {
                 pong.players[0].pos.y = event.offsetY;
             });
@@ -114,4 +114,4 @@ async function  updateGameStats(result: string, authToken: string) {
     );
 }
 
-export default Game;
+export default Offline_Game;

@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import HomePage from "./pages/homepage/homepage.component";
 import Header from "./components/header/header.component";
-import Game from "./pages/offline-game/offline-game.component";
+import Offline_Game from "./pages/offline-game/offline-game.component";
 import AccountPage from "./pages/account/account.component";
 import "./App.css";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
@@ -145,7 +145,7 @@ function App() {
         <Route exact path="/" component={HomePage} />
         <Route path="/play">
 		  <Difficulty difficultyLvl={difficulty}/>
-          <Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
         </Route>
         <Route path="/account">
           <AccountPage user={user} setUser={setUser} authToken={authToken}/>

@@ -78,7 +78,7 @@ class Player extends Rect {
 
 
 
-class Pong {
+class Offline_Pong {
   _canvas: HTMLCanvasElement;
   _context: CanvasRenderingContext2D | null;
   ball: Ball;
@@ -253,4 +253,4 @@ class Pong {
   }
 }
 
-export default Pong;
+export default Offline_Pong;

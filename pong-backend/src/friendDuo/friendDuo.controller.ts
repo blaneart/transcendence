@@ -12,7 +12,6 @@ export class FriendDuoController {
   @Put('/:id1/:id2')
   async AddFriend(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
   {
-    console.log('addFriend');
     // Create the duo using the service
     return await this.friendDuoService.createDuo(id1, id2);
   }
@@ -22,7 +21,6 @@ export class FriendDuoController {
   async RemoveFriend(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
   {
     // Find the duo by id1
-    console.log('removeFriend');
     const response = await this.friendDuoService.getDuoId(id1, id2);
 
     if (!response)
@@ -39,8 +37,6 @@ export class FriendDuoController {
   async getFriendDuo(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
   {
     const id = await this.friendDuoService.getDuoId(id1, id2);
-    console.log('here getFriendDuoId DB');
-    console.log(id);
     return id;
   }
 
@@ -49,8 +45,6 @@ export class FriendDuoController {
   async getDuoExistence(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
   {
     const bool = await this.friendDuoService.DoesDuoExist(id1, id2);
-    console.log('here getFRIEND DB');
-    console.log(bool);
     return bool;
   }
 }

@@ -74,9 +74,19 @@ const Friend: React.FC<IFriendProps> = ({ id1, friendUser, authToken }) => {
 
   return (
     <div>
+      <Link to={`/users/${friendUser.name}`}>
+        <div style={{display: 'inline-block'}}>
+        {friendUser.name}
+        <div className='image'
+          style={{
+          backgroundImage: (friendUser.realAvatar ? `url(http://127.0.0.1:3000/static/${friendUser.avatar})` : `url(https://source.boringavatars.com/beam/150/${friendUser.avatar})`)
+        }}
+        />
+        </div>
+      </Link>
       {friend ? (<button onClick={(e) => handleUnfriend(id1, friendUser.id, authToken)}>Unfriend</button>)
       : <button onClick={(e) => handleBefriend(id1, friendUser.id, authToken)} >Befriend</button>}
-      <Link to={`/chats/dms/` + friendUser.name}>{" "} DM {" "}</Link>
+      <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
     </div>
   );
 }

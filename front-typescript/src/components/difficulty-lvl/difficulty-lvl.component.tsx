@@ -10,11 +10,11 @@ function Square(props: any) {
 	);
 }
   
-class Board extends React.Component<{}, {square: string[]}> {
+class Board extends React.Component<{difficultyLvl: any}, {square: string[]}> {
 	constructor(props: any) {
 		super(props);
 		this.state = {
-			square: ['1', '2', '3', 'current', '5', '6', '7']
+			square: ['1', '2', '3', 'current', '5', '6', '7'],
 		};
 	}
 
@@ -26,12 +26,12 @@ class Board extends React.Component<{}, {square: string[]}> {
 		this.setState({
 			square: squares,
 		})
+		this.props.difficultyLvl.number = i;
+		console.log('in the difficulty.component.tsx file: ', this.props.difficultyLvl.number)
 	}
 
 	renderSquare(i: number)
 	{
-		console.log("this", this);
-
 		return (
 			<Square
 				value={this.state.square[i]}
@@ -57,12 +57,16 @@ class Board extends React.Component<{}, {square: string[]}> {
 	}
   }
   
-class Difficulty extends React.Component {
+class Difficulty extends React.Component <{difficultyLvl:any}, {}> {
+	constructor(props: any) {
+		super(props)
+	}
+
 	render() {
 		return (
 			<div className="difficulty-item">
 				<div className="game-board">
-					<Board />
+					<Board difficultyLvl={this.props.difficultyLvl}/>
 				</div>
 			</div>
 		);

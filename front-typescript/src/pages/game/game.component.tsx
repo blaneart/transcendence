@@ -32,7 +32,7 @@ interface IGameProps {
   } | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string,
-  difficultyLvl: number
+  difficultyLvl: any,
 }
 
 
@@ -42,7 +42,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) =
     const [restart, setRestart] = useState<Boolean>(false)
 
     useEffect(() => {
-		DifficultyGame();
+		console.log('in the game.component.tsx file: ', difficultyLvl.number);
         setIsGameEnded('game')
         let canvas = document.getElementById('forCanvas');
         if (canvas)
@@ -54,10 +54,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) =
                 pong.players[0].pos.y = event.offsetY;
             });
             canvas.addEventListener('click', event => {
-				difficultyLvl = difficultyLvl - 1;
-				if (difficultyLvl == 0)
-					difficultyLvl = 7;
-				pong.changedifficulty(difficultyLvl)
 				pong.start();
         });
         return () => {
@@ -65,17 +61,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) =
         }    
     }
   }, [restart]);
-
-function	DifficultyGame()
-{
-	return (
-		<div
-			className='difficulty-item'
-			onClick={() => {difficultyLvl = 1;}}>
-			<h1>11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111</h1>
-    	</div>		
-	)
-}
 
   const changeGameState = (user: User, result: string) => {
     return {

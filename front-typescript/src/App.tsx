@@ -135,6 +135,7 @@ function App() {
   }, []);
 
   const { search } = useLocation();
+  let difficulty = {number: 4};
   var searchParams: URLSearchParams = new URLSearchParams(search);
 
   return (
@@ -143,8 +144,8 @@ function App() {
       <Switch>
         <Route exact path="/" component={HomePage} />
         <Route path="/play">
-		  <Difficulty/>
-          <Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={4}/>
+		  <Difficulty difficultyLvl={difficulty}/>
+          <Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
         </Route>
         <Route path="/account">
           <AccountPage user={user} setUser={setUser} authToken={authToken}/>

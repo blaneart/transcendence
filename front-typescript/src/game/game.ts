@@ -85,7 +85,7 @@ class Pong {
   animation: number;
   players: Player [];
   auth: string;
-  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: number)
+  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any)
   {
     this._canvas = <HTMLCanvasElement> canvas;
     this._context = this._canvas.getContext('2d');
@@ -97,7 +97,7 @@ class Pong {
     this.animation = 0;
     this.players = [
       new Player(-1),
-      new Player(difficultyBot + 2),
+      new Player(difficultyBot.number + 2),
     ]
     this.auth = authToken;
     this.players[0].pos.x = 20;
@@ -124,7 +124,7 @@ class Pong {
       else 
       {
         if (lastTime) {
-          this.update((millis - lastTime) / 1000);
+          this.update((millis - lastTime) / 1000, difficultyBot);
         }
         lastTime = millis;
         this.animation = requestAnimationFrame(callback);
@@ -148,11 +148,11 @@ class Pong {
     cancelAnimationFrame(this.animation);
   }
 
-  changedifficulty(difficulty: number)
+  changedifficulty(difficulty: any)
   {
-	  this.players[1].botDifficulty = difficulty;
+	  this.players[1].botDifficulty = difficulty.number + 2;
   }
-  
+
   reset()
   {
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
@@ -222,7 +222,7 @@ class Pong {
       }
 
   }
-  update(dt: number) {
+  update(dt: number, difficulty: any) {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
 
@@ -240,6 +240,8 @@ class Pong {
     // this.players[1].pos.y = this.ball.pos.y;
     this.players.forEach(player => this.collide(player, this.ball));
 
+	this.changedifficulty(difficulty);
+	console.log('in the bot.ts file: ', difficulty.number)
 	if (this.players[1].botDifficulty > 0)
 	{
 		if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)

@@ -118,6 +118,22 @@ async function createBanList() {
     }
 }
 
+async function createMuteList() {
+  const exists = await db.schema.hasTable('mutelist');
+    if (!exists) {
+      await db.schema.createTable('mutelist', function(t) {
+        t.increments('id').primary();
+        t.integer('userID');
+        t.integer('roomID');
+        t.datetime('until');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+        t.unique(['userID', 'roomID']); // You can only ban a user once
+      });
+    }
+}
+
+
 export const db = knex({
     client: 'pg',
     connection: {
@@ -136,7 +152,8 @@ export const db = knex({
     .then(() => createMessage())
     .then(() => createBlockList())
     .then(() => createFriendList())
-    .then(() => createBanList());
+    .then(() => createBanList())
+    .then(() => createMuteList());
 
 
 @Controller('signin')

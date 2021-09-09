@@ -35,6 +35,33 @@ async function getRoom(authToken:string, roomName: string)
   return await response.json() as Room;
 }
 
+async function getMuted(authToken: string, roomName: string)
+{
+  const response = await fetch(`http://127.0.0.1:3000/chat/muted/${roomName}`,
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  return await response.json();
+}
+
+async function getMutedUntil(authToken: string, roomName: string)
+{
+  const response = await fetch(`http://127.0.0.1:3000/chat/muted/${roomName}/until/`,
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  return await response.json();
+}
+
+
 const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
@@ -44,6 +71,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
     }
   }));
   const [messages, setMessages] = useState<MessageType[]>([]);
+  const [muted, setMuted] = useState<boolean>(false);
   
   const [room, setRoom] = useState<Room>();
   let history = useHistory();
@@ -54,7 +82,31 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
     // Get the current room instance
     getRoom(authToken, roomName).then((room)=>setRoom(room));
 
-    
+    // Find out if we're muted
+    getMuted(authToken, roomName).then(async (isMuted) => {
+      // Set the state
+      setMuted(isMuted);
+
+      // Setup the re-check once (if) we get un-muted
+      if (isMuted)
+      {
+        // Get the time when we're going to be unmuted
+        const mutedUntil = new Date(await getMutedUntil(authToken, roomName));
+        console.log(typeof mutedUntil);
+        if (mutedUntil)
+        {
+          // Calculate how many ms it is going to take
+          const now = new Date();
+          const msToWait = mutedUntil.getTime() - now.getTime();
+          alert(msToWait);
+          // Schedule to re-check at that moment
+          setTimeout(() => {
+            getMuted(authToken, roomName).then((isMuted) => setMuted(isMuted));
+          }, msToWait);
+        }
+        
+      }
+    });
 
     // Handle the messages that were sent before we joined
     socket.on("initialMessages", (msg) => {
@@ -115,6 +167,16 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       socket.disconnect();
     }, false);
 
+    socket.on("muted", (minutes: number) => {
+      setMuted(true);
+      alert(`You're muted for ${minutes} minutes`);
+
+      // Re-check if we're unmuted after minutes pass
+      setTimeout(() => {
+        getMuted(authToken, roomName).then((isMuted) => setMuted(isMuted));
+      }, minutes * 60 * 1000);
+    })
+
     // On component unmount, disconnect socket
     return function cleanup() {
       socket.disconnect();
@@ -131,7 +193,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
       {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket}/> : null}
-      <Composer socket={socket} roomName={roomName} />
+      <Composer socket={socket} roomName={roomName} muted={muted} />
     </div>
   );
 }

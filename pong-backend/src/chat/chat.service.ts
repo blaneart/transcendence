@@ -223,4 +223,49 @@ export class ChatService {
     }
     return false;
   }
+
+  async muteUser(userId: number, roomId: number, minutes: number)
+  {
+    const now = new Date();
+    const banEnd = new Date(now.getTime() + minutes * 1000 * 60);
+    const response = await db('mutelist').returning('*').insert({userID: userId, roomID: roomId, until: banEnd});
+    // return response[0];
+    return banEnd;
+  }
+
+  async removeMute(userId: number, roomId: number)
+  {
+    const response = await db('mutelist').where({userID: userId, roomID: roomId}).del();
+    return response[0];
+  }
+
+  async isMuted(userId: number, roomId: number): Promise<boolean>
+  {
+    const response = await db('mutelist').where({userID: userId, roomID: roomId}).select('*');
+    if (response.length)
+    {
+      const now = new Date()
+      if (response[0].until.getTime() > now.getTime())
+        return true;
+      // Remove the mute
+      this.removeMute(userId, roomId);
+      return false;
+    }
+    return false;
+  }
+
+  async getMutedUntil(userId: number, roomId: number): Promise<Date | null>
+  {
+    const response = await db('mutelist').where({userID: userId, roomID: roomId}).select('*');
+    if (response.length)
+    {
+      const now = new Date()
+      if (response[0].until.getTime() > now.getTime())
+        return response[0].until;
+      // Remove the mute
+      this.removeMute(userId, roomId);
+      return null;
+    }
+    return null;
+  }
 }

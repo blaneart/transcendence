@@ -178,6 +178,10 @@ export class ChatGateway {
       throw new WsException("You must log in the room to write in it");
     }
 
+    // Ensure the user is not muted
+    if (await this.chatService.isMuted(client.user.id, room.id))
+      throw new WsException("You are muted");
+
     // Save the new message to our database
     const savedMessage = await this.chatService.sendMessage(client.user.id, message.room, message.text);
     
@@ -278,5 +282,32 @@ export class ChatGateway {
         socket.leave(room.name);
       }
     }
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('muteUser')
+  async handleMuteUser(client: AuthenticatedSocket, data: BanRequest) {
+    const room = await this.chatService.findRoomByName(data.roomName);
+    if (!room) 
+      throw new WsException("Room not found");
+
+    if (client.user.id !== room.ownerID)
+      throw new WsException("You must be the room owner to ban people");
+    
+    if (data.minutes <= 0 || isNaN(data.minutes))
+      throw new WsException("Incorrect number of minutes");
+
+    const bannedUntil = await this.chatService.muteUser(data.userId, room.id, data.minutes);
+
+    // Send the muted person a nice message
+    const socketsInTheRoom =  await this.server.in(room.name).fetchSockets()
+    for (let socket of socketsInTheRoom)
+    {
+      if (socket.data.user && socket.data.user.id === data.userId )
+      {
+        this.server.to(socket.id).emit("muted", data.minutes);
+      }
+    }
+    // this.server.to(client.id).emit("muted", data.minutes);
   }
 }

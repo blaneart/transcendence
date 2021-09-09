@@ -49,6 +49,20 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
     socket.emit("banUser", req);
   }
 
+  const handleMute = async () => {
+    let min = undefined
+    while (!min)
+    {
+      min = window.prompt("How long should the mute be in integer minutes?");
+    }
+    const req: BanRequest = {
+      userId: message.senderID,
+      roomName: room.name,
+      minutes: parseInt(min)
+    };
+    socket.emit("muteUser", req);
+  }
+
   // If the sender of the message is blocked
   console.log("Message block check");
   console.log(blockList.has(message.senderID));
@@ -66,6 +80,7 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
       <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message}
       {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
       {userId === room.ownerID && userId !== message.senderID ? <button onClick={handleBan}>Ban sender</button> : null}
+      {userId === room.ownerID && userId !== message.senderID ? <button onClick={handleMute}>Mute sender</button> : null}
     </div>
   );
 

@@ -88,4 +88,26 @@ export class ChatController {
     return await this.chatService.getBlockList(request.user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('/muted/:name/')
+  async getMuted(@Request() request, @Param('name') name: string)
+  {
+    const room = await this.chatService.findRoomByName(name);
+
+    if (!room)
+      throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
+    return await this.chatService.isMuted(request.user.id, room.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/muted/:name/until/')
+  async getMutedUntil(@Request() request, @Param('name') name: string)
+  {
+    const room = await this.chatService.findRoomByName(name);
+
+    if (!room)
+      throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
+    return await this.chatService.getMutedUntil(request.user.id, room.id);
+  }
+
 }

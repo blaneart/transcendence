@@ -6,7 +6,7 @@ import '../../components/difficulty-lvl/difficulty-lvl.scss'
 import './offline-game.styles.scss';
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   id42: number;
   avatar: string;
@@ -20,7 +20,7 @@ interface User {
 
 interface IGameProps {
   user?: {
-    id: string,
+    id: number,
     name: string,
     id42: number,
     avatar: string,

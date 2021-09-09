@@ -13,12 +13,12 @@ import Users from "./pages/users/users.component";
 import Chats from "./pages/chats/chats.component";
 import { io, Socket } from 'socket.io-client';
 import { User } from './App.types';
+import Offline_Game from "./pages/offline-game/offline-game.component";
+import "./App.scss";
+import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
+
 
 const ENDPOINT = "http://127.0.0.1:3002";
-
-import Offline_Game from "./pages/offline-game/offline-game.component";
-import "./App.css";
-import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 
 
 interface IState {
@@ -182,11 +182,14 @@ function App() {
         <Route exact path="/">
           <Menu user={user}/>
         </Route>
+		<Route path="/playbots">
+			<Difficulty difficultyLvl={difficulty}/>
+			<Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+		</Route>
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
         <Route path="/chats">
-
         </Route>
         <Route path="/users">
           <Users user={user} setUser={setUser} authToken={authToken} />

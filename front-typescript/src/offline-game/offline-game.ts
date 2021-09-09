@@ -159,11 +159,8 @@ class Offline_Pong {
     this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
-	if (this.players[1].botDifficulty > 0)
-	{
-		this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
-		this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-	}
+	this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
+	this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
   }
 
   isGameEnded() : boolean

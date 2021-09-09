@@ -68,12 +68,10 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
   const [room, setRoom] = useState<Room>();
   let history = useHistory();
 
-  useEffect(() => {
-    // Get the current room instance
-    getRoom(authToken, roomName).then((room)=>setRoom(room));
-
-    // Get all the blocked users
-    getBlockList(authToken).then((users) => {
+  const updateBlockList = () => {
+    console.log("UpdateBlockList runs");
+     // Get all the blocked users
+     getBlockList(authToken).then((users) => {
 
       // Mutate the block list
       setBlockList((oldBlockList) => {
@@ -82,11 +80,19 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
         users.map((user) => {
           oldBlockList.set(user.blockedID, true);
         });
-
+        console.log("New blockList");
+        console.log(oldBlockList);
         // Replace the old blocklist state
         return oldBlockList;
       });
     });
+  }
+
+  useEffect(() => {
+    // Get the current room instance
+    getRoom(authToken, roomName).then((room)=>setRoom(room));
+
+    updateBlockList();
 
     // Handle the messages that were sent before we joined
     socket.on("initialMessages", (msg) => {
@@ -151,12 +157,11 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
   return (
     <div>
-      <h2>Your block list: </h2>
 
       <h2>Room: {roomName}</h2>
       {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
-      {messages?.map((msg) => <Message message={msg} blockList={blockList} authToken={authToken} key={msg.id}/>)}
+      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} key={msg.id}/>)}
       <Composer socket={socket} roomName={roomName} />
     </div>
   );

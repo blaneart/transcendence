@@ -3,19 +3,65 @@ import MenuItem from '../menu-item/menu-item.component';
 
 import './menu.styles.scss';
 
+interface User {
+    id: number;
+    name: string;
+    id42: number;
+    avatar: string;
+    games: number;
+    wins: number;
+    twofa: boolean;
+    twofaSecret: string;
+    realAvatar: boolean
+  }
+
+interface IMenuProps {
+    user?: User | null;
+}
+
 interface IMenuState{ 
-    sections: {
         title: string,
         linkUrl: string,
         id: number
-    }[]
+    
 }
 
-const Menu = () => {
-    const [sections, setSections] = useState<IMenuState["sections"]>([
+const Menu: React.FC<IMenuProps> = ({ user }) => {
+    let sections: IMenuState[] = user ? [
         {
-            title: "PLAY",
+            title: "PLAY ONLINE",
             linkUrl: 'play',
+            id: 1
+        },
+        {
+            title: "PLAY BOTS",
+            linkUrl: 'playbots',
+            id: 2
+        },
+        {
+            title: "SETTINGS",
+            linkUrl: '',
+            id: 3
+        },
+        {
+            title: "CHATS",
+            linkUrl: 'chats',
+            id: 4
+        },
+        {
+            title: "ACCOUNT",
+            linkUrl: 'users/' + user.name,
+            id: 5
+        },
+        {
+            title: "USERS",
+            linkUrl: 'users',
+            id: 6
+        },
+    ] : [
+        {
+            title: "PLAY BOTS",
+            linkUrl: 'playbots',
             id: 1
         },
         {
@@ -23,17 +69,7 @@ const Menu = () => {
             linkUrl: '',
             id: 2
         },
-        {
-          title: "CHATS",
-          linkUrl: 'chats',
-          id: 3
-      },
-      {
-        title: "USERS",
-        linkUrl: 'users',
-        id: 4
-    },
-    ])
+    ]
 
     
     const renderMenuList = (): JSX.Element[] => {

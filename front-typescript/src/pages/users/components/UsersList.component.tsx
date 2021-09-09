@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { User } from '../users.types';
+import Friend from './friend.component';
 
 import './usersList.styles.scss';
+import './friend.styles.scss';
 
 interface UsersListProps {
   user_logged?: User | null;
@@ -26,9 +28,23 @@ async function getUsers(authToken: string): Promise<User[]> {
   return jsonData as User[];
 }
 
+async function getFriend(id1: number, id2: number, authToken: string) {
+
+  const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  const jsonData = await response.json();
+
+  return jsonData as boolean;
+}
+
 const UsersList: React.FC<UsersListProps> = ({ user_logged, setUser,  authToken }) => {
 
-  const [users, setUsers] = useState<User[]>([(user_logged as User)]);
+  const [users, setUsers] = useState<User[]>([(user_logged as User),]);
 
   // useCallback to prevent infinite state updates
   const refreshUsers = useCallback(() => {
@@ -43,12 +59,15 @@ const UsersList: React.FC<UsersListProps> = ({ user_logged, setUser,  authToken 
     refreshUsers();
   }, [users, refreshUsers]); // We don't really reupdate.
 
-  return (
+  return ( authToken !== "" && user_logged ? (
     <div>
       <h2>Users: </h2>
-      {users.map((user) => <div key={user.id}><Link to={`/users/${user.name}`}>{user.name}</Link></div>)}
+      {users.map((user) => <div className='.friend' key={user.id}>
+        <Link to={`/users/${user.name}`}>{user.name}</Link>
+        <Friend id1={user_logged.id} friendUser={user} authToken={authToken} />
+      </div>)}
 
-    </div>
+    </div>) : <div>Please Log !</div>
   );
 }
 

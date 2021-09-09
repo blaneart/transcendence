@@ -92,6 +92,17 @@ async function createMessage() {
     }
 }
 
+async function createFriendList() {
+  const exists = await db.schema.hasTable('friendDuos')
+    if (!exists) {
+      await db.schema.createTable('friendDuos', function(t) {
+        t.increments('id').primary();
+        t.integer('friend1');
+        t.integer('friend2');
+      });
+    }
+}
+
 export const db = knex({
     client: 'pg',
     connection: {
@@ -108,7 +119,8 @@ export const db = knex({
     .then(() => createAchievements())
     .then(() => createParticipants())
     .then(() => createMessage())
-    .then(() => createBlockList());
+    .then(() => createBlockList())
+    .then(() => createFriendList());
 
 
 @Controller('signin')

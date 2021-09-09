@@ -22,7 +22,6 @@ async function getRooms(authToken: string): Promise<Room[]> {
   });
   // Read response as JSON
   const jsonData = await response.json();
-  console.log(jsonData);
   // Cast response to an array of rooms
   return jsonData as Room[];
 }

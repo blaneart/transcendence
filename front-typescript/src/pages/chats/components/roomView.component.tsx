@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import RoomAdminPanel from "./roomAdminPanel.component";
 import { Room, MessageType } from "../chats.types";
 import Message from "./message.component";
+import MessageList from "./messageList.component";
 
 // We require a token passed as parameter
 interface RoomParams {
@@ -16,11 +17,6 @@ interface RoomParams {
 // The parameters we expect in the URL.
 interface RoomRouteParams {
   roomName: string
-}
-
-// The data we get in the blocklist
-interface BlockedUserEntry {
-  blockedID: number
 }
 
 // Get the current room instance
@@ -39,22 +35,6 @@ async function getRoom(authToken:string, roomName: string)
   return await response.json() as Room;
 }
 
-// Get the list of all blocked users
-async function getBlockList(authToken: string): Promise<BlockedUserEntry[]>
-{
-  // Send a request to backend
-  const response = await fetch(
-    `http://127.0.0.1:3000/chat/block/`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-  return await response.json() as BlockedUserEntry[];
-}
-
 const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
@@ -63,36 +43,18 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       token: authToken
     }
   }));
-  const [messages, setMessages] = useState<MessageType[]>();
-  const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number,boolean>());
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  
   const [room, setRoom] = useState<Room>();
   let history = useHistory();
 
-  const updateBlockList = () => {
-    console.log("UpdateBlockList runs");
-     // Get all the blocked users
-     getBlockList(authToken).then((users) => {
-
-      // Mutate the block list
-      setBlockList((oldBlockList) => {
-
-        // For each user, add their ID to the map
-        users.map((user) => {
-          oldBlockList.set(user.blockedID, true);
-        });
-        console.log("New blockList");
-        console.log(oldBlockList);
-        // Replace the old blocklist state
-        return oldBlockList;
-      });
-    });
-  }
+  
 
   useEffect(() => {
     // Get the current room instance
     getRoom(authToken, roomName).then((room)=>setRoom(room));
 
-    updateBlockList();
+    
 
     // Handle the messages that were sent before we joined
     socket.on("initialMessages", (msg) => {
@@ -161,7 +123,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       <h2>Room: {roomName}</h2>
       {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
-      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} key={msg.id}/>)}
+      <MessageList messages={messages} userId={userId} authToken={authToken}/>
       <Composer socket={socket} roomName={roomName} />
     </div>
   );

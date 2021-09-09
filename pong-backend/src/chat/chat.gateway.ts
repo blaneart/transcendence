@@ -257,19 +257,26 @@ export class ChatGateway {
     this.chatService.deleteAllParticipations(room);
   }
 
+  // Ban a user
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('banUser')
   async handleBanUser(client: AuthenticatedSocket, data: BanRequest) {
+    // Find the room in our database
     const room = await this.chatService.findRoomByName(data.roomName);
+
+    // Ensure the room exists
     if (!room) 
       throw new WsException("Room not found");
 
+    // Ensure the banning user is the owner of the room
     if (client.user.id !== room.ownerID)
       throw new WsException("You must be the room owner to ban people");
-    
+
+    // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
       throw new WsException("Incorrect number of minutes");
 
+    // Create a ban record in our database
     const response = await this.chatService.banUser(data.userId, room.id, data.minutes);
 
     // Kick the user out from the room
@@ -284,20 +291,28 @@ export class ChatGateway {
     }
   }
 
+  // Mute a user
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('muteUser')
   async handleMuteUser(client: AuthenticatedSocket, data: BanRequest) {
+
+    // Find the room in our database
     const room = await this.chatService.findRoomByName(data.roomName);
+
+    // Ensure the room exists
     if (!room) 
       throw new WsException("Room not found");
 
+    // Ensure the sender is the room owner
     if (client.user.id !== room.ownerID)
-      throw new WsException("You must be the room owner to ban people");
-    
+      throw new WsException("You must be the room owner to mute people");
+
+    // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
       throw new WsException("Incorrect number of minutes");
 
-    const bannedUntil = await this.chatService.muteUser(data.userId, room.id, data.minutes);
+    // Add a mute record to our database
+    const mutedUntil = await this.chatService.muteUser(data.userId, room.id, data.minutes);
 
     // Send the muted person a nice message
     const socketsInTheRoom =  await this.server.in(room.name).fetchSockets()
@@ -308,6 +323,5 @@ export class ChatGateway {
         this.server.to(socket.id).emit("muted", data.minutes);
       }
     }
-    // this.server.to(client.id).emit("muted", data.minutes);
   }
 }

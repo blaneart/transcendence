@@ -197,72 +197,96 @@ export class ChatService {
   // Ban a user in a given room
   async banUser(userId: number, roomId: number, minutes: number)
   {
+    // Calculate the ban end date
     const now = new Date();
     const banEnd = new Date(now.getTime() + minutes * 1000 * 60);
+    
+    // Create a record in our database
     const response = await db('banlist').returning('*').insert({userID: userId, roomID: roomId, until: banEnd});
     return response[0];
   }
 
+  // Remove the ban record from our database
   async removeBan(userId: number, roomId: number)
   {
     const response = await db('banlist').where({userID: userId, roomID: roomId}).del();
     return response[0];
   }
 
+  // Find out if a user is banned in a given chat
   async isBanned(userId: number, roomId: number): Promise<boolean>
   {
+    // Find the corresponding record
     const response = await db('banlist').where({userID: userId, roomID: roomId}).select('*');
+    
+    // If such a record exists
     if (response.length)
     {
+      // If it is still in effect, return true
       const now = new Date()
       if (response[0].until.getTime() > now.getTime())
         return true;
-      // Remove the ban
+      // If it's already expired, remove the ban and return false
       this.removeBan(userId, roomId);
       return false;
     }
     return false;
   }
 
+  // Mute a user in a given room for a given number of minutes
   async muteUser(userId: number, roomId: number, minutes: number)
   {
+    // Calculate the mute end date
     const now = new Date();
     const banEnd = new Date(now.getTime() + minutes * 1000 * 60);
+
+    // Create the DB record
     const response = await db('mutelist').returning('*').insert({userID: userId, roomID: roomId, until: banEnd});
-    // return response[0];
     return banEnd;
   }
 
+  // Remove a mute record from our database
   async removeMute(userId: number, roomId: number)
   {
     const response = await db('mutelist').where({userID: userId, roomID: roomId}).del();
     return response[0];
   }
 
+  // Find out if a user is muted in a room
   async isMuted(userId: number, roomId: number): Promise<boolean>
   {
+    // Find the corresponding record
     const response = await db('mutelist').where({userID: userId, roomID: roomId}).select('*');
+    
+    // If such record exists
     if (response.length)
     {
+      // And is still in effect, return true
       const now = new Date()
       if (response[0].until.getTime() > now.getTime())
         return true;
-      // Remove the mute
+      // If it's already expired, remove the mute
       this.removeMute(userId, roomId);
       return false;
     }
     return false;
   }
 
+  // Find out until which date a user is muted in the room
   async getMutedUntil(userId: number, roomId: number): Promise<Date | null>
   {
+    // Find the corresponding record
     const response = await db('mutelist').where({userID: userId, roomID: roomId}).select('*');
+    
+    // If the record exists
     if (response.length)
     {
+      // If it is still in vigor, return when it ends
       const now = new Date()
       if (response[0].until.getTime() > now.getTime())
         return response[0].until;
-      // Remove the mute
+
+      // If it's already expired, remove the mute
       this.removeMute(userId, roomId);
       return null;
     }

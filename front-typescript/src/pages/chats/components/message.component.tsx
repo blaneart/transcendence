@@ -35,12 +35,16 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
       onBlock();
   }
 
+  // Ban a user
   const handleBan = async () => {
+
+    // Get the duration from the user
     let min = undefined
     while (!min)
     {
       min = window.prompt("How long should the ban be in integer minutes?");
     }
+    // Send a request
     const req: BanRequest = {
       userId: message.senderID,
       roomName: room.name,
@@ -49,12 +53,15 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
     socket.emit("banUser", req);
   }
 
+  // Mute a user
   const handleMute = async () => {
+    // Get the duration from the user
     let min = undefined
     while (!min)
     {
       min = window.prompt("How long should the mute be in integer minutes?");
     }
+    // Send a request
     const req: BanRequest = {
       userId: message.senderID,
       roomName: room.name,
@@ -64,8 +71,6 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
   }
 
   // If the sender of the message is blocked
-  console.log("Message block check");
-  console.log(blockList.has(message.senderID));
   if (blockList.has(message.senderID))
   {
     // Don't show the message

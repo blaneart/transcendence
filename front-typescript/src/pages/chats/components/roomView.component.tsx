@@ -35,6 +35,7 @@ async function getRoom(authToken:string, roomName: string)
   return await response.json() as Room;
 }
 
+// Check if we're muted in this chat
 async function getMuted(authToken: string, roomName: string)
 {
   const response = await fetch(`http://127.0.0.1:3000/chat/muted/${roomName}`,
@@ -48,6 +49,7 @@ async function getMuted(authToken: string, roomName: string)
   return await response.json();
 }
 
+// Check until when we're muted in this chat
 async function getMutedUntil(authToken: string, roomName: string)
 {
   const response = await fetch(`http://127.0.0.1:3000/chat/muted/${roomName}/until/`,
@@ -167,8 +169,13 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       socket.disconnect();
     }, false);
 
+    // If we get muted
     socket.on("muted", (minutes: number) => {
+
+      // Update state
       setMuted(true);
+
+      // Let the user know
       alert(`You're muted for ${minutes} minutes`);
 
       // Re-check if we're unmuted after minutes pass

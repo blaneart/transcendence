@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Pong from '../../game/game';
+import Pong from '../../offline-game/offline-game';
 import EndGameMenu from '../../components/end-game-menu/end-game-menu.component';
 
 import '../../components/difficulty-lvl/difficulty-lvl.scss'
-import './game.styles.scss';
+import './offline-game.styles.scss';
 
 interface User {
   id: string;

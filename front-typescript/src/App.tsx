@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import HomePage from "./pages/homepage/homepage.component";
 import Header from "./components/header/header.component";
-import Game from "./pages/game/game.component";
+import Game from "./pages/offline-game/offline-game.component";
 import AccountPage from "./pages/account/account.component";
 import "./App.css";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";

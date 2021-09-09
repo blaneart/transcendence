@@ -1,0 +1,26 @@
+.square {
+	background: #fff;
+	border: 1px solid #999;
+	float: left;
+	font-size: 24px;
+	font-weight: bold;
+	line-height: 34px;
+	height: 80px;
+	margin-right: auto;
+	margin-top: auto;
+	padding: 0;
+	text-align: center;
+	width: 110px;
+  }
+
+.board-row:after {
+	clear: both;
+	content: "";
+	display: table;
+}
+
+.difficulty-item {
+	width: 20px;
+	margin: 30px 150px;
+}
+

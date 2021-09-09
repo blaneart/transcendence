@@ -11,11 +11,14 @@ import Game from "./pages/game/game.component";
 import Users from "./pages/users/users.component";
 
 import Chats from "./pages/chats/chats.component";
-import "./App.scss";
 import { io, Socket } from 'socket.io-client';
 import { User } from './App.types';
 
 const ENDPOINT = "http://127.0.0.1:3002";
+
+import Offline_Game from "./pages/offline-game/offline-game.component";
+import "./App.css";
+import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 
 
 interface IState {
@@ -167,6 +170,7 @@ function App() {
   }, []);
 
   const { search } = useLocation();
+  let difficulty = {number: 4};
   var searchParams: URLSearchParams = new URLSearchParams(search);
 
  
@@ -182,7 +186,7 @@ function App() {
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
         <Route path="/chats">
-          <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user? user.id : -1}/>
+
         </Route>
         <Route path="/users">
           <Users user={user} setUser={setUser} authToken={authToken} />

@@ -193,4 +193,19 @@ export class ChatService {
       .select('blocklist.blockedID', 'users.name');
     return response;
   }
+
+  // Ban a user in a given room
+  async banUser(userId: number, roomId: number)
+  {
+    const response = await db('banlist').returning('*').insert({userID: userId, roomID: roomId});
+    return response[0];
+  }
+
+  async isBanned(userId: number, roomId: number): Promise<boolean>
+  {
+    const response = await db('banlist').where({userID: userId, roomID: roomId}).select('*');
+    if (response.length)
+      return true;
+    return false;
+  }
 }

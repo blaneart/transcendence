@@ -49,6 +49,12 @@ interface LoginAttempt {
   password: string
 }
 
+// The message we receive when an admin wants to ban a user
+interface BanRequest {
+  roomName: string,
+  userId: number
+}
+
 @WebSocketGateway(8080, { cors: true })
 export class ChatGateway {
   constructor (private readonly chatService: ChatService) {}
@@ -79,8 +85,10 @@ export class ChatGateway {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('requestJoin')
   async handleEvent(client: AuthenticatedSocket, data: string) {
-    
     const room = await this.chatService.findRoomByName(data);
+
+    // Store the user in the data property that is always accessible
+    client.data.user = client.user;
 
     // Ensure room exists
     if (room === null)
@@ -93,6 +101,10 @@ export class ChatGateway {
     {
       return this.server.to(client.id).emit("loginRequest");
     }
+
+    // Ensure the user is not banned in this room
+    if (await this.chatService.isBanned(client.user.id, room.id))
+      return this.server.to(client.id).emit("kickedOut");
 
     // Finalize room join
     this.join_room(client, room);
@@ -193,6 +205,7 @@ export class ChatGateway {
 
     // Kick all the users from the room
     this.server.to(room.name).emit("kickedOut");
+    this.server.socketsLeave(room.name);
 
     // Delete the room from the database
     this.chatService.deleteRoom(room.id);
@@ -229,8 +242,31 @@ export class ChatGateway {
 
     // Kick all the users from the room
     this.server.to(room.name).emit("kickedOut");
+    this.server.socketsLeave(room.name);
 
     // Delete all participations from the database
     this.chatService.deleteAllParticipations(room);
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('banUser')
+  async handleBanUser(client: AuthenticatedSocket, data: BanRequest) {
+    const room = await this.chatService.findRoomByName(data.roomName);
+
+    if (client.user.id !== room.ownerID)
+      throw new WsException("You must be the room owner to ban people");
+    
+    const response = await this.chatService.banUser(data.userId, room.id);
+
+    // Kick the user out from the room
+    const socketsInTheRoom =  await this.server.in(room.name).fetchSockets()
+    for (let socket of socketsInTheRoom)
+    {
+      if (socket.data.user && socket.data.user.id === data.userId )
+      {
+        this.server.to(socket.id).emit("kickedOut");
+        socket.leave(room.name);
+      }
+    }
   }
 }

@@ -103,6 +103,20 @@ async function createFriendList() {
     }
 }
 
+async function createBanList() {
+  const exists = await db.schema.hasTable('banlist');
+    if (!exists) {
+      await db.schema.createTable('banlist', function(t) {
+        t.increments('id').primary();
+        t.integer('userID');
+        t.integer('roomID');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+        t.unique(['userID', 'roomID']); // You can only ban a user once
+      });
+    }
+}
+
 export const db = knex({
     client: 'pg',
     connection: {
@@ -120,7 +134,8 @@ export const db = knex({
     .then(() => createParticipants())
     .then(() => createMessage())
     .then(() => createBlockList())
-    .then(() => createFriendList());
+    .then(() => createFriendList())
+    .then(() => createBanList());
 
 
 @Controller('signin')

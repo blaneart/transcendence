@@ -117,13 +117,20 @@ export class AppController {
     const val = req.body.value;
     console.log(val);
     console.log(req.user);
-    if (val == '') return req.user;
+    const bool = await this.profileService.isNameUnique(val);
+    if (val == '' || bool === false) return req.user;
     const response = await this.profileService.updateUserById(req.user.id, {
       name: val,
     });
     return response;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('uniqueName')
+  async isNameUnique(@Request() req) {
+    const bool = await this.profileService.isNameUnique(req.body.value);
+    return bool;
+  }
 
   @UseGuards(JwtAuthGuard)
   @Patch('account/setGames')

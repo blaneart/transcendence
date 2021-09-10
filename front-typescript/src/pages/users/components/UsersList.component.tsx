@@ -10,6 +10,7 @@ interface UsersListProps {
   user_logged?: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
   authToken: string;
+  setAuthToken: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // Get all users from the backend

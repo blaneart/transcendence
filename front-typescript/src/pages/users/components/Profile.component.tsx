@@ -11,24 +11,18 @@ import ChangeNameForm from "./changeNameForm.component";
 
 import "./usersList.styles.scss";
 import { User } from "../../../App.types";
+import FakeUserCreator from "../../chats/components/fakeUserCreator.components";
 
 interface NameRouteParams {
   paramName?: string
-}
-
-interface IState {
-  user: User | null;
 }
 
 interface IProfilePageProps {
   user?: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
   authToken: string;
+  setAuthToken: React.Dispatch<React.SetStateAction<string>>;
 }
-
-const SendForm = async (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
-};
 
 async function toggleTwofa(
   user: User,
@@ -56,31 +50,6 @@ async function toggleTwofa(
   }
 }
 
-async function updateName(
-  user: User,
-  setUser: Function,
-  newName: string,
-  authToken: string
-) {
-  const data = {
-    value: newName,
-  };
-  const response = await fetch("http://127.0.0.1:3000/account/setName", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
-    },
-    body: JSON.stringify(data),
-  });
-  const jsonData = await response.json();
-  console.log(jsonData);
-  const userUpdate = jsonData as User;
-
-  setUser(userUpdate);
-  localStorage.setItem("pongUser", JSON.stringify(userUpdate));
-}
-
 async function getUserByName( authToken: string, name: string)
 {
   const data = {
@@ -102,7 +71,8 @@ async function getUserByName( authToken: string, name: string)
 const Profile: React.FC<IProfilePageProps> = ({
   user,
   setUser,
-  authToken
+  authToken,
+  setAuthToken
 }) => {
   
   const { paramName } = useParams<NameRouteParams>();
@@ -132,12 +102,12 @@ const Profile: React.FC<IProfilePageProps> = ({
             games={(profile_user as User).games}
             loses={(profile_user as User).games - (profile_user as User).wins}
           />
-          <h1>{(profile_user as User).name}</h1>
+          <h1>{paramName}</h1>
           {user.name == paramName ? (
           <div>
             <div>
               Change name :
-              <ChangeNameForm setUser={setUser} setProfileUser={setProfileUser} authToken={authToken}/>
+              <ChangeNameForm user={user} setUser={setUser} setProfileUser={setProfileUser} authToken={authToken}/>
             </div>
             <p>2FA enabled: {user.twofa === true ? "Yes" : "No"}</p>
             <button

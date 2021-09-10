@@ -23,7 +23,6 @@ async function uploadHandler(authToken: string, setUser: Function) {
   })
 
   const jsonData = await response.json();
-  console.log(jsonData);
   const userUpdate = jsonData as User;
 
   setUser(userUpdate);
@@ -41,7 +40,6 @@ async function removeHandler(authToken: string, setUser: Function) {
   })
 
   const jsonData = await response.json();
-  console.log(jsonData);
   const userUpdate = jsonData as User;
 
   setUser(userUpdate);

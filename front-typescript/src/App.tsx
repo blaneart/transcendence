@@ -182,10 +182,10 @@ function App() {
         <Route exact path="/">
           <Menu user={user}/>
         </Route>
-		<Route path="/playbots">
-			<Difficulty difficultyLvl={difficulty}/>
-			<Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
-		</Route>
+        <Route path="/playbots">
+          <Difficulty difficultyLvl={difficulty}/>
+          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+        </Route>
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
@@ -193,7 +193,7 @@ function App() {
           {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p> }
         </Route>
         <Route path="/users">
-          <Users user={user} setUser={setUser} authToken={authToken} />
+          <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} />
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

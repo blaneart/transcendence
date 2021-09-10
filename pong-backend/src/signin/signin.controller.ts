@@ -147,6 +147,32 @@ async function createAdmins() {
     }
 }
 
+async function createDirects() {
+  const exists = await db.schema.hasTable('directs');
+    if (!exists) {
+      await db.schema.createTable('directs', function(t) {
+        t.increments('id').primary();;
+        t.integer('userA');
+        t.integer('userB');
+        t.foreign('userA').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('userB').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+      });
+    }
+}
+
+async function createDirectMessages() {
+  const exists = await db.schema.hasTable('directmessages');
+    if (!exists) {
+      await db.schema.createTable('directmessages', function(t) {
+        t.increments('id').primary();;
+        t.integer('directId');
+        t.integer('senderId');
+        t.text('message');
+        t.foreign('directId').references('directs.id').onDelete('CASCADE'); // will be destroyed with corresponding direct
+        t.foreign('senderId').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+      });
+    }
+}
 
 
 export const db = knex({
@@ -169,7 +195,9 @@ export const db = knex({
     .then(() => createFriendList())
     .then(() => createBanList())
     .then(() => createMuteList())
-    .then(() => createAdmins());
+    .then(() => createAdmins())
+    .then(() => createDirects())
+    .then(() => createDirectMessages());
 
 
 @Controller('signin')

@@ -2,7 +2,6 @@ import { Controller, Get, Put, Param, Delete, UseGuards, Request, HttpException,
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Room } from './chat.types';
-import { request } from 'express';
 import { WsException } from '@nestjs/websockets';
 
 @Controller('chat')
@@ -146,6 +145,13 @@ export class ChatController {
       throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
 
     return await this.chatService.isAdmin(request.user.id, room.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/directs/me/')
+  async getDirects(@Request() request)
+  {
+    return await this.chatService.getAllDirects(request.user.id);
   }
 
 }

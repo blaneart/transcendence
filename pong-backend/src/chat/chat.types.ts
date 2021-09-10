@@ -6,3 +6,9 @@ export interface Room
   restricted: boolean,
   hash: string
 }
+
+export interface Direct {
+  id: number,
+  userA: number,
+  userB: number
+}

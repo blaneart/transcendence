@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
-import { Room } from './chat.types';
+import { Room, Direct } from './chat.types';
 import * as bcrypt from 'bcrypt';
-import { response } from 'express';
-// import { bcrypt }  from 'bcrypt-nodejs';
+import { Dir } from 'fs';
 
 const saltRounds = 10;
 
@@ -80,8 +79,6 @@ export class ChatService {
     // Return the newly created message
     return newMessage[0];
   }
-
-
 
   async sendMessage(userID: number, roomName: string, text: string) {
     // Add a new message entry in the database
@@ -315,4 +312,38 @@ export class ChatService {
     return response
   }
 
+  async createDirect(userAId: number, userBId: number) {
+    // Create a new room in the database
+    const new_direct = await db('directs').returning('*').insert({ userA: userAId, userB: userBId });
+    // Return the instance of the room
+    return new_direct[0];
+  }
+
+  // Get all direct conversations for a given user
+  async getAllDirects(userId: number)
+  {
+    const directs = await db('directs').where({userA: userId}).orWhere({userB: userId}).select('*');
+    return directs;
+  }
+
+  // Find an instance of direct conversation between user A and user B
+  async findDirect(userAId: number, userBId: number): Promise<Direct | null>
+  {
+    const direct = await db('directs').where({userA: userAId, userB: userBId})
+      .orWhere({userA: userBId, userB: userBId}).select('*');
+    return direct as Direct;
+  }
+
+  async getAllDirectMessages(directId: number)
+  {
+    const messages = await db('directmessages').where({directID: directId}).select('*');
+    return messages;
+  }
+
+  async sendDirectMessage(directId: number, senderId: number, message: string)
+  {
+    const response = await db('directmessages').returning('*')
+      .insert({ directID: directId, senderID: senderId, message: message });
+    return response[0]
+  }
 }

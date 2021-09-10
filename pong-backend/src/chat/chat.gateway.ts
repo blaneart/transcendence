@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
-import { Room } from "./chat.types";
+import { Room, Direct } from "./chat.types";
 
 // The kind of the message (to extend later)
 enum ChatMessageType {
@@ -19,8 +19,23 @@ interface ChatMessage {
   room: string
 }
 
+// The update we get from frontend to update the DB
+interface DirectMessage {
+  type: ChatMessageType,
+  text: string
+  userB: number
+}
+
 // The update we send to frontend to show messages
 interface ChatMessageUpdate {
+  id: number,
+  name: string,
+  message: string,
+  senderID: number
+}
+
+// The update we send to frontend to show messages
+interface DirectMessageUpdate {
   id: number,
   name: string,
   message: string,
@@ -349,6 +364,66 @@ export class ChatGateway {
     this.chatService.addAdmin(data.userId, room.id);
 
     this.server.to(room.name).emit("promoted", data.userId);
-
   }
+
+ // Once we've authenticated the user, add them to the SocketIO room
+  async join_direct_convo(client: AuthenticatedSocket, direct: Direct)
+  {
+   // Add the client to the SocketIO room
+   client.join(`direct_${direct.id}`);
+   
+   // Get the history of the messages
+   const messages = await this.chatService.getAllDirectMessages(direct.id);
+   
+   // And send them to the newly joined user
+   this.server.to(client.id).emit("initialDirectMessages", messages);
+  }
+
+  // Handle a request to join a room
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('requestJoinDm')
+  async handleJoinDm(client: AuthenticatedSocket, userID: number) {
+    const direct = await this.chatService.findDirect(client.user.id, userID);
+
+    // Store the user in the data property that is always accessible
+    client.data.user = client.user;
+
+    // Ensure direct conversation exists
+    if (direct === null)
+    {
+      throw new WsException("Direct conversation not found");
+    }
+
+    // Finalize room join
+    this.join_direct_convo(client, direct);
+  }
+
+  // Handle a new message
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('directMessage')
+  async handleDirectMessage(client: AuthenticatedSocket, message: DirectMessage) {
+
+    // Find the direct convo in our database
+    const direct = await this.chatService.findDirect(client.user.id, message.userB);
+
+    // Ensure room exists
+    if (!direct)
+    {
+      throw new WsException("Conversation not found");
+    }
+
+    // Save the new message to our database
+    const savedMessage = await this.chatService.sendDirectMessage(client.user.id, message.userB, message.text);
+
+    const newMessage: DirectMessageUpdate = {
+      id: savedMessage.id,
+      name: client.user.name,
+      message: message.text,
+      senderID: client.user.id
+    }
+
+    // Send the update to other side
+    this.server.to(`direct_${direct.id}`).emit("newMessage", newMessage);
+  }
+
 }

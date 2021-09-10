@@ -190,7 +190,7 @@ function App() {
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
         <Route path="/chats">
-          <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user? user.id : -1}/>
+          {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p> }
         </Route>
         <Route path="/users">
           <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} />

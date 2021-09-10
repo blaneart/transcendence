@@ -5,6 +5,7 @@ import { Socket } from "socket.io-client";
 interface ComposerProps {
   socket: Socket
   roomName: string
+  muted: boolean
 }
 
 // The kind of a message (could be extended)
@@ -21,7 +22,7 @@ interface ChatMessage {
   text: string,
 }
 
-const Composer: React.FC<ComposerProps> = ({ socket, roomName }) => {
+const Composer: React.FC<ComposerProps> = ({ socket, roomName, muted }) => {
   const [messageText, setMessageText] = useState<string>("");
 
   const sendMessage = (e: any) => {
@@ -32,6 +33,13 @@ const Composer: React.FC<ComposerProps> = ({ socket, roomName }) => {
       text: messageText
     }
     socket.emit("chatMessage", newMessage);
+  }
+
+  if (muted)
+  {
+    return (
+      <p>You are muted :(</p>
+    )
   }
 
   return (

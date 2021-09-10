@@ -10,6 +10,7 @@ interface MessageParams {
   onBlock: Function
   room: Room
   socket: Socket
+  amAdmin: boolean
 }
 
 interface BanRequest {
@@ -18,7 +19,16 @@ interface BanRequest {
   minutes: number
 }
 
-const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId, onBlock, room, socket}) => {
+function canIBan(userId: number, room: Room, amAdmin: boolean, message: MessageType): boolean
+{
+  if ((amAdmin || userId === room.ownerID) && message.senderID !== userId && message.senderID != room.ownerID)
+  {
+    return true;
+  }
+  return false;
+}
+
+const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId, onBlock, room, socket, amAdmin}) => {
 
   // Block a user
   const handleBlock = async () => {
@@ -84,8 +94,9 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
     <div>
       <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message}
       {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
-      {userId === room.ownerID && userId !== message.senderID ? <button onClick={handleBan}>Ban sender</button> : null}
-      {userId === room.ownerID && userId !== message.senderID ? <button onClick={handleMute}>Mute sender</button> : null}
+      {canIBan(userId, room, amAdmin, message) ? <div>
+        <button onClick={handleBan}>Ban sender</button><button onClick={handleMute}>Mute sender</button>
+      </div> : null}
     </div>
   );
 

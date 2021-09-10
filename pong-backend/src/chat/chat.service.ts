@@ -292,4 +292,27 @@ export class ChatService {
     }
     return null;
   }
+
+  // Create admin 
+  async addAdmin(userId: number, roomId: number)
+  {
+    const response = await db('admins').returning('*').insert({userID: userId, roomID: roomId});
+    return response;
+  }
+
+  async isAdmin(userId: number, roomId: number): Promise<boolean>
+  {
+    const response = await db('admins').where({userID: userId, roomID: roomId}).select('*');
+    if (response.length)
+      return true;
+    return false;
+  }
+
+  async getAllAdmins(roomId: number)
+  {
+    const response = await db('admins').where({roomID: roomId})
+      .join('users', 'users.id', '=', 'admins.userID').select('admins.id', 'admins.userID', 'users.name');
+    return response
+  }
+
 }

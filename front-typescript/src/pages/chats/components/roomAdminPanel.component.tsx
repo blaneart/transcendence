@@ -1,6 +1,7 @@
 import React from "react";
 import { Socket } from "socket.io-client";
 import { Room } from "../chats.types";
+import Admins from "./admins.component";
 
 interface RoomAdminPanelParams {
   authToken: string,
@@ -35,6 +36,9 @@ const RoomAdminPanel: React.FC<RoomAdminPanelParams> = ({ authToken, room, userI
       <p>You are the owner of this room</p>
       <button onClick={handleDelete}>Delete room</button>
       <button onClick={handleRestrict}>{room.restricted ? "Change room password" : "Make room private"}</button>
+
+      <Admins authToken={authToken} room={room} socket={socket}/>
+
       
     </div>
   );

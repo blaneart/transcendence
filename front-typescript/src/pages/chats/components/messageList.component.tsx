@@ -11,6 +11,7 @@ interface MessageListParams {
   authToken: string;
   room: Room;
   socket: Socket;
+  amAdmin: boolean
 }
 
 // Get the list of all blocked users
@@ -35,7 +36,7 @@ interface BlockedUserEntry {
   blockedID: number
 }
 
-const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket }) => {
+const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket, amAdmin }) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
   useEffect(() => {
@@ -43,7 +44,6 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
   }, []);
 
   const updateBlockList = () => {
-    console.log("UpdateBlockList runs");
     // Get all the blocked users
     getBlockList(authToken).then((users) => {
 
@@ -63,11 +63,7 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
 
   return (
     <div>
-      <div>
-        <h3>Blocklist: </h3>
-      </div>
-
-      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} room={room} socket={socket} key={msg.id} />)}
+      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} room={room} socket={socket} key={msg.id} amAdmin={amAdmin} />)}
     </div>
   );
 }

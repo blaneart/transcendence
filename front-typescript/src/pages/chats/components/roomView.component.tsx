@@ -63,6 +63,19 @@ async function getMutedUntil(authToken: string, roomName: string)
   return await response.json();
 }
 
+async function getAmAdmin(authToken: string, roomName: string)
+{
+  const response = await fetch(`http://127.0.0.1:3000/chat/admins/${roomName}/me/`,
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  return await response.json();
+}
+
 
 const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
@@ -74,6 +87,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
   }));
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [muted, setMuted] = useState<boolean>(false);
+  const [amAdmin, setAmAdmin] = useState<boolean>(false);
   
   const [room, setRoom] = useState<Room>();
   let history = useHistory();
@@ -109,6 +123,8 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
         
       }
     });
+
+    getAmAdmin(authToken, roomName).then((amAdminUpdate) => setAmAdmin(amAdminUpdate));
 
     // Handle the messages that were sent before we joined
     socket.on("initialMessages", (msg) => {
@@ -184,6 +200,13 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       }, minutes * 60 * 1000);
     })
 
+    // If we've been promoted, we instantly get the rights
+    socket.on("promoted", (id) => {
+      alert(`promoted ${id}`);
+      if (id == userId)
+        setAmAdmin(true);
+    })
+
     // On component unmount, disconnect socket
     return function cleanup() {
       socket.disconnect();
@@ -199,7 +222,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       <h2>Room: {roomName}</h2>
       {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
       
-      {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket}/> : null}
+      {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket} amAdmin={amAdmin}/> : null}
       <Composer socket={socket} roomName={roomName} muted={muted} />
     </div>
   );

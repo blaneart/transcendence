@@ -120,4 +120,32 @@ export class ChatController {
     return await this.chatService.getMutedUntil(request.user.id, room.id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('/admins/:name')
+  async getAdmins(@Request() request, @Param('name') name: string)
+  {
+    // Find the room in our database
+    const room = await this.chatService.findRoomByName(name);
+
+    // Ensure the room exists
+    if (!room)
+      throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
+
+    return await this.chatService.getAllAdmins(room.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/admins/:name/me')
+  async getAmAdmin(@Request() request, @Param('name') name: string)
+  {
+    // Find the room in our database
+    const room = await this.chatService.findRoomByName(name);
+
+    // Ensure the room exists
+    if (!room)
+      throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
+
+    return await this.chatService.isAdmin(request.user.id, room.id);
+  }
+
 }

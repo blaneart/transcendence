@@ -133,6 +133,21 @@ async function createMuteList() {
     }
 }
 
+async function createAdmins() {
+  const exists = await db.schema.hasTable('admins')
+    if (!exists) {
+      await db.schema.createTable('admins', function(t) {
+        t.increments('id').primary();
+        t.integer('userID');
+        t.integer('roomID');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+        t.unique(['userID', 'roomID']);
+      });
+    }
+}
+
+
 
 export const db = knex({
     client: 'pg',
@@ -153,7 +168,8 @@ export const db = knex({
     .then(() => createBlockList())
     .then(() => createFriendList())
     .then(() => createBanList())
-    .then(() => createMuteList());
+    .then(() => createMuteList())
+    .then(() => createAdmins());
 
 
 @Controller('signin')

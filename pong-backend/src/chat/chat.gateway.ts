@@ -56,6 +56,11 @@ interface BanRequest {
   minutes: number
 }
 
+interface MakeAdminRequest {
+  roomName: string,
+  userId: number
+}
+
 @WebSocketGateway(8080, { cors: true })
 export class ChatGateway {
   constructor (private readonly chatService: ChatService) {}
@@ -268,9 +273,10 @@ export class ChatGateway {
     if (!room) 
       throw new WsException("Room not found");
 
-    // Ensure the banning user is the owner of the room
-    if (client.user.id !== room.ownerID)
-      throw new WsException("You must be the room owner to ban people");
+     // Ensure the sender is the room owner
+     if (!(await this.chatService.isAdmin(room.id, client.user.id))
+     && client.user.id !== room.ownerID)
+      throw new WsException("You must be the room owner or an administrator to ban people");
 
     // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
@@ -304,8 +310,9 @@ export class ChatGateway {
       throw new WsException("Room not found");
 
     // Ensure the sender is the room owner
-    if (client.user.id !== room.ownerID)
-      throw new WsException("You must be the room owner to mute people");
+    if (!(await this.chatService.isAdmin(room.id, client.user.id))
+            && client.user.id !== room.ownerID)
+      throw new WsException("You must be the room owner or an administrator to mute people");
 
     // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
@@ -323,5 +330,25 @@ export class ChatGateway {
         this.server.to(socket.id).emit("muted", data.minutes);
       }
     }
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('makeAdmin')
+  async handleMakeAdmin(client: AuthenticatedSocket, data: BanRequest) {
+
+    // Find the room in our database
+    const room = await this.chatService.findRoomByName(data.roomName);
+
+    // Ensure the room exists
+    if (!room) 
+      throw new WsException("Room not found");
+
+    if (client.user.id !== room.ownerID)
+      throw new WsException("You must be the owner of the room to add admins");
+
+    this.chatService.addAdmin(data.userId, room.id);
+
+    this.server.to(room.name).emit("promoted", data.userId);
+
   }
 }

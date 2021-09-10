@@ -1,7 +1,9 @@
-import { useHistory, withRouter, RouteComponentProps } from "react-router-dom";
+import { useState } from "react";
+import { useHistory} from "react-router-dom";
 import { User } from "../../../App.types";
   
   interface ICNBProps {
+    user: User;
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
     setProfileUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
     authToken: string;
@@ -10,6 +12,7 @@ import { User } from "../../../App.types";
 async function updateName(
     setUser: Function,
     setProfileUser: Function,
+    setLocation: Function,
     newName: string,
     authToken: string
   ) {
@@ -25,30 +28,32 @@ async function updateName(
       body: JSON.stringify(data),
     });
     const jsonData = await response.json();
-    console.log(jsonData);
-    const userUpdate = jsonData as User;
+    const userUpdated = jsonData as User;
   
-    setUser(userUpdate);
-    setProfileUser(userUpdate);
-    localStorage.setItem("pongUser", JSON.stringify(userUpdate));
+    setUser(userUpdated);
+    setProfileUser(userUpdated);
+    setLocation('/users/' + userUpdated.name);
+    localStorage.setItem("pongUser", JSON.stringify(userUpdated));
 }
 
 const ChangeNameButton: React.FC<ICNBProps> = ({
+    user,
     setUser,
     setProfileUser,
     authToken
 }) => {
     let history = useHistory();
+    const [location, setLocation] = useState(history.location);
     const HandleClick = () => {
-        updateName(
-        setUser,
-        setProfileUser,
-        (document.getElementById("name") as HTMLInputElement).value,
-        authToken
-        );
-        history.push(
-            '/users/' + (document.getElementById("name") as HTMLInputElement).value
-            );
+      const username = user.name;
+      updateName(
+      setUser,
+      setProfileUser,
+      setLocation,
+      (document.getElementById("name") as HTMLInputElement).value,
+      authToken
+      );
+      history.push(location);
     }
     return (
     <button type="button" onClick={HandleClick}>

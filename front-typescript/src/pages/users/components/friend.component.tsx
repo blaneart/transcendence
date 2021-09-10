@@ -24,7 +24,6 @@ async function getFriend(id1: number, id2: number, authToken: string) {
 
 async function addFriend(id1: number, id2: number, authToken: string) {
 
-    console.log('addFriend Friend Component');
     const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
       method: "PUT",
       headers: {

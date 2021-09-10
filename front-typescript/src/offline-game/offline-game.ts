@@ -60,7 +60,7 @@ class Ball extends Rect {
   vel: Vec;
   constructor()
   {
-    super(10,10);
+    super(18,18);
     this.vel = new Vec();
   }
 }
@@ -138,7 +138,7 @@ class Offline_Pong {
         player.top < ball.bottom && player.bottom > ball.top)
         {
           ball.vel.x = -ball.vel.x;
-          ball.vel.y += 300 * (Math.random() - .5); 
+          ball.vel.y = ((player.pos.y  + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15;
           ball.vel.len *= 1.05;
         }
   }
@@ -181,7 +181,7 @@ class Offline_Pong {
     if (this._context !== null)
     {
       this._context.fillStyle = "black";
-      this._context.fillRect(0,0, 
+      this._context.fillRect(0,0,
                               this._canvas.width, this._canvas.height);
       this._context.fillStyle = 'white';
       this._context.beginPath();
@@ -223,7 +223,7 @@ class Offline_Pong {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
 
-    if (this.ball.left < this.players[0].size.x || this.ball.right > this._canvas.width - this.players[1].size.x)
+    if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
       this.players[playerId].score++;
@@ -232,9 +232,11 @@ class Offline_Pong {
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
     {
       this.ball.vel.y = -this.ball.vel.y;
+	  if (this.ball.top < 0)
+		this.ball.pos.y = 0;
+	  else
+		this.ball.pos.y = this._canvas.height - this.ball.size.y;
     }
-    // console.log('ell');
-    // this.players[1].pos.y = this.ball.pos.y;
     this.players.forEach(player => this.collide(player, this.ball));
 
 	this.changedifficulty(difficulty);

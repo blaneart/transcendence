@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useHistory} from "react-router-dom";
 import { User } from "../../../App.types";
-  
+import { History } from 'history';
+
   interface ICNBProps {
     user: User;
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
@@ -14,7 +15,8 @@ async function updateName(
     setProfileUser: Function,
     setLocation: Function,
     newName: string,
-    authToken: string
+    authToken: string,
+    history: History
   ) {
     const data = {
       value: newName,
@@ -29,10 +31,10 @@ async function updateName(
     });
     const jsonData = await response.json();
     const userUpdated = jsonData as User;
-  
     setUser(userUpdated);
     setProfileUser(userUpdated);
     setLocation('/users/' + userUpdated.name);
+    history.push('/users/' + userUpdated.name);
     localStorage.setItem("pongUser", JSON.stringify(userUpdated));
 }
 
@@ -45,15 +47,14 @@ const ChangeNameButton: React.FC<ICNBProps> = ({
     let history = useHistory();
     const [location, setLocation] = useState(history.location);
     const HandleClick = () => {
-      const username = user.name;
       updateName(
       setUser,
       setProfileUser,
       setLocation,
       (document.getElementById("name") as HTMLInputElement).value,
-      authToken
+      authToken,
+      history
       );
-      history.push(location);
     }
     return (
     <button type="button" onClick={HandleClick}>

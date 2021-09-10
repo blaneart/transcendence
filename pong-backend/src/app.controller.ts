@@ -118,10 +118,17 @@ export class AppController {
     console.log(val);
     console.log(req.user);
     const bool = await this.profileService.isNameUnique(val);
-    if (val == '' || bool === false) return req.user;
-    const response = await this.profileService.updateUserById(req.user.id, {
+    if (val == '' || bool === false)
+    {
+      console.log('name not changed');
+      return req.user;
+    }
+    console.log('name changed');
+    const response = await this.profileService.updateUserById(
+      req.user.id, {
       name: val,
     });
+    console.log(response.name);
     return response;
   }
 

@@ -97,7 +97,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {
-              pong!.players[id].pos.y = event.offsetY;
+              pong!.players[id].pos.y = event.offsetY - pong!.players[id].size.y / 2;
           });
           socket.emit('subscribe');
         //   window.addEventListener('keydown', event => {

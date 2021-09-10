@@ -1,5 +1,4 @@
 import React, { FormEvent } from "react";
-import { useHistory, withRouter, RouteComponentProps } from "react-router-dom";
 import ChangeNameButton from "./changeNameButton.component";
 import { User } from "../../../App.types";
 

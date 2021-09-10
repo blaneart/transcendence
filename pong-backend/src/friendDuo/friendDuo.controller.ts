@@ -33,6 +33,14 @@ export class FriendDuoController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('of/:id1')
+  async getFriendsOf(@Request() request, @Param('id1') id1: number)
+  {
+    const array = await this.friendDuoService.getFriendsArray(id1);
+    return array;
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('/:id1/:id2')
   async getFriendDuo(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
   {

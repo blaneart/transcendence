@@ -9,6 +9,7 @@ import Menu from "./components/menu/menu.component";
 import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import Users from "./pages/users/users.component";
+import Friends from "./pages/friends/friends.component";
 
 import Chats from "./pages/chats/chats.component";
 import { io, Socket } from 'socket.io-client';
@@ -194,6 +195,9 @@ function App() {
         </Route>
         <Route path="/users">
           <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} />
+        </Route>
+        <Route path="/friends">
+          {authToken !== "" && user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

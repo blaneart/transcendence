@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import type { FormEvent } from "react";
 import { useParams } from "react-router";
 
 import Scores from "../../../components/account-info/account-info.component";
@@ -11,7 +10,6 @@ import ChangeNameForm from "./changeNameForm.component";
 
 import "./usersList.styles.scss";
 import { User } from "../../../App.types";
-import FakeUserCreator from "../../chats/components/fakeUserCreator.components";
 
 interface NameRouteParams {
   paramName?: string

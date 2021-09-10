@@ -13,14 +13,15 @@ import { History } from 'history';
 async function updateName(
     setUser: Function,
     setProfileUser: Function,
-    setLocation: Function,
     newName: string,
     authToken: string,
     history: History
   ) {
+
     const data = {
       value: newName,
     };
+
     const response = await fetch("http://127.0.0.1:3000/account/setName", {
       method: "POST",
       headers: {
@@ -29,11 +30,13 @@ async function updateName(
       },
       body: JSON.stringify(data),
     });
+
     const jsonData = await response.json();
     const userUpdated = jsonData as User;
+
     setUser(userUpdated);
     setProfileUser(userUpdated);
-    setLocation('/users/' + userUpdated.name);
+
     history.push('/users/' + userUpdated.name);
     localStorage.setItem("pongUser", JSON.stringify(userUpdated));
 }
@@ -44,18 +47,18 @@ const ChangeNameButton: React.FC<ICNBProps> = ({
     setProfileUser,
     authToken
 }) => {
+
     let history = useHistory();
-    const [location, setLocation] = useState(history.location);
     const HandleClick = () => {
       updateName(
       setUser,
       setProfileUser,
-      setLocation,
       (document.getElementById("name") as HTMLInputElement).value,
       authToken,
       history
       );
     }
+    
     return (
     <button type="button" onClick={HandleClick}>
         {" "}

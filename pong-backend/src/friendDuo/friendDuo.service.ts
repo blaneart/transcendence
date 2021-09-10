@@ -10,7 +10,7 @@ export class FriendDuoService {
     return new_duo[0];
   }
   
-// Delete a duo
+  // Delete a duo
   async deleteDuo(duoID: number) {
     const response = await db('friendDuos').where({id: duoID}).del();
     return response;
@@ -28,6 +28,19 @@ export class FriendDuoService {
     }
 
     return duo[0].id;
+  }
+
+  async getFriendsArray(id1: number): Promise<number[]> {
+    let friendsArray = await db('friendDuos')
+    .where({ friend1: id1 })
+    .orWhere({ friend2: id1 })
+    .select('friend2');
+
+    if (!friendsArray.length) {
+      throw 'No friends :(';
+    }
+
+    return friendsArray.map((elem) => elem.friend2);
   }
 
   //Find the id of the duo in our database

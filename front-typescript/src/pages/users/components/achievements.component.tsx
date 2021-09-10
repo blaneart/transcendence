@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { User } from "../../../App.types";
 
 
 
 var achivs = [
-  // 0
   {
     id: 0,
     name: "Welcome aboard",
@@ -58,7 +57,6 @@ const Achievements = ({user, authToken, setUser }: AchievementsProps) => {
   
   return (
     <div>
-    
         <p>Achievements</p>
         {achievements.map((a: any) => <div>
             <img className="achievement_img" src={a.image}></img>

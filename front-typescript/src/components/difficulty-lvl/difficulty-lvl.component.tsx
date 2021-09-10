@@ -14,7 +14,7 @@ class Board extends React.Component<{difficultyLvl: any}, {square: string[]}> {
 	constructor(props: any) {
 		super(props);
 		this.state = {
-			square: ['Easy', 'CURRENT DIFFICULTY', 'Hard', 'Impossible'],
+			square: ['Easy', '\\* Medium */', 'Hard', 'Impossible'],
 		};
 	}
 

@@ -49,6 +49,21 @@ async function createRoom() {
     }
 }
 
+async function createBlockList() {
+  const exists = await db.schema.hasTable('blocklist');
+    if (!exists) {
+      await db.schema.createTable('blocklist', function(t) {
+        t.increments('id').primary();
+        t.integer('blockerID');
+        t.integer('blockedID');
+        t.foreign('blockerID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('blockedID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.unique(['blockerID', 'blockedID']); // You can block a user only once
+      });
+    }
+}
+
+
 async function createParticipants() {
   const exists = await db.schema.hasTable('participants')
     if (!exists) {
@@ -88,6 +103,37 @@ async function createFriendList() {
     }
 }
 
+async function createBanList() {
+  const exists = await db.schema.hasTable('banlist');
+    if (!exists) {
+      await db.schema.createTable('banlist', function(t) {
+        t.increments('id').primary();
+        t.integer('userID');
+        t.integer('roomID');
+        t.datetime('until');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+        t.unique(['userID', 'roomID']); // You can only ban a user once
+      });
+    }
+}
+
+async function createMuteList() {
+  const exists = await db.schema.hasTable('mutelist');
+    if (!exists) {
+      await db.schema.createTable('mutelist', function(t) {
+        t.increments('id').primary();
+        t.integer('userID');
+        t.integer('roomID');
+        t.datetime('until');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+        t.unique(['userID', 'roomID']); // You can only ban a user once
+      });
+    }
+}
+
+
 export const db = knex({
     client: 'pg',
     connection: {
@@ -104,7 +150,10 @@ export const db = knex({
     .then(() => createAchievements())
     .then(() => createParticipants())
     .then(() => createMessage())
-    .then(() => createFriendList());
+    .then(() => createBlockList())
+    .then(() => createFriendList())
+    .then(() => createBanList())
+    .then(() => createMuteList());
 
 
 @Controller('signin')

@@ -3,4 +3,13 @@ export interface Room {
   name: string
   ownerID: number
   owner_name: string
+  restricted: boolean
+}
+
+// This is the front-end message: the sender, and the text.
+export interface MessageType { 
+  id: number,
+  name: string,
+  message: string,
+  senderID: number
 }

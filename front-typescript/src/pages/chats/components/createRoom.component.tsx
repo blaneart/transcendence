@@ -28,7 +28,6 @@ const CreateRoom: React.FC<CreateRoomProps> = ({ authToken, onCreate }) => {
     // Make sure the room name isn't empty
     if (roomName !== "")
     {
-      console.log("Doing this");
       // Make the backend call and propagate the change
       createRoom(authToken, roomName).then(()=>onCreate());
     }
@@ -39,7 +38,6 @@ const CreateRoom: React.FC<CreateRoomProps> = ({ authToken, onCreate }) => {
       <label >
         Create a new room:
         <input type="text" onChange={(e) => {
-          console.log(`Change to ${e.target.value}`);
           setRoomName(e.target.value)
           }} />
       </label>

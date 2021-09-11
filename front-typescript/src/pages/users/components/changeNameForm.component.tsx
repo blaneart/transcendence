@@ -1,9 +1,9 @@
 import React, { FormEvent } from "react";
-import { useHistory, withRouter, RouteComponentProps } from "react-router-dom";
 import ChangeNameButton from "./changeNameButton.component";
 import { User } from "../../../App.types";
 
   interface ICNFProps {
+    user: User;
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
     setProfileUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
     authToken: string;
@@ -14,6 +14,7 @@ const SendForm = async (event: FormEvent<HTMLFormElement>) => {
   };
 
 const ChangeNameForm: React.FC<ICNFProps> = ({
+    user,
     setUser,
     setProfileUser,
     authToken
@@ -21,7 +22,7 @@ const ChangeNameForm: React.FC<ICNFProps> = ({
     return (
     <form onSubmit={SendForm}>
         <input type="text" id="name" />
-        <ChangeNameButton setUser={setUser} setProfileUser={setProfileUser}  authToken={authToken}/>
+        <ChangeNameButton user={user} setUser={setUser} setProfileUser={setProfileUser}  authToken={authToken}/>
     </form>
 );
 };

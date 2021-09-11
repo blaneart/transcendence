@@ -1,36 +1,33 @@
-import { useState } from "react";
 import { Switch, Route } from "react-router";
 import Profile from "./components/Profile.component";
 import UsersList from "./components/UsersList.component";
 import { User } from "../../App.types";
 
 
-interface IState {
-  user: User | null;
-}
-
-interface UsersProps {
+interface IUsersProps {
   user?: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
   authToken: string;
+  setAuthToken: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Users: React.FC<UsersProps> = ({
+const Users: React.FC<IUsersProps> = ({
   user,
   setUser,
-  authToken
+  authToken,
+  setAuthToken
 }) => {
 
   return (
     <div>
-    <Switch>
-      <Route exact path="/users/">
-        {authToken === "" ? <p>Please log in.</p> : <UsersList user_logged={user} setUser={setUser} authToken={authToken} />}
-      </Route>
-      <Route path="/users/:paramName">
-        {authToken === "" ? <p>Please log in.</p> : <Profile user={user} setUser={setUser} authToken={authToken} />}
-      </Route>
-    </Switch>
+      <Switch>
+        <Route exact path="/users/">
+          {authToken === "" ? <p>Please log in.</p> : <UsersList user_logged={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} />}
+        </Route>
+        <Route path="/users/:paramName">
+          {authToken === "" ? <p>Please log in.</p> : <Profile user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} />}
+        </Route>
+      </Switch>
     </div>
   );
 };

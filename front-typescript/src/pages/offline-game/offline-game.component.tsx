@@ -51,7 +51,7 @@ const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficult
         {
             var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl);
             canvas.addEventListener('mousemove', event => {
-                pong.players[0].pos.y = event.offsetY;
+                pong.players[0].pos.y = event.offsetY - pong.players[0].size.y / 2;
             });
             canvas.addEventListener('click', event => {
 				pong.start();

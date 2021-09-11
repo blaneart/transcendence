@@ -62,7 +62,7 @@ class Ball extends Rect {
   vel: Vec;
   constructor()
   {
-    super(10,10);
+    super(18,18);
     this.vel = new Vec();
   }
 }
@@ -260,11 +260,11 @@ class Pong {
     // this.ball.pos.x += this.ball.vel.x * dt;
     // this.ball.pos.y += this.ball.vel.y * dt;
     this.socket.emit('msgToServer', this.players[this.id].pos.y);
-    if (this.game_ended && (this.ball.left < 0 || this.ball.right > this._canvas.width))
+    if (this.game_ended && (this.ball.right <= 0 || this.ball.left >= this._canvas.width))
     {
       this.ball.vel.x = -this.ball.vel.x;
     }
-    else if (this.ball.left < 0 || this.ball.right > this._canvas.width)
+    else if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
       // this.players[playerId].score++;
@@ -273,6 +273,10 @@ class Pong {
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
     {
       this.ball.vel.y = -this.ball.vel.y;
+	  if (this.ball.top < 0)
+		this.ball.pos.y = 0;
+	  else
+		this.ball.pos.y = this._canvas.height - this.ball.size.y;
     } 
     // this.players[1].pos.y = this.ball.pos.y;
     this.players.forEach(player => this.collide(player, this.ball));

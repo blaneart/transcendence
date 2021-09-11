@@ -45,6 +45,14 @@ export class ProfileService {
     return response[0];
   }
 
+  async isNameUnique(name: string)
+  {
+    const user = await db('users').returning('*').where({name: name});
+    if (user.length)
+      return false;
+    return true;
+  }
+
   async updateUserById(id: number, change: any)
   {
     const response = await db('users').returning('*').where({id: id}).update(change);
@@ -68,6 +76,7 @@ export class ProfileService {
     const response = await db('users').select('*');
     return response;
   }
+
   async createFakeUser(newName: string)
   {
     // Insert a new fake user

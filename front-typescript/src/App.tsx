@@ -9,6 +9,7 @@ import Menu from "./components/menu/menu.component";
 import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import Users from "./pages/users/users.component";
+import Friends from "./pages/friends/friends.component";
 
 import Chats from "./pages/chats/chats.component";
 import { io, Socket } from 'socket.io-client';
@@ -183,10 +184,10 @@ function App() {
         <Route exact path="/">
           <Menu user={user}/>
         </Route>
-		<Route path="/playbots">
-			<Difficulty difficultyLvl={difficulty}/>
-			<Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
-		</Route>
+        <Route path="/playbots">
+          <Difficulty difficultyLvl={difficulty}/>
+          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+        </Route>
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
@@ -194,7 +195,10 @@ function App() {
           {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p> }
         </Route>
         <Route path="/users">
-          <Users user={user} setUser={setUser} authToken={authToken} />
+          <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} />
+        </Route>
+        <Route path="/friends">
+          {authToken !== "" && user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
         </Route>
         <Route path="/cheats">
           <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>

@@ -1,0 +1,19 @@
+.friend {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    // flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.image {
+    position: static;
+    height: 30px;
+    width: 30px;
+    max-height: 50%;
+    max-width: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid white;
+    border-radius:50%;
+  }

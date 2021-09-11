@@ -1,7 +1,10 @@
-import { useHistory, withRouter, RouteComponentProps } from "react-router-dom";
+import { useState } from "react";
+import { useHistory} from "react-router-dom";
 import { User } from "../../../App.types";
-  
+import { History } from 'history';
+
   interface ICNBProps {
+    user: User;
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
     setProfileUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
     authToken: string;
@@ -11,11 +14,14 @@ async function updateName(
     setUser: Function,
     setProfileUser: Function,
     newName: string,
-    authToken: string
+    authToken: string,
+    history: History
   ) {
+
     const data = {
       value: newName,
     };
+
     const response = await fetch("http://127.0.0.1:3000/account/setName", {
       method: "POST",
       headers: {
@@ -24,32 +30,35 @@ async function updateName(
       },
       body: JSON.stringify(data),
     });
+
     const jsonData = await response.json();
-    console.log(jsonData);
-    const userUpdate = jsonData as User;
-  
-    setUser(userUpdate);
-    setProfileUser(userUpdate);
-    localStorage.setItem("pongUser", JSON.stringify(userUpdate));
+    const userUpdated = jsonData as User;
+
+    setUser(userUpdated);
+    setProfileUser(userUpdated);
+
+    history.push('/users/' + userUpdated.name);
+    localStorage.setItem("pongUser", JSON.stringify(userUpdated));
 }
 
 const ChangeNameButton: React.FC<ICNBProps> = ({
+    user,
     setUser,
     setProfileUser,
     authToken
 }) => {
+
     let history = useHistory();
     const HandleClick = () => {
-        updateName(
-        setUser,
-        setProfileUser,
-        (document.getElementById("name") as HTMLInputElement).value,
-        authToken
-        );
-        history.push(
-            '/users/' + (document.getElementById("name") as HTMLInputElement).value
-            );
+      updateName(
+      setUser,
+      setProfileUser,
+      (document.getElementById("name") as HTMLInputElement).value,
+      authToken,
+      history
+      );
     }
+    
     return (
     <button type="button" onClick={HandleClick}>
         {" "}

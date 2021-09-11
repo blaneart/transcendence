@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { User } from '../users.types';
 
-interface IFriendProps {
+interface IUserProps {
   id1: number;
   friendUser: User;
   authToken: string;
@@ -24,7 +24,6 @@ async function getFriend(id1: number, id2: number, authToken: string) {
 
 async function addFriend(id1: number, id2: number, authToken: string) {
 
-    console.log('addFriend Friend Component');
     const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
       method: "PUT",
       headers: {
@@ -45,13 +44,11 @@ async function removeFriend(id1: number, id2: number, authToken: string) {
     });
 }
 
-const Friend: React.FC<IFriendProps> = ({ id1, friendUser, authToken }) => {
+const UserComponent: React.FC<IUserProps> = ({ id1, friendUser, authToken }) => {
 
   const [friend, setFriend] = useState<boolean>(false);
 
-  // useCallback to prevent infinite state updates
   const refreshUsers = useCallback(() => {
-    // Get relationship
     getFriend(id1, friendUser.id, authToken).then(newRelationship => {
       setFriend(newRelationship);
     });
@@ -91,4 +88,4 @@ const Friend: React.FC<IFriendProps> = ({ id1, friendUser, authToken }) => {
   );
 }
 
-export default Friend;
+export default UserComponent;

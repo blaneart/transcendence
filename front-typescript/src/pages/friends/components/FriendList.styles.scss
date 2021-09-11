@@ -1,0 +1,36 @@
+.account-page {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    text-align: center;
+}
+
+.achievement_img {
+    /* make a square container */
+    width: 50px;
+    height: 50px;
+
+    /* fill the container, preserving aspect ratio, and cropping to fit */
+    background-size: cover;
+
+    /* center the image vertically and horizontally */
+    background-position: top center;
+
+    /* round the edges to a circle with border radius 1/2 container size */
+    border-radius: 50%;
+}
+
+.achievement_title {
+    font-size: small;
+    margin-bottom: 2px;
+    margin-top: 2px;
+}
+
+.achievement_description {
+    font-size: x-small;
+    margin-top: 3px;
+    margin-bottom: 20px;
+}

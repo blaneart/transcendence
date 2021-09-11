@@ -186,11 +186,9 @@ class Pong {
 
 
       this.socket.emit('launchBall');
-      this.socket.on('getBallSpeed', (message: {pos_x: number, pos_y: number, vel_x: number, vel_y: number}) => {
-          this.ball.vel.x = message.vel_x;
-          this.ball.vel.y = message.vel_y;
-          this.ball.pos.x = message.pos_x;
-          this.ball.pos.y = message.pos_y;
+      this.socket.on('getBallSpeed', (message: Vec) => {
+          console.log(message);
+          this.ball.pos = message;
       })
       this.socket.on('changeScore', (message: number[]) => {
         this.players[0].score = message[0];
@@ -252,9 +250,10 @@ class Pong {
       let playerId = this.id ? 0 : 1;
       this.players[playerId].pos.y = message;
     })
-    this.socket.on('getBallPosition', (msg: {posx : number, posy : number}) => {
-      this.ball.pos.x = msg.posx;
-      this.ball.pos.y = msg.posy;
+    this.socket.on('getBallPosition', (msg: Vec) => {
+      // console.log(message);
+      this.ball.pos.x = msg.x;
+      this.ball.pos.y = msg.y;
     })
     
     // this.ball.pos.x += this.ball.vel.x * dt;
@@ -271,13 +270,12 @@ class Pong {
       this.reset(playerId);
     }
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
-    {
       this.ball.vel.y = -this.ball.vel.y;
-	  if (this.ball.top < 0)
-		this.ball.pos.y = 0;
-	  else
-		this.ball.pos.y = this._canvas.height - this.ball.size.y;
-    } 
+	  // if (this.ball.top < 0)
+		// this.ball.pos.y = 0;
+	  // else
+		// this.ball.pos.y = this._canvas.height - this.ball.size.y;
+    // } 
     // this.players[1].pos.y = this.ball.pos.y;
     this.players.forEach(player => this.collide(player, this.ball));
     this.draw(); 

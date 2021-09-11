@@ -23,11 +23,23 @@ function restartGame(setReady: Function, setRestart: Function, restart: boolean,
 
 const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     console.log('game_component');
+
+
+    /* result of the game stored in string; can be 'win' 'lost' and 'game' */
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
+
     const [updateStats, setUpdateStats] = useState<boolean>(false);
+
+    /* boolean to manage restart of the game */
     const [restart, setRestart] = useState<Boolean>(false);
+
+    /* boolean state when set true both players connected to server and game can be started */
     const [ready, setReady] = useState<Boolean>(false);
+
+    /* id of the player of this client can be 0 or 1, default on three rendomly set on server */
     const [id, setId] = useState<number>(3);
+
+    /* uid of the game room */
     const [gameId, setGameId] = useState<string>('no id');
 
     const [socket, setSocket] = useState<Socket>(() => {
@@ -35,10 +47,19 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       return initialState;
     });
 
+    const [enemyName, setEnemyName] = useState<string>('None');
+
     var pong: Pong | null = null;
+
+
+    /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {
       console.log(socket);
-      socket.emit('joinRoom');
+      socket.emit('joinRoom', user!.name);
+      socket.on('enemyname', (eName) => {
+        setEnemyName(eName);
+      })
+
       socket.on('ready', () => {
         setReady(true);
       })
@@ -54,6 +75,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
   }, [restart]);
 
 
+  /* function that starts the game, destroys game when ended */
   useEffect(() => {
     
     if (pong)
@@ -118,12 +140,16 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     }
 }, [ready]);
 
+
+/* willUnmount game destruction */
 useEffect(() => {
   return () => {
     socket?.disconnect();
   }
 }, [])
 
+
+/* write result to database, bugged as hell; */
 useEffect(() => {
   async function  updateGameStats(result: string, authToken: string){
     if (user)
@@ -176,7 +202,7 @@ useEffect(() => {
         {
           ready ?
         <>
-          <GameHeader playerId = {id} userName={user!.name} enemyName="enemy"/>
+          <GameHeader playerId = {id} userName={user!.name} enemyName={enemyName}/>
         <canvas id="forCanvas" width={800} height={600}></canvas>
         <h1>{gameId}</h1>
         </>

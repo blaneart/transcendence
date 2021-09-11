@@ -2,7 +2,7 @@ import { Switch, Route } from "react-router";
 import RoomList from "./components/roomList.component";
 import RoomView from "./components/roomView.component";
 import FakeUserCreator from "./components/fakeUserCreator.components";
-import DirectView from "./components/directView.component";
+import DirectView from "./direct/directView.component";
 
 // We require to authenticate our chat sockets.
 interface ChatsProps {

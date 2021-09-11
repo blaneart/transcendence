@@ -357,11 +357,14 @@ export class ChatGateway {
     if (!room) 
       throw new WsException("Room not found");
 
+    // Ensure the caller has the rights to nominate admins
     if (client.user.id !== room.ownerID)
       throw new WsException("You must be the owner of the room to add admins");
 
+    // Make the person admin in the database
     this.chatService.addAdmin(data.userId, room.id);
 
+    // Let the new admin know
     this.server.to(room.name).emit("promoted", data.userId);
   }
 
@@ -382,20 +385,23 @@ export class ChatGateway {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('requestJoinDm')
   async handleJoinDm(client: AuthenticatedSocket, userName: string) {
+    // Find the user instance in our database
     const user = await this.profileService.getUserByName(userName);
 
+    // Ensure the user we're talking about exists
     if (!user)
       throw new WsException("User not found");
 
+    // Find the direct conversation in our database
     const direct = await this.chatService.findDirect(client.user.id, user.id);
 
     // Ensure direct conversation exists
     if (!direct)
-    {
       throw new WsException("Direct conversation not found");
-    }
     
+    // Save the user data so it's easier to access
     client.data.user = client.user;
+
     // Finalize room join
     this.join_direct_convo(client, direct);
   }
@@ -405,8 +411,10 @@ export class ChatGateway {
   @SubscribeMessage('directMessage')
   async handleDirectMessage(client: AuthenticatedSocket, message: DirectMessage) {
 
+    // Find the person we're talking to
     const interlocutor = await this.profileService.getUserByName(message.userB);
 
+    // Ensure the interlocutor exists
     if (!interlocutor)
       throw new WsException("User not found");
 
@@ -415,13 +423,12 @@ export class ChatGateway {
 
     // Ensure room exists
     if (!direct)
-    {
       throw new WsException("Conversation not found");
-    }
 
     // Save the new message to our database
     const savedMessage = await this.chatService.sendDirectMessage(direct.id, client.user.id, message.text);
 
+    // Create an update instance
     const newMessage: DirectMessageUpdate = {
       id: savedMessage.id,
       name: client.user.name,

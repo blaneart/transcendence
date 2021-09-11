@@ -23,19 +23,18 @@ async function getBlockList(authToken: string): Promise<BlockedUserEntry[]> {
   return await response.json() as BlockedUserEntry[];
 }
 
-
 // The data we get in the blocklist
 interface BlockedUserEntry {
   blockedID: number
 }
 
-
 const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId, authToken }) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
   useEffect(() => {
+    // Update the block list
     updateBlockList();
-  }, []);
+  });
 
   const updateBlockList = () => {
     // Get all the blocked users
@@ -45,19 +44,16 @@ const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId,
       setBlockList((oldBlockList) => {
         const newBlockList = new Map<number, boolean>(oldBlockList)
         // For each user, add their ID to the map
-        users.map((user) => {
-          newBlockList.set(user.blockedID, true);
-        });
+        users.map((user) => newBlockList.set(user.blockedID, true));
         // Replace the old blocklist state
         return newBlockList;
       });
     });
   }
 
-
   return (
     <div>
-      {messages.map((msg) => <DirectMessageComponent key={msg.id} message={msg} userId={userId} blockList={blockList} authToken={authToken} onBlock={updateBlockList}/>)}
+      {messages.map((msg) => <DirectMessageComponent key={msg.id} message={msg} userId={userId} blockList={blockList} authToken={authToken} onBlock={updateBlockList} />)}
     </div>
   );
 };

@@ -4,7 +4,7 @@ import './roomList.styles.scss';
 import { Room, Direct } from '../chats.types';
 import RoomLink from "./roomLink.component";
 import { Link } from "react-router-dom";
-import DirectList from "./directList.component";
+import DirectList from "../direct/directList.component";
 
 interface RoomListProps {
   authToken: string

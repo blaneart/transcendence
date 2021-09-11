@@ -9,6 +9,7 @@ interface DirectListProps {
   userId: number
 };
 
+// Get all direct conversations we already have
 async function getDirects(authToken: string): Promise<Direct[]> {
   const response = await fetch("http://127.0.0.1:3000/chat/directs/me/", {
     method: "GET",
@@ -24,9 +25,8 @@ async function getDirects(authToken: string): Promise<Direct[]> {
   return jsonData as Direct[];
 }
 
-
-async function getUsers(authToken: string): Promise<User[]>
-{
+// Get all existing users
+async function getUsers(authToken: string): Promise<User[]> {
   const response = await fetch(
     `http://127.0.0.1:3000/users/`,
     {
@@ -39,8 +39,8 @@ async function getUsers(authToken: string): Promise<User[]>
   return await response.json() as User[];
 }
 
-async function createDirect(authToken: string, userB: number)
-{
+// Start a new direct conversation with a user
+async function createDirect(authToken: string, userB: number) {
   const response = await fetch(
     `http://127.0.0.1:3000/chat/directs/${userB}/`,
     {
@@ -53,37 +53,48 @@ async function createDirect(authToken: string, userB: number)
   return await response.json();
 }
 
-const DirectList: React.FC<DirectListProps> = ({authToken, userId}) => {
+const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
   const [directs, setDirects] = useState<Direct[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<number>();
-  
-  useEffect(() => {
-    getDirects(authToken).then((newDirects) => setDirects(newDirects));
-    getUsers(authToken).then((update) => setUsers(update));
-  }, []);
 
+  useEffect(() => {
+    // Get all the directs we already have
+    getDirects(authToken).then((newDirects) => setDirects(newDirects));
+
+    // Get all users that we can talk to in the future
+    getUsers(authToken).then((update) => setUsers(update));
+  }, [authToken]);
+
+  // Save changed user ID
   const handleChange = (event: any) => {
     setSelectedUserId(event.target.value);
   }
 
   const handleSubmit = async (event: any) => {
+
+    // Prevent default form action
     event.preventDefault();
+
     if (!selectedUserId)
       return alert("Please select a user in order to start a direct conversation");
+
+    // Bake a backend call
     await createDirect(authToken, selectedUserId);
-    // getDirects(authToken).then((newDirects) => setDirects(newDirects));
+
+    // Update the list direct conversations
+    getDirects(authToken).then((newDirects) => setDirects(newDirects));
   }
 
   return (<div>
-    {directs.map((direct) => <DirectLink authToken={authToken} userId={userId} direct={direct}/>)}
+    {directs.map((direct) => <DirectLink authToken={authToken} userId={userId} direct={direct} />)}
     <h5>Start a direct conversation</h5>
     <form onSubmit={handleSubmit}>
       <select onChange={handleChange} required>
         <option disabled selected label="Select a user"></option>
         {users.map((user) => user.id === userId ? null : <option key={user.id} value={user.id}>{user.name}</option>)}
       </select>
-      <input type="submit" value="Submit"/>
+      <input type="submit" value="Submit" />
     </form>
   </div>);
 }

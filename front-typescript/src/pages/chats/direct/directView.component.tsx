@@ -18,22 +18,21 @@ interface DirectRouteParams {
 const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
 
   const { target } = useParams<DirectRouteParams>();
-  const [ socket ] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
+  const [socket] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
     auth: {
       token: authToken
     }
   }));
   const [messages, setMessages] = useState<DirectMessageUpdate[]>([]);
-  const [userB, setUserB] = useState<number>();
 
   useEffect(() => {
-    
+
     // Handle the messages that were sent before we joined
     socket.on("initialDirectMessages", (msg) => {
       // Receive an array of messages
       const newMessages = msg as DirectMessageUpdate[];
       // Right now, we sort them on front, maybe we should also sort them on back
-      newMessages.sort((a,b) => a.id - b.id);
+      newMessages.sort((a, b) => a.id - b.id);
       // Set the state directly
       setMessages(newMessages);
     });
@@ -42,8 +41,7 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
     socket.on("newDirectMessage", (msg) => {
       const newMessage = msg as DirectMessageUpdate; // we receive a single update
       setMessages((oldMessages) => {
-        if (oldMessages)
-        {
+        if (oldMessages) {
           // Add the new one to the end
           return [...oldMessages, newMessage];
         }
@@ -52,7 +50,6 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
       });
     });
 
-    
     // Ask to add us to this room and send us the initial messages.
     socket.emit("requestJoinDm", target);
 
@@ -66,16 +63,15 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
       socket.disconnect();
     };
 
-  }, []); // We only re-run setup if room name or socket change
+  }); // We only re-run setup if room name or socket change
   // (In other words, we don't.)
-
 
   return (
     <div>
 
       <h2>Direct conversaton with: {target}</h2>
-      
-      <DirectMessageList messages={messages} userId={userId} authToken={authToken}/>
+
+      <DirectMessageList messages={messages} userId={userId} authToken={authToken} />
       <DirectMessageComposer socket={socket} interlocutor={target} />
     </div>
   );

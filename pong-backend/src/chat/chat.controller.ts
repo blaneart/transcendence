@@ -147,6 +147,7 @@ export class ChatController {
     return await this.chatService.isAdmin(request.user.id, room.id);
   }
 
+  // Get all direct conversations for the caller
   @UseGuards(JwtAuthGuard)
   @Get('/directs/me/')
   async getDirects(@Request() request)
@@ -154,6 +155,7 @@ export class ChatController {
     return await this.chatService.getAllDirects(request.user.id);
   }
 
+  // Create a direct conversation with a given user
   @UseGuards(JwtAuthGuard)
   @Put('/directs/:id/')
   async createDirect(@Request() request, @Param('id') id: number)

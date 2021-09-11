@@ -14,7 +14,7 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
   // Block a user
   const handleBlock = async () => {
     // Send a response to the backend
-    const response = await fetch(
+    await fetch(
       `http://127.0.0.1:3000/chat/block/${message.senderID}/`,
       {
         method: "PUT",

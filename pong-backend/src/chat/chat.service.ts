@@ -294,20 +294,25 @@ export class ChatService {
   // Create admin 
   async addAdmin(userId: number, roomId: number)
   {
+    // Creat the record in the database
     const response = await db('admins').returning('*').insert({userID: userId, roomID: roomId});
     return response;
   }
 
+  // Check if a user is an admin in a given room
   async isAdmin(userId: number, roomId: number): Promise<boolean>
   {
+    // Get the value from the DB
     const response = await db('admins').where({userID: userId, roomID: roomId}).select('*');
     if (response.length)
       return true;
     return false;
   }
 
+  // Get all admins saved in our database
   async getAllAdmins(roomId: number)
   {
+    // Get all admin instances
     const response = await db('admins').where({roomID: roomId})
       .join('users', 'users.id', '=', 'admins.userID').select('admins.id', 'admins.userID', 'users.name');
     return response
@@ -323,6 +328,7 @@ export class ChatService {
   // Get all direct conversations for a given user
   async getAllDirects(userId: number)
   {
+    // Find the direct conversation instances
     const directs = await db('directs').where({userA: userId}).orWhere({userB: userId}).select('*');
     return directs;
   }
@@ -330,21 +336,26 @@ export class ChatService {
   // Find an instance of direct conversation between user A and user B
   async findDirect(userAId: number, userBId: number): Promise<Direct | null>
   {
+    // Find the direct conversation instance
     const direct = await db('directs').where({userA: userAId, userB: userBId})
       .orWhere({userA: userBId, userB: userAId}).select('*');
     return direct[0] as Direct;
   }
 
+  // Get all direct messages up to this moment in a given direct conversation
   async getAllDirectMessages(directId: number)
   {
+    // Find the message instances
     const messages = await db('directmessages').where({directID: directId})
       .join('users', 'users.id', '=', 'directmessages.senderID')
       .select('directmessages.id', 'users.name as name', 'directmessages.message', 'directmessages.senderID');
     return messages;
   }
 
+  // Save a newly sent direct message to our database
   async sendDirectMessage(directId: number, senderId: number, message: string)
   {
+    // Create the message instance
     const response = await db('directmessages').returning('*')
       .insert({ directID: directId, senderID: senderId, message: message });
     return response[0]

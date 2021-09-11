@@ -114,7 +114,6 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
           // Calculate how many ms it is going to take
           const now = new Date();
           const msToWait = mutedUntil.getTime() - now.getTime();
-          alert(msToWait);
           // Schedule to re-check at that moment
           setTimeout(() => {
             getMuted(authToken, roomName).then((isMuted) => setMuted(isMuted));

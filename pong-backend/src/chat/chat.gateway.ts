@@ -4,6 +4,7 @@ import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
 import { Room, Direct } from "./chat.types";
+import { ProfileService } from "src/profile/profile.service";
 
 // The kind of the message (to extend later)
 enum ChatMessageType {
@@ -21,9 +22,8 @@ interface ChatMessage {
 
 // The update we get from frontend to update the DB
 interface DirectMessage {
-  type: ChatMessageType,
   text: string
-  userB: number
+  userB: string
 }
 
 // The update we send to frontend to show messages
@@ -78,7 +78,7 @@ interface MakeAdminRequest {
 
 @WebSocketGateway(8080, { cors: true })
 export class ChatGateway {
-  constructor (private readonly chatService: ChatService) {}
+  constructor (private readonly chatService: ChatService, private readonly profileService: ProfileService) {}
 
   @WebSocketServer()
   server: Server;
@@ -261,7 +261,6 @@ export class ChatGateway {
     if (!room)
       throw new WsException("Room not found");
 
-      console.log("Exists");
     // Ensure the sender owns the room
     if (room.ownerID !== client.user.id)
       throw new WsException("You have to own the room to make it private");
@@ -382,18 +381,21 @@ export class ChatGateway {
   // Handle a request to join a room
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('requestJoinDm')
-  async handleJoinDm(client: AuthenticatedSocket, userID: number) {
-    const direct = await this.chatService.findDirect(client.user.id, userID);
+  async handleJoinDm(client: AuthenticatedSocket, userName: string) {
+    const user = await this.profileService.getUserByName(userName);
 
-    // Store the user in the data property that is always accessible
-    client.data.user = client.user;
+    if (!user)
+      throw new WsException("User not found");
+
+    const direct = await this.chatService.findDirect(client.user.id, user.id);
 
     // Ensure direct conversation exists
-    if (direct === null)
+    if (!direct)
     {
       throw new WsException("Direct conversation not found");
     }
-
+    
+    client.data.user = client.user;
     // Finalize room join
     this.join_direct_convo(client, direct);
   }
@@ -403,8 +405,13 @@ export class ChatGateway {
   @SubscribeMessage('directMessage')
   async handleDirectMessage(client: AuthenticatedSocket, message: DirectMessage) {
 
+    const interlocutor = await this.profileService.getUserByName(message.userB);
+
+    if (!interlocutor)
+      throw new WsException("User not found");
+
     // Find the direct convo in our database
-    const direct = await this.chatService.findDirect(client.user.id, message.userB);
+    const direct = await this.chatService.findDirect(client.user.id, interlocutor.id);
 
     // Ensure room exists
     if (!direct)
@@ -413,7 +420,7 @@ export class ChatGateway {
     }
 
     // Save the new message to our database
-    const savedMessage = await this.chatService.sendDirectMessage(client.user.id, message.userB, message.text);
+    const savedMessage = await this.chatService.sendDirectMessage(direct.id, client.user.id, message.text);
 
     const newMessage: DirectMessageUpdate = {
       id: savedMessage.id,
@@ -423,7 +430,7 @@ export class ChatGateway {
     }
 
     // Send the update to other side
-    this.server.to(`direct_${direct.id}`).emit("newMessage", newMessage);
+    this.server.to(`direct_${direct.id}`).emit("newDirectMessage", newMessage);
   }
 
 }

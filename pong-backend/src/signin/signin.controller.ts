@@ -165,11 +165,11 @@ async function createDirectMessages() {
     if (!exists) {
       await db.schema.createTable('directmessages', function(t) {
         t.increments('id').primary();;
-        t.integer('directId');
-        t.integer('senderId');
+        t.integer('directID');
+        t.integer('senderID');
         t.text('message');
-        t.foreign('directId').references('directs.id').onDelete('CASCADE'); // will be destroyed with corresponding direct
-        t.foreign('senderId').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('directID').references('directs.id').onDelete('CASCADE'); // will be destroyed with corresponding direct
+        t.foreign('senderID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
       });
     }
 }

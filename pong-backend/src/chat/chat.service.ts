@@ -3,6 +3,7 @@ import { db } from 'src/signin/signin.controller';
 import { Room, Direct } from './chat.types';
 import * as bcrypt from 'bcrypt';
 import { Dir } from 'fs';
+import { join } from 'path/posix';
 
 const saltRounds = 10;
 
@@ -330,13 +331,15 @@ export class ChatService {
   async findDirect(userAId: number, userBId: number): Promise<Direct | null>
   {
     const direct = await db('directs').where({userA: userAId, userB: userBId})
-      .orWhere({userA: userBId, userB: userBId}).select('*');
-    return direct as Direct;
+      .orWhere({userA: userBId, userB: userAId}).select('*');
+    return direct[0] as Direct;
   }
 
   async getAllDirectMessages(directId: number)
   {
-    const messages = await db('directmessages').where({directID: directId}).select('*');
+    const messages = await db('directmessages').where({directID: directId})
+      .join('users', 'users.id', '=', 'directmessages.senderID')
+      .select('directmessages.id', 'users.name as name', 'directmessages.message', 'directmessages.senderID');
     return messages;
   }
 

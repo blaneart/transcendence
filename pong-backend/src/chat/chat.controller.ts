@@ -154,4 +154,11 @@ export class ChatController {
     return await this.chatService.getAllDirects(request.user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Put('/directs/:id/')
+  async createDirect(@Request() request, @Param('id') id: number)
+  {
+    return await this.chatService.createDirect(request.user.id, id);
+  }
+
 }

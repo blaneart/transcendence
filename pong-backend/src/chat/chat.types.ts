@@ -12,3 +12,10 @@ export interface Direct {
   userA: number,
   userB: number
 }
+
+export interface DirectMessageUpdate {
+  id: number
+  name: string
+  message: string
+  senderID: number
+}

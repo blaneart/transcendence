@@ -3,7 +3,6 @@ import { ProfileService } from './profile.service';
 import { AchievementService } from '../achievement/achievement.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-
 @Controller('profile')
 export class ProfileController {
     constructor(
@@ -24,6 +23,7 @@ export class ProfileController {
     {
       // Return all achievements that belong to this user
       return this.achievementService.getAchievementsByUserId(id);
+    
     }
 
     @Get(':id')
@@ -31,5 +31,7 @@ export class ProfileController {
     {
       return await this.profileService.getUserById(id);
     }
+
+    
 }
 

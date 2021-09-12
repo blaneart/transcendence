@@ -8,7 +8,9 @@ const APP_SECRET: string = process.env.APP_SECRET;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true
+  }));
   app.use(
     session({
       secret: APP_SECRET,

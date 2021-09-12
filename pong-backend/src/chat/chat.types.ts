@@ -39,3 +39,12 @@ export interface ChatMessageUpdate {
   senderID: number
   sender: UserPublic
 }
+
+// The update we send to frontend to show messages
+export interface DirectMessageUpdate {
+  id: number,
+  name: string,
+  message: string,
+  senderID: number
+  sender: UserPublic
+}

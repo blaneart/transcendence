@@ -48,4 +48,5 @@ export interface DirectMessageUpdate {
   name: string,
   message: string,
   senderID: number
+  sender: UserPublic
 }

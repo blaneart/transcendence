@@ -24,16 +24,15 @@ const DirectMessageComposer: React.FC<DirectMessageComposerProps> = ({ socket, i
       userB: interlocutor,
       text: messageText
     }
-
     // Send the backend request
     socket.emit("directMessage", request);
   }
 
   return (
-    <div>
-      <form onSubmit={(e) => sendMessage(e)}>
-        <input type="text" onChange={(event) => setMessageText(event.target.value)}></input>
-        <button>Submit</button>
+    <div className="border border-white border-solid border-t-0 py-2 px-2">
+      <form className="flex flex-row" onSubmit={(e) => sendMessage(e)}>
+        <input className="flex-1 py-2" type="text" onChange={(event) => setMessageText(event.target.value)}></input>
+        <button className="px-6">Submit</button>
       </form>
     </div>
   );

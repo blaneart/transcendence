@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
-import { Room, Direct, ChatMessageUpdate, UserPublic } from "./chat.types";
+import { Room, Direct, ChatMessageUpdate, UserPublic, DirectMessageUpdate } from "./chat.types";
 import { ProfileService } from "src/profile/profile.service";
 
 // The kind of the message (to extend later)
@@ -24,14 +24,6 @@ interface ChatMessage {
 interface DirectMessage {
   text: string
   userB: string
-}
-
-// The update we send to frontend to show messages
-interface DirectMessageUpdate {
-  id: number,
-  name: string,
-  message: string,
-  senderID: number
 }
 
 interface User {
@@ -372,7 +364,7 @@ export class ChatGateway {
    client.join(`direct_${direct.id}`);
    
    // Get the history of the messages
-   const messages = await this.chatService.getAllDirectMessages(direct.id);
+   const messages = await this.chatService.getAllDirectUpdates(direct.id);
    
    // And send them to the newly joined user
    this.server.to(client.id).emit("initialDirectMessages", messages);
@@ -430,7 +422,8 @@ export class ChatGateway {
       id: savedMessage.id,
       name: client.user.name,
       message: message.text,
-      senderID: client.user.id
+      senderID: client.user.id,
+      sender: interlocutor as UserPublic
     }
 
     // Send the update to other side

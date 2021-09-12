@@ -18,8 +18,10 @@ const MessageText: React.FC<MessageTextProps> = ({ message }) => {
 
     <div className="message flex-1 flex flex-row items-center message-text">
 
-      <div className="px-2 items-center flex flex-column">
+      <div className="md:px-2 items-center flex flex-column">
+        <div className="hidden md:block">
           <MessageAvatar message={message} />
+        </div>
         <div className="tooltip">
         <div className="tooltiptext shadow-lg">
             <UserTooltip message={message}/>

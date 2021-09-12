@@ -32,7 +32,7 @@ const RoomAdminPanel: React.FC<RoomAdminPanelParams> = ({ authToken, room, userI
   }
 
   return (
-    <div className="border border-white border-solid border-r-0 px-4 py-4">
+    <div className="border border-white border-solid md:border-r-0 px-4 py-4">
       <h3 className="mt-2 text-xxl">Options</h3>
       <p className="text-sm font-normal">You are the owner of this room</p>
       <button className="ml-0" onClick={handleDelete}>Delete room</button>

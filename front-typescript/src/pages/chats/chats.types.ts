@@ -6,12 +6,24 @@ export interface Room {
   restricted: boolean
 }
 
+// The public information about a user
+interface UserPublic {
+  id: number;
+  id42: number;
+  name: string;
+  avatar: string;
+  games: number;
+  wins: number;
+  realAvatar: boolean;
+}
+
 // This is the front-end message: the sender, and the text.
 export interface MessageType { 
   id: number,
   name: string,
   message: string,
   senderID: number
+  sender: UserPublic
 }
 
 export interface Direct {

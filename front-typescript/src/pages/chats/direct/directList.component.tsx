@@ -88,8 +88,8 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
 
   return (<div>
     {directs.map((direct) => <DirectLink authToken={authToken} userId={userId} direct={direct} />)}
-    <h5>Start a direct conversation</h5>
-    <form onSubmit={handleSubmit}>
+    <h5 className="text-xl mb-2 mt-4">Start a direct conversation with:</h5>
+    <form className="" onSubmit={handleSubmit}>
       <select onChange={handleChange} required>
         <option disabled selected label="Select a user"></option>
         {users.map((user) => user.id === userId ? null : <option key={user.id} value={user.id}>{user.name}</option>)}

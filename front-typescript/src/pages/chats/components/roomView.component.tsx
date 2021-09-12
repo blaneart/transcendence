@@ -218,11 +218,20 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
   return (
     <div>
 
-      <h2>Room: {roomName}</h2>
-      {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
-      
-      {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket} amAdmin={amAdmin}/> : null}
-      <Composer socket={socket} roomName={roomName} muted={muted} />
+      <h2 className="text-center">Room: {roomName}</h2>
+      <div className="flex flex-row">
+        <div>
+          {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket}/> : null}
+        </div>
+        <div className="flex-1 flex flex-col">
+          <div className="flex-1">
+            {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket} amAdmin={amAdmin}/> : null}
+          </div>
+          <div>
+            <Composer socket={socket} roomName={roomName} muted={muted} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

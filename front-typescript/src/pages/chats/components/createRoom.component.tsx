@@ -26,23 +26,22 @@ const CreateRoom: React.FC<CreateRoomProps> = ({ authToken, onCreate }) => {
     // Prevent the default submit action
     event.preventDefault();
     // Make sure the room name isn't empty
-    if (roomName !== "")
-    {
+    if (roomName !== "") {
       // Make the backend call and propagate the change
-      createRoom(authToken, roomName).then(()=>onCreate());
+      createRoom(authToken, roomName).then(() => onCreate());
     }
   }
 
   return (
-    <form onSubmit={submitHandler}>
-      <label >
-        Create a new room:
+    <div>
+      <h5 className="text-xl mb-2 mt-4">Create a new room:</h5>
+      <form onSubmit={submitHandler}>
         <input type="text" onChange={(e) => {
           setRoomName(e.target.value)
-          }} />
-      </label>
-      <input type="submit" value="Submit" />
-    </form>
+        }} />
+        <input type="submit" value="Submit" />
+      </form>
+    </div>
   );
 }
 

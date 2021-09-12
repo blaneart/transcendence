@@ -43,10 +43,10 @@ const Composer: React.FC<ComposerProps> = ({ socket, roomName, muted }) => {
   }
 
   return (
-    <div>
-      <form onSubmit={(e) => sendMessage(e)}>
-        <input type="text" onChange={(event) => setMessageText(event.target.value)}></input>
-        <button>Submit</button>
+    <div className="px-4 py-4 border border-white border-l-0 border-solid">
+      <form className="flex flex-row" onSubmit={(e) => sendMessage(e)}>
+        <input className="py-2 composer" type="text" onChange={(event) => setMessageText(event.target.value)}></input>
+        <button className="px-6">Submit</button>
       </form>
     </div>
   );

@@ -1,6 +1,7 @@
 import React from "react";
 import { Socket } from "socket.io-client";
 import { MessageType, Room } from "../chats.types";
+import MessageText from "./messageText.component";
 
 interface MessageParams {
   message: MessageType
@@ -91,8 +92,8 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
 
   // Else, show the message
   return (
-    <div>
-      <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message}
+    <div className="flex flex-row py-2">
+      <MessageText message={message} />
       {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
       {canIBan(userId, room, amAdmin, message) ? <div>
         <button onClick={handleBan}>Ban sender</button><button onClick={handleMute}>Mute sender</button>

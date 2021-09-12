@@ -1,5 +1,6 @@
 import React from "react";
 import { DirectMessageUpdate } from "../chats.types";
+import MessageText from "../components/messageText.component";
 
 interface DirectMessageProps {
   message: DirectMessageUpdate
@@ -34,8 +35,9 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
     );
   }
 
-  return (<div>
-    <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message}
+  return (<div className="flex flex-row py-2">
+    {/* <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message} */}
+    <MessageText message={message}/>
     {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
   </div>);
 };

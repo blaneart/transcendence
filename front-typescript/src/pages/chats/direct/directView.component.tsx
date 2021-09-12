@@ -63,16 +63,15 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
       socket.disconnect();
     };
 
-  }); // We only re-run setup if room name or socket change
+  }, [socket, target]); // We only re-run setup if room name or socket change
   // (In other words, we don't.)
 
   return (
     <div>
 
       <h2>Direct conversaton with: {target}</h2>
-
-      <DirectMessageList messages={messages} userId={userId} authToken={authToken} />
-      <DirectMessageComposer socket={socket} interlocutor={target} />
+        <DirectMessageList messages={messages} userId={userId} authToken={authToken} />
+        <DirectMessageComposer socket={socket} interlocutor={target} />
     </div>
   );
 }

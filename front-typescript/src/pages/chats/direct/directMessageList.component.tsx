@@ -52,7 +52,8 @@ const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId,
   }
 
   return (
-    <div>
+    <div className="border border-white border-solid px-4 py-4">
+      <h5 className="text-xl mt-0 mb-4">Messages</h5>
       {messages.map((msg) => <DirectMessageComponent key={msg.id} message={msg} userId={userId} blockList={blockList} authToken={authToken} onBlock={updateBlockList} />)}
     </div>
   );

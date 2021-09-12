@@ -81,9 +81,9 @@ const Admins: React.FC<AdminsProps> = ({authToken, socket, room}) => {
   }
 
   return (<div>
-    <h5>Admins:</h5>
+    <h5 className="text-xl mb-3">Admins:</h5>
     {admins.map((admin)=> <p key={admin.id}>{admin.name}</p>)}
-    <h5>Make admin: </h5>
+    <h5 className="text-xl mb-3 mt-3">Make admin: </h5>
     <form onSubmit={handleSubmit}>
       <select onChange={handleChange} required>
         <option label=" "></option>

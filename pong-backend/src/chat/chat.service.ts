@@ -1,9 +1,9 @@
+import { ChatMessageUpdate, DirectMessageUpdate, UserPublic } from './chat.types';
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
 import { Room, Direct } from './chat.types';
 import * as bcrypt from 'bcrypt';
-import { Dir } from 'fs';
-import { join } from 'path/posix';
+
 
 const saltRounds = 10;
 
@@ -100,8 +100,39 @@ export class ChatService {
     // Return the messages populated with user names.
     const messages = await db('message').where({ roomID: roomID })
       .join('users', 'users.id', '=', 'message.userID')
-      .select('message.id', 'message.message', 'users.name', 'users.id as senderID');
+      .select('message.id', 'message.message',
+        'users.name', 'users.id as senderID', 'users.id42', 'users.avatar', 'users.games', 'users.wins', 'users.realAvatar');
     return messages;
+  }
+
+  // Get all the messages from the database and transform them to ChatMessageUpdates
+  async getRoomMessageUpdates(roomName: string)
+  {
+    // Get the messages from the backend
+    const messages = await this.getRoomMessages(roomName);
+    // Transform them
+    const messageUpdates: ChatMessageUpdate[] = messages.map((message) => {
+      // Get the user information from the database response
+      const senderObject: UserPublic = {
+        id: message.senderID,
+        name: message.name,
+        id42: message.id42,
+        avatar: message.avatar,
+        games: message.games,
+        wins: message.wins,
+        realAvatar: message.realAvatar
+      }
+      // Construct the final object
+      const messageObject: ChatMessageUpdate = {
+        id: message.id,
+        name: message.name,
+        message: message.message,
+        senderID: message.senderID,
+        sender: senderObject
+      }
+      return messageObject;
+    })
+    return messageUpdates;
   }
 
   // Restrict a room with a password
@@ -348,8 +379,42 @@ export class ChatService {
     // Find the message instances
     const messages = await db('directmessages').where({directID: directId})
       .join('users', 'users.id', '=', 'directmessages.senderID')
-      .select('directmessages.id', 'users.name as name', 'directmessages.message', 'directmessages.senderID');
+      .select(
+        'directmessages.id', 'directmessages.message', 'directmessages.senderID',
+        'users.name as name', 'users.id42', 'users.avatar', 'users.games',
+        'users.wins', 'users.realAvatar');
     return messages;
+  }
+
+  // Get all direct messages up to this moment in a given direct conversation
+  // plus wrap in sender information
+  async getAllDirectUpdates(directId: number)
+  {
+    // First, get all the messages from the database
+    const messages = await this.getAllDirectMessages(directId);
+    // Second, map messages into updates
+    const updates: DirectMessageUpdate[] = messages.map((message) => {
+      // Construct the sender
+      const sender: UserPublic = {
+        id: message.senderID,
+        id42: message.id42,
+        name: message.name,
+        avatar: message.avatar,
+        games: message.games,
+        wins: message.wins,
+        realAvatar: message.realAvatar
+      }
+      // Then, construct the update object
+      const update: DirectMessageUpdate = {
+        id: message.id,
+        name: message.name,
+        message: message.message,
+        senderID: message.senderID,
+        sender: sender
+      }
+      return update;
+    });
+    return updates;
   }
 
   // Save a newly sent direct message to our database

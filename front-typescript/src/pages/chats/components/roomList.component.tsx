@@ -3,7 +3,6 @@ import CreateRoom from './createRoom.component';
 import './roomList.styles.scss';
 import { Room, Direct } from '../chats.types';
 import RoomLink from "./roomLink.component";
-import { Link } from "react-router-dom";
 import DirectList from "../direct/directList.component";
 
 interface RoomListProps {
@@ -48,11 +47,13 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   }, []); // We don't really reupdate.
 
   return (
-    <div>
-      <h2>Direct messages: </h2>
-      <DirectList authToken={authToken} userId={userId} />
+    <div className="">
+      <div className="">
+        <h2>Direct messages: </h2>
+        <DirectList authToken={authToken} userId={userId} />
+      </div>
 
-      <h2>Rooms: </h2>
+      <h2 className="mt-10">Rooms: </h2>
       {rooms.map((room) => <RoomLink key={room.id} authToken={authToken} room={room} onDelete={refreshRooms} userId={userId}/>)}
       <CreateRoom authToken={authToken} onCreate={refreshRooms} />
     </div>

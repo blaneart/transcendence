@@ -13,14 +13,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
-import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 import { ProfileService } from './profile/profile.service';
 import { AchievementService } from './achievement/achievement.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { TemporaryJwtAuthGuard } from './auth/temporary-jwt-auth.guard';
 
-const twofactor = require('node-2fa');
 const multer = require('multer');
 const crypto = require("crypto");
 
@@ -38,32 +35,6 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @UseGuards(LocalAuthGuard) // Checks OAuth with 42 API
-  @Post('auth/login')
-  async login(@Request() req) {
-    // Issue temporary JWT if 2fa or full JWT if not 2fa.
-    return this.authService.login(req.user);
-  }
-
-  @UseGuards(TemporaryJwtAuthGuard) // Checks temporary JWT, but not 2fa
-  @Post('auth/check2fa')
-  async check2fa(@Request() req) {
-    const user = await this.profileService.getUserById(req.user.id);
-    if (!user || !req.body.code) {
-      return { message: 'nope' };
-    }
-    const ret = twofactor.verifyToken(user.twofaSecret, req.body.code);
-    if (ret && ret.delta === 0) {
-      return this.authService.loginAndTwofa(user);
-    }
-    return { message: 'nope' };
-  }
-
-  @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
   
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
   @Post('userByName')
@@ -86,37 +57,12 @@ export class AppController {
     return users;
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('auth/set2fa')
-  async set2fa(@Request() req) {
-    const val = req.body.value;
-    if (val !== true && val !== false) return { status: -1 };
-    const futureValue: boolean = val === true ? true : false;
-    const response = await this.profileService.updateUserById(req.user.id, {
-      twofa: futureValue,
-    });
-    if (futureValue === true) {
-      const newSecret = twofactor.generateSecret({
-        name: 'Transcendence',
-        account: response.name,
-      });
-      const responseSecret = await this.profileService.updateUserById(
-        req.user.id,
-        { twofaSecret: newSecret.secret },
-      );
-      // Add 2FA achievement
-      this.achievementService.addAchievement(req.user.id, 2); 
-      return responseSecret;
-    }
-    return response; // TODO NOT SEND 2FA SECRET
-  }
 
   @UseGuards(JwtAuthGuard)
   @Post('account/setName')
   async setName(@Request() req) {
     const val = req.body.value;
     console.log(val);
-    console.log(req.user);
     const bool = await this.profileService.isNameUnique(val);
     if (val == '' || bool === false)
     {

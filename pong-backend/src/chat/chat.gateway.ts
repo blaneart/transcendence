@@ -62,6 +62,11 @@ export class ChatGateway {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('requestJoin')
   async handleEvent(client: AuthenticatedSocket, roomName: string) {
+
+    // Manually validate room name
+    if (!roomName || roomName === "")
+      throw new WsException("Bad request");
+
     const room = await this.chatService.findRoomByName(roomName);
 
     // Store the user in the data property that is always accessible
@@ -180,6 +185,10 @@ export class ChatGateway {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('deleteRoom')
   async handleDelete(client: AuthenticatedSocket, roomName: string) {
+
+    // Manually validate room name
+    if (!roomName || roomName === "")
+      throw new WsException("Bad request");
 
     // Find the room we're talking about
     const room = await this.chatService.findRoomByName(roomName);
@@ -345,7 +354,12 @@ export class ChatGateway {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('requestJoinDm')
   async handleJoinDm(client: AuthenticatedSocket, userName: string) {
-    // Find the user instance in our database
+
+    // Manually validate username
+    if (!userName || userName === "")
+      throw new WsException("Bad request");
+
+      // Find the user instance in our database
     const user = await this.profileService.getUserByName(userName);
 
     // Ensure the user we're talking about exists

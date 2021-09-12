@@ -12,7 +12,7 @@ interface UserTooltipProps {
 const UserTooltip: React.FC<UserTooltipProps> = ({ message }) => {
   return (<div className="mt-2">
     <MessageAvatar message={message} />
-    <p>{message.sender.name}</p>
+    <p className=""><a className="text-black font-normal underline" href={`/users/${message.sender.name}`}>{message.sender.name}</a></p>
     <p className="mt-0 leading-normal">Games: {message.sender.games} <br/>
     Wins: {message.sender.wins}<br/>
     Losses: {message.sender.games - message.sender.wins}</p>

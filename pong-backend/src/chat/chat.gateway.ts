@@ -3,7 +3,8 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
-import { Room } from "./chat.types";
+import { Room, Direct } from "./chat.types";
+import { ProfileService } from "src/profile/profile.service";
 
 // The kind of the message (to extend later)
 enum ChatMessageType {
@@ -19,8 +20,22 @@ interface ChatMessage {
   room: string
 }
 
+// The update we get from frontend to update the DB
+interface DirectMessage {
+  text: string
+  userB: string
+}
+
 // The update we send to frontend to show messages
 interface ChatMessageUpdate {
+  id: number,
+  name: string,
+  message: string,
+  senderID: number
+}
+
+// The update we send to frontend to show messages
+interface DirectMessageUpdate {
   id: number,
   name: string,
   message: string,
@@ -56,9 +71,14 @@ interface BanRequest {
   minutes: number
 }
 
+interface MakeAdminRequest {
+  roomName: string,
+  userId: number
+}
+
 @WebSocketGateway(8080, { cors: true })
 export class ChatGateway {
-  constructor (private readonly chatService: ChatService) {}
+  constructor (private readonly chatService: ChatService, private readonly profileService: ProfileService) {}
 
   @WebSocketServer()
   server: Server;
@@ -241,7 +261,6 @@ export class ChatGateway {
     if (!room)
       throw new WsException("Room not found");
 
-      console.log("Exists");
     // Ensure the sender owns the room
     if (room.ownerID !== client.user.id)
       throw new WsException("You have to own the room to make it private");
@@ -268,9 +287,10 @@ export class ChatGateway {
     if (!room) 
       throw new WsException("Room not found");
 
-    // Ensure the banning user is the owner of the room
-    if (client.user.id !== room.ownerID)
-      throw new WsException("You must be the room owner to ban people");
+     // Ensure the sender is the room owner
+     if (!(await this.chatService.isAdmin(room.id, client.user.id))
+     && client.user.id !== room.ownerID)
+      throw new WsException("You must be the room owner or an administrator to ban people");
 
     // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
@@ -304,8 +324,9 @@ export class ChatGateway {
       throw new WsException("Room not found");
 
     // Ensure the sender is the room owner
-    if (client.user.id !== room.ownerID)
-      throw new WsException("You must be the room owner to mute people");
+    if (!(await this.chatService.isAdmin(room.id, client.user.id))
+            && client.user.id !== room.ownerID)
+      throw new WsException("You must be the room owner or an administrator to mute people");
 
     // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
@@ -324,4 +345,99 @@ export class ChatGateway {
       }
     }
   }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('makeAdmin')
+  async handleMakeAdmin(client: AuthenticatedSocket, data: BanRequest) {
+
+    // Find the room in our database
+    const room = await this.chatService.findRoomByName(data.roomName);
+
+    // Ensure the room exists
+    if (!room) 
+      throw new WsException("Room not found");
+
+    // Ensure the caller has the rights to nominate admins
+    if (client.user.id !== room.ownerID)
+      throw new WsException("You must be the owner of the room to add admins");
+
+    // Make the person admin in the database
+    this.chatService.addAdmin(data.userId, room.id);
+
+    // Let the new admin know
+    this.server.to(room.name).emit("promoted", data.userId);
+  }
+
+ // Once we've authenticated the user, add them to the SocketIO room
+  async join_direct_convo(client: AuthenticatedSocket, direct: Direct)
+  {
+   // Add the client to the SocketIO room
+   client.join(`direct_${direct.id}`);
+   
+   // Get the history of the messages
+   const messages = await this.chatService.getAllDirectMessages(direct.id);
+   
+   // And send them to the newly joined user
+   this.server.to(client.id).emit("initialDirectMessages", messages);
+  }
+
+  // Handle a request to join a room
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('requestJoinDm')
+  async handleJoinDm(client: AuthenticatedSocket, userName: string) {
+    // Find the user instance in our database
+    const user = await this.profileService.getUserByName(userName);
+
+    // Ensure the user we're talking about exists
+    if (!user)
+      throw new WsException("User not found");
+
+    // Find the direct conversation in our database
+    const direct = await this.chatService.findDirect(client.user.id, user.id);
+
+    // Ensure direct conversation exists
+    if (!direct)
+      throw new WsException("Direct conversation not found");
+    
+    // Save the user data so it's easier to access
+    client.data.user = client.user;
+
+    // Finalize room join
+    this.join_direct_convo(client, direct);
+  }
+
+  // Handle a new message
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('directMessage')
+  async handleDirectMessage(client: AuthenticatedSocket, message: DirectMessage) {
+
+    // Find the person we're talking to
+    const interlocutor = await this.profileService.getUserByName(message.userB);
+
+    // Ensure the interlocutor exists
+    if (!interlocutor)
+      throw new WsException("User not found");
+
+    // Find the direct convo in our database
+    const direct = await this.chatService.findDirect(client.user.id, interlocutor.id);
+
+    // Ensure room exists
+    if (!direct)
+      throw new WsException("Conversation not found");
+
+    // Save the new message to our database
+    const savedMessage = await this.chatService.sendDirectMessage(direct.id, client.user.id, message.text);
+
+    // Create an update instance
+    const newMessage: DirectMessageUpdate = {
+      id: savedMessage.id,
+      name: client.user.name,
+      message: message.text,
+      senderID: client.user.id
+    }
+
+    // Send the update to other side
+    this.server.to(`direct_${direct.id}`).emit("newDirectMessage", newMessage);
+  }
+
 }

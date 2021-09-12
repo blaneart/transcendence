@@ -1,17 +1,11 @@
-import React from "react";
-import { MessageType, Room } from "../chats.types";
-import Message from "./message.component";
-import { useState, useEffect } from "react";
-import { Socket } from "socket.io-client";
+import React, { useEffect, useState } from "react";
+import { DirectMessageUpdate } from "../chats.types";
+import DirectMessageComponent from "./directMessage.component";
 
-
-interface MessageListParams {
-  messages: MessageType[];
-  userId: number;
-  authToken: string;
-  room: Room;
-  socket: Socket;
-  amAdmin: boolean
+interface DirectMessageListProps {
+  messages: DirectMessageUpdate[]
+  userId: number
+  authToken: string
 }
 
 // Get the list of all blocked users
@@ -29,19 +23,18 @@ async function getBlockList(authToken: string): Promise<BlockedUserEntry[]> {
   return await response.json() as BlockedUserEntry[];
 }
 
-
-
 // The data we get in the blocklist
 interface BlockedUserEntry {
   blockedID: number
 }
 
-const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket, amAdmin }) => {
+const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId, authToken }) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
   useEffect(() => {
+    // Update the block list
     updateBlockList();
-  }, []);
+  });
 
   const updateBlockList = () => {
     // Get all the blocked users
@@ -51,21 +44,18 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
       setBlockList((oldBlockList) => {
         const newBlockList = new Map<number, boolean>(oldBlockList)
         // For each user, add their ID to the map
-        users.map((user) => {
-          newBlockList.set(user.blockedID, true);
-        });
+        users.map((user) => newBlockList.set(user.blockedID, true));
         // Replace the old blocklist state
         return newBlockList;
       });
     });
   }
 
-
   return (
     <div>
-      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} room={room} socket={socket} key={msg.id} amAdmin={amAdmin} />)}
+      {messages.map((msg) => <DirectMessageComponent key={msg.id} message={msg} userId={userId} blockList={blockList} authToken={authToken} onBlock={updateBlockList} />)}
     </div>
   );
-}
+};
 
-export default MessageList;
+export default DirectMessageList

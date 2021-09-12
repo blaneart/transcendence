@@ -11,8 +11,6 @@ export class ProfileController {
       private readonly achievementService: AchievementService)
     {}
 
-    
-    
     @UseGuards(JwtAuthGuard) // only for logged in
     @Get('/me') // returns 'my' profile
     async getProfile(@Request() req) {
@@ -30,9 +28,9 @@ export class ProfileController {
     }
 
     @Get(':id')
-    show(@Param('id') id: string, @Res() res)
+    show(@Param('id') id: number)
     {
-        return this.profileService.show(id, res);
+        return this.profileService.getUserById(id);
     }
 }
 

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
-import { Room } from './chat.types';
+import { Room, Direct } from './chat.types';
 import * as bcrypt from 'bcrypt';
-import { response } from 'express';
-// import { bcrypt }  from 'bcrypt-nodejs';
+import { Dir } from 'fs';
+import { join } from 'path/posix';
 
 const saltRounds = 10;
 
@@ -80,8 +80,6 @@ export class ChatService {
     // Return the newly created message
     return newMessage[0];
   }
-
-
 
   async sendMessage(userID: number, roomName: string, text: string) {
     // Add a new message entry in the database
@@ -291,5 +289,75 @@ export class ChatService {
       return null;
     }
     return null;
+  }
+
+  // Create admin 
+  async addAdmin(userId: number, roomId: number)
+  {
+    // Creat the record in the database
+    const response = await db('admins').returning('*').insert({userID: userId, roomID: roomId});
+    return response;
+  }
+
+  // Check if a user is an admin in a given room
+  async isAdmin(userId: number, roomId: number): Promise<boolean>
+  {
+    // Get the value from the DB
+    const response = await db('admins').where({userID: userId, roomID: roomId}).select('*');
+    if (response.length)
+      return true;
+    return false;
+  }
+
+  // Get all admins saved in our database
+  async getAllAdmins(roomId: number)
+  {
+    // Get all admin instances
+    const response = await db('admins').where({roomID: roomId})
+      .join('users', 'users.id', '=', 'admins.userID').select('admins.id', 'admins.userID', 'users.name');
+    return response
+  }
+
+  async createDirect(userAId: number, userBId: number) {
+    // Create a new room in the database
+    const new_direct = await db('directs').returning('*').insert({ userA: userAId, userB: userBId });
+    // Return the instance of the room
+    return new_direct[0];
+  }
+
+  // Get all direct conversations for a given user
+  async getAllDirects(userId: number)
+  {
+    // Find the direct conversation instances
+    const directs = await db('directs').where({userA: userId}).orWhere({userB: userId}).select('*');
+    return directs;
+  }
+
+  // Find an instance of direct conversation between user A and user B
+  async findDirect(userAId: number, userBId: number): Promise<Direct | null>
+  {
+    // Find the direct conversation instance
+    const direct = await db('directs').where({userA: userAId, userB: userBId})
+      .orWhere({userA: userBId, userB: userAId}).select('*');
+    return direct[0] as Direct;
+  }
+
+  // Get all direct messages up to this moment in a given direct conversation
+  async getAllDirectMessages(directId: number)
+  {
+    // Find the message instances
+    const messages = await db('directmessages').where({directID: directId})
+      .join('users', 'users.id', '=', 'directmessages.senderID')
+      .select('directmessages.id', 'users.name as name', 'directmessages.message', 'directmessages.senderID');
+    return messages;
+  }
+
+  // Save a newly sent direct message to our database
+  async sendDirectMessage(directId: number, senderId: number, message: string)
+  {
+    // Create the message instance
+    const response = await db('directmessages').returning('*')
+      .insert({ directID: directId, senderID: senderId, message: message });
+    return response[0]
   }
 }

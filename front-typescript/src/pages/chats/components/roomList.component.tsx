@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import CreateRoom from './createRoom.component';
 import './roomList.styles.scss';
-import { Link } from 'react-router-dom';
-import { Room } from '../chats.types';
+import { Room, Direct } from '../chats.types';
 import RoomLink from "./roomLink.component";
+import { Link } from "react-router-dom";
+import DirectList from "../direct/directList.component";
 
 interface RoomListProps {
   authToken: string
@@ -28,9 +29,9 @@ async function getRooms(authToken: string): Promise<Room[]> {
 
 
 const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
-  
-  
+
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [directs, setDirects] = useState<Direct[]>([]);
 
   // useCallback to prevent infinite state updates
   const refreshRooms = useCallback(() => {
@@ -38,6 +39,7 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
     getRooms(authToken).then(newRooms => {
       setRooms(newRooms);
     });
+
   }, [authToken]);
 
   useEffect(() => {
@@ -47,6 +49,9 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
 
   return (
     <div>
+      <h2>Direct messages: </h2>
+      <DirectList authToken={authToken} userId={userId} />
+
       <h2>Rooms: </h2>
       {rooms.map((room) => <RoomLink key={room.id} authToken={authToken} room={room} onDelete={refreshRooms} userId={userId}/>)}
       <CreateRoom authToken={authToken} onCreate={refreshRooms} />

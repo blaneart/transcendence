@@ -13,3 +13,27 @@ export interface MessageType {
   message: string,
   senderID: number
 }
+
+export interface Direct {
+  id: number,
+  userA: number,
+  userB: number,
+}
+
+export interface DirectMessage {
+  id: number
+  text: string
+  userB: number
+}
+
+export interface DirectMessageRequest {
+  text: string
+  userB: string
+}
+
+export interface DirectMessageUpdate {
+  id: number,
+  name: string,
+  message: string,
+  senderID: number
+}

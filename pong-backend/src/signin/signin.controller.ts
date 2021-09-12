@@ -133,6 +133,47 @@ async function createMuteList() {
     }
 }
 
+async function createAdmins() {
+  const exists = await db.schema.hasTable('admins')
+    if (!exists) {
+      await db.schema.createTable('admins', function(t) {
+        t.increments('id').primary();
+        t.integer('userID');
+        t.integer('roomID');
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
+        t.unique(['userID', 'roomID']);
+      });
+    }
+}
+
+async function createDirects() {
+  const exists = await db.schema.hasTable('directs');
+    if (!exists) {
+      await db.schema.createTable('directs', function(t) {
+        t.increments('id').primary();;
+        t.integer('userA');
+        t.integer('userB');
+        t.foreign('userA').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('userB').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+      });
+    }
+}
+
+async function createDirectMessages() {
+  const exists = await db.schema.hasTable('directmessages');
+    if (!exists) {
+      await db.schema.createTable('directmessages', function(t) {
+        t.increments('id').primary();;
+        t.integer('directID');
+        t.integer('senderID');
+        t.text('message');
+        t.foreign('directID').references('directs.id').onDelete('CASCADE'); // will be destroyed with corresponding direct
+        t.foreign('senderID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+      });
+    }
+}
+
 
 export const db = knex({
     client: 'pg',
@@ -153,7 +194,10 @@ export const db = knex({
     .then(() => createBlockList())
     .then(() => createFriendList())
     .then(() => createBanList())
-    .then(() => createMuteList());
+    .then(() => createMuteList())
+    .then(() => createAdmins())
+    .then(() => createDirects())
+    .then(() => createDirectMessages());
 
 
 @Controller('signin')

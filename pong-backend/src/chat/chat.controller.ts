@@ -2,7 +2,6 @@ import { Controller, Get, Put, Param, Delete, UseGuards, Request, HttpException,
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Room } from './chat.types';
-import { request } from 'express';
 import { WsException } from '@nestjs/websockets';
 
 @Controller('chat')
@@ -118,6 +117,50 @@ export class ChatController {
     
     // Return the answer from our DB
     return await this.chatService.getMutedUntil(request.user.id, room.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/admins/:name')
+  async getAdmins(@Request() request, @Param('name') name: string)
+  {
+    // Find the room in our database
+    const room = await this.chatService.findRoomByName(name);
+
+    // Ensure the room exists
+    if (!room)
+      throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
+
+    return await this.chatService.getAllAdmins(room.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/admins/:name/me')
+  async getAmAdmin(@Request() request, @Param('name') name: string)
+  {
+    // Find the room in our database
+    const room = await this.chatService.findRoomByName(name);
+
+    // Ensure the room exists
+    if (!room)
+      throw new HttpException("Room not found", HttpStatus.NOT_FOUND);
+
+    return await this.chatService.isAdmin(request.user.id, room.id);
+  }
+
+  // Get all direct conversations for the caller
+  @UseGuards(JwtAuthGuard)
+  @Get('/directs/me/')
+  async getDirects(@Request() request)
+  {
+    return await this.chatService.getAllDirects(request.user.id);
+  }
+
+  // Create a direct conversation with a given user
+  @UseGuards(JwtAuthGuard)
+  @Put('/directs/:id/')
+  async createDirect(@Request() request, @Param('id') id: number)
+  {
+    return await this.chatService.createDirect(request.user.id, id);
   }
 
 }

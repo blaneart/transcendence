@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Param, Delete, UseGuards, Request, HttpException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Put, Param, Delete, UseGuards, Request, HttpException, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Room } from './chat.types';
@@ -68,7 +68,7 @@ export class ChatController {
   // Block messages from a specific user
   @UseGuards(JwtAuthGuard)
   @Put('/block/:id/')
-  async blockUser(@Request() request, @Param('id') id: number)
+  async blockUser(@Request() request, @Param('id', ParseIntPipe) id: number)
   {
     // Ensure the user is not blocking themselves
     if (request.user.id === id)
@@ -158,7 +158,7 @@ export class ChatController {
   // Create a direct conversation with a given user
   @UseGuards(JwtAuthGuard)
   @Put('/directs/:id/')
-  async createDirect(@Request() request, @Param('id') id: number)
+  async createDirect(@Request() request, @Param('id', ParseIntPipe) id: number)
   {
     return await this.chatService.createDirect(request.user.id, id);
   }

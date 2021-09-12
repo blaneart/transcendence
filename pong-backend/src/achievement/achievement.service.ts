@@ -6,7 +6,6 @@ export class AchievementService {
     async getAchievementsByUserId(userId: number) {
       // Get all achievements for a given user
       const response = await db('user_achievements').where({ user_id: userId }).select('*');
-      console.log(response);
       return response;
     }
 

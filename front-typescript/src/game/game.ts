@@ -133,7 +133,7 @@ class Pong {
         player.top < ball.bottom && player.bottom > ball.top)
         {
           ball.vel.x = -ball.vel.x;
-          ball.vel.y += 300 * (1 - .5); 
+          ball.vel.y = ((player.pos.y  + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15;
           if (ball.vel.len < 500)
             ball.vel.len *= 1.05;
         }

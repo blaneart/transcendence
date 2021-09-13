@@ -47,6 +47,33 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse> {
   return jsonData as AuthResponse;
 }
 
+async function updateStatus(
+  setUser: Function,
+  setProfileUser: Function,
+  newStatus: number,
+  authToken: string,
+) {
+
+  const data = {
+    value: newStatus,
+  };
+
+  const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const jsonData = await response.json();
+  const userUpdated = jsonData as User;
+
+  setUser(userUpdated);
+  setProfileUser(userUpdated);
+}
+
 // Use a temporary grant and a 2fa code to obtain the permanent JWT
 async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
   const data = {
@@ -90,15 +117,6 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
   localStorage.setItem("pongToken", authResponse.access_token);
 }
 
-function logoutHandler(setUser: Function, setAuthToken: Function) {
-  return function () {
-    localStorage.removeItem("pongUser");
-    localStorage.removeItem("pongToken");
-    setUser(null);
-    setAuthToken(null);
-  };
-}
-
 async function getMe(authToken: string): Promise<User> {
 
   const response = await fetch('http://127.0.0.1:3000/profile/me', {
@@ -116,18 +134,6 @@ async function getMe(authToken: string): Promise<User> {
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
-
-    // if (authToken) {
-    //   const [socket] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
-    //     auth: {
-    //       token: authToken
-    //     }
-    //   }));
-
-    //   if (authToken !== "" && user) {
-    //     socket.emit('login');
-    //   }
-    // }
 
   let history = useHistory();
 
@@ -160,7 +166,7 @@ function App() {
  
   return (
     <div className="App">
-      <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
+      <Header authToken={authToken} user={user} setUser={setUser} setAuthToken={setAuthToken} />
       <Switch>
         <Route exact path="/">
           <Menu user={user}/>

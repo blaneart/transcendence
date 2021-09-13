@@ -15,7 +15,7 @@ const Users: React.FC<IUsersProps> = ({
   user,
   setUser,
   authToken,
-  setAuthToken
+  setAuthToken,
 }) => {
 
   return (

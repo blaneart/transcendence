@@ -27,7 +27,11 @@ async function getUsers(authToken: string): Promise<User[]> {
   return jsonData as User[];
 }
 
-const UsersList: React.FC<IUsersListProps> = ({ user_logged, setUser,  authToken }) => {
+const UsersList: React.FC<IUsersListProps> = ({
+  user_logged,
+  setUser,
+  authToken,
+  }) => {
 
   const [users, setUsers] = useState<User[]>([(user_logged as User),]);
 

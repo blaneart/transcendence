@@ -7,5 +7,6 @@ export interface User {
   wins: number;
   twofa: boolean;
   twofaSecret: string;
-  realAvatar: boolean
+  realAvatar: boolean;
+  status: number;
 }

@@ -1,3 +1,6 @@
+import { globalAgent } from "http";
+import { runInThisContext } from "vm";
+import {Player} from '../app.gateway';
 class Vec {
   x: number;
   y: number;
@@ -18,11 +21,12 @@ class Vec {
   }
 }
 
+
 class Rect {
   pos: Vec;
   size: Vec;
   constructor(w: number, h: number)
-  {
+  {~~
     this.pos = new Vec();
     this.size = new Vec(w, h);
   }
@@ -31,7 +35,7 @@ class Rect {
     return this.pos.x;
   }
   get right()
-  {
+  {  
     return this.pos.x + this.size.x;
   }
   get top()
@@ -44,177 +48,225 @@ class Rect {
   }
 }
 
-class Ball extends Rect {
+
+export class Paddle extends Rect {
+  up: number;
+  down: number;
+  constructor()
+  {
+    super(20, 100);
+    this.up = 0;
+    this.down = 0;
+  }
+}
+export class Ball extends Rect {
   vel: Vec;
+  acceleration: number;
   constructor()
   {
-    super(10,10);
+    super(16, 16);
     this.vel = new Vec();
+    this.acceleration = 5;
   }
-}
-
-class Player extends Rect {
-  score: number;
-  constructor()
+  setPosition(x: number, y: number)
   {
-    super(20,100);
-    this.score = 9;
+    this.pos.x = x;
+    this.pos.y = y;
   }
 }
 
+// class Player extends Rect {
+//   score: number;
+//   constructor()
+//   {
+//     super(20,100);
+//     this.score = 9;
+//   }
+// }
 
 
-class Pong {
-  _canvas: HTMLCanvasElement;
-  _context: CanvasRenderingContext2D | null;
+
+export class Pong {
   ball: Ball;
-  animation: number;
-  players: Player [];
-  auth: string;
-  constructor(fn: Function, canvas: HTMLElement, authToken: string)
+  height: number;
+  width: number;
+  interval: number;
+  // players: Player[];
+  scores: number[];
+  leftPaddle: Paddle;
+  rightPaddle: Paddle;
+  constructor(ball: Ball, scores)
   {
-    this._canvas = <HTMLCanvasElement> canvas;
-    this._context = this._canvas.getContext('2d');
-    this.ball = new Ball();
-    this.ball.pos.x = 100;
-    this.ball.pos.y = 100;
-    this.ball.vel.x = 400;
-    this.ball.vel.y = 400;
-    this.animation = 0;
-    this.players = [
-      new Player(),
-      new Player(),
-    ]
-    this.auth = authToken;
-    this.players[0].pos.x = 40;
-    this.players[1].pos.x = this._canvas.width - 40;
-    this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-    this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-
-    let lastTime: number;
-
-    const callback = (millis: number) => {
-      if (this.isGameEnded())
-      {
-          if (this.players[0].score >= 10)
-            fn('won', this.auth);
-          else
-            fn('lost', this.auth);
-          this.end();
-          if (this._context !== null)
-          {
-            this._canvas.style.opacity = '0.5';
-
-          }
-      }
-      else 
-      {
-        if (lastTime) {
-          this.update((millis - lastTime) / 1000);
-        }
-        lastTime = millis;
-        this.animation = requestAnimationFrame(callback);
-      }
+      this.ball = ball;
+      this.ball.pos.x = 100;
+      this.ball.pos.y = 200;
+      this.ball.vel.x = -10;
+      this.ball.vel.y = 20;
+      this.width = 800;
+      this.height = 600;
+      this.interval = 1000 / 60;
+      this.scores = scores;
+      this.leftPaddle;
+      this.rightPaddle;
   };
-    callback(0);
-  }
-  collide(player: Player, ball: Ball)
+  update(dt:number, player1: Player, player2: Player)
   {
-    if (player.left < ball.right && player.right > ball.left &&
-        player.top < ball.bottom && player.bottom > ball.top)
-        {
-          ball.vel.x = -ball.vel.x;
-          ball.vel.y += 300 * (Math.random() - .5); 
-          ball.vel.len *= 1.05;
+    
+    let pos = this.accelerate(this.ball.pos.x, this.ball.pos.y, this.ball.vel.x, this.ball.vel.y, this.ball.acceleration, dt);
+    // this.ball.pos.x = this.ball.pos.x + this.ball.vel.x * (dt);
+    // this.ball.pos.y = this.ball.pos.y + this.ball.vel.y * (dt);
+    // console.log(pos);
+    if ((this.ball.vel.y > 0) && (this.ball.bottom > this.height))
+    {
+      pos.y = this.height;
+      pos.dy = -pos.dy;
+    }
+    else if ((this.ball.vel.y < 0) && (this.ball.top < 0))
+    {
+      pos.y = 0;
+      pos.dy = -pos.dy;
+    }
+
+    
+    let paddle = (pos.dx < 0) ? player1 : player2;
+    var pt = null;
+    pt = this.ballIntercept(this.ball, paddle.paddle, pos.nx, pos.ny);
+    if (pt) {
+        switch(pt.d) {
+          case 'left':
+          case 'right':
+            pos.x = pt.x;
+            pos.dx = -pos.dx;
+            break;
+          case 'top':
+          case 'bottom':
+            pos.y = pt.y;
+            pos.dy = -pos.dy;
+            break;
         }
-  }
-  end()
-  {
-    cancelAnimationFrame(this.animation);
-  }
-  reset()
-  {
-    this.ball.pos.x = this._canvas.width / 2;
-    this.ball.pos.y = this._canvas.height / 2;
-    this.ball.vel.x = 0;
-    this.ball.vel.y = 0;
-  }
-
-  isGameEnded() : boolean
-  {
-    return (this.players[0].score >= 10 || this.players[1].score >= 10)
-  }
-
-  start()
-  {
-    if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
-      this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
-      this.ball.vel.y = 300 * (Math.random() * 2  -1);
-      this.ball.vel.len = 400;
-    }
-  }
-  draw()
-  {
-    if (this._context !== null)
-    {
-      this._context.fillStyle = "black";
-      this._context.fillRect(0,0, 
-                              this._canvas.width, this._canvas.height);
-      this._context.fillStyle = 'white';
-      this._context.beginPath();
-      this._context.strokeStyle = "white";
-      this._context.setLineDash([5, 5]);
-      this._context.moveTo(this._canvas.width / 2, 0);
-      this._context.lineTo(this._canvas.width / 2, this._canvas.height);
-      this._context.stroke();
-      this.players.forEach(player => this.drawRect(player));
-      this.players.forEach((player, index) => this.drawScore(player.score.toString(), index));
-      if (!this.isGameEnded())
-      {
-        this._context.fillStyle = 'white';
-        this._context.fillRect(this.ball.pos.x, this.ball.pos.y, this.ball.size.x, this.ball.size.y);
+        if (paddle.dp < 0)
+        pos.dy = pos.dy * (pos.dy < 0 ? 0.5 : 1.5);
+      else if (paddle.dp > 0)
+        pos.dy = pos.dy * (pos.dy > 0 ? 0.5 : 1.5); 
       }
 
+    // console.log(pos);
+    this.ball.pos.x = pos.x;
+    this.ball.pos.y = pos.y;
+    this.ball.vel.x = pos.dx;
+    this.ball.vel.y = pos.dy;
+    if (this.ball.left < 0)
+      this.goal(0);
+    if (this.ball.right > this.width)
+      this.goal(1);
+    }
 
-    }
-  }
-  drawScore(scores: string, index: number)
+
+
+  accelerate(x: number, y, dx, dy, accel, dt)
   {
-    const align = this._canvas.width / 3;
-    if (this._context !== null)
-    {
-      this._context.fillStyle = "white"; 
-      this._context.font = '50px Anton';
-      this._context.fillText(scores, align * (index + 1), 100);
-    }
+    var x2  = x + (dt * dx) + (accel * dt * dt * 0.5);
+    var y2  = y + (dt * dy) + (accel * dt * dt * 0.5);
+    var dx2 = dx + (accel * dt) * (dx > 0 ? 1 : -1);
+    var dy2 = dy + (accel * dt) * (dy > 0 ? 1 : -1);
+    return { nx: (x2-x), ny: (y2-y), x: x2, y: y2, dx: dx2, dy: dy2 };
   }
-  drawRect(rect: Rect)
+
+  goal(pos: number)
   {
-    if (this._context !== null)
+    // this.players[pos].score += 1;
+    this.scores[pos] += 1;
+
+    this.reset(pos);
+  }
+  reset(pos: number)
+  {
+    this.ball.pos.x= 400;
+    this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
+    this.ball.vel.x = pos ? -Math.random() * 200 : Math.random() * 200;
+  }
+  
+  ballIntercept(ball: Ball, rect, nx, ny){
+    var pt =null;
+    console.log('(x00,y00', ball.pos.x, ball.pos.y, ')\n x1,y1(', ball.pos.x + nx, ball.pos.y + ny, ')\n w1,z1(',
+        rect.right, 
+        rect.top, 
+        ')\n w2,z2(',
+        rect.right,  
+        rect.bottom)
+    if (nx < 0)
     {
-      this._context.fillStyle = "white";
-      this._context.fillRect(rect.pos.x, rect.pos.y, 
-                            rect.size.x, rect.size.y);
+      pt = this.intercept(ball.pos.x , ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+        rect.right, 
+        rect.top, 
+        rect.right,  
+        rect.bottom,
+        "right");
+        // console.log('rect: ' , rect.right);
+        if (pt)
+          console.log('return', pt);
+    }
+    else if (nx > 0)
+    {
+      pt = this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+        rect.left   - ball.size.x / 2, 
+        rect.top    - ball.size.x / 2, 
+        rect.left   - ball.size.x / 2, 
+        rect.bottom + ball.size.x / 2,
+        "left");
+        if (pt)
+          console.log('return', pt);
       }
-
-  }
-  update(dt: number) {
-    this.ball.pos.x += this.ball.vel.x * dt;
-    this.ball.pos.y += this.ball.vel.y * dt;
-    if (this.ball.left < 0 || this.ball.right > this._canvas.width)
-    {
-      let playerId = this.ball.vel.x < 0 ? 1 : 0;
-      this.players[playerId].score++;
-      this.reset();
+    if (!pt) {
+      if (ny < 0) {
+          pt =  this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+                                     rect.left   - ball.size.x,
+                                     rect.bottom + ball.size.x, 
+                                     rect.right  + ball.size.x, 
+                                     rect.bottom + ball.size.x,
+                                     "bottom");
+          if (pt)
+                                     console.log('return', pt);
+        }
+      else if (ny > 0) {
+          pt =this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+                                     rect.left   - ball.size.x, 
+                                     rect.top    - ball.size.x, 
+                                     rect.right  + ball.size.x, 
+                                     rect.top    - ball.size.x,
+                                     "top");
+          if (pt)
+            console.log('return', pt);
     }
-    if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
-    {
-      this.ball.vel.y = -this.ball.vel.y;
-    } 
-    // this.players[1].pos.y = this.ball.pos.y;
-    this.players.forEach(player => this.collide(player, this.ball));
-    this.draw();
   }
-}
+  return pt;
+  }
 
-export default Pong;
+  intercept(x1, y1, x2, y2, x3, y3, x4, y4, d) {
+      var denom = ((y4-y3) * (x2-x1)) - ((x4-x3) * (y2-y1));
+      if (denom != 0) {
+        var ua = (((x4-x3) * (y1-y3)) - ((y4-y3) * (x1-x3))) / denom;
+
+        if ((ua >= 0) && (ua <= 1)) {
+          var ub = (((x2-x1) * (y1-y3)) - ((y2-y1) * (x1-x3))) / denom;
+          if ((ub >= 0) && (ub <= 1)) {
+            var x = x1 + (ua * (x2-x1));
+            var y = y1 + (ua * (y2-y1));
+            return { x: x, y: y, d: d};
+          }
+        }
+      }
+      return null;
+    }
+    intersects(a,b,c,d,p,q,r,s, where) {
+      var det, gamma, lambda;
+      det = (c - a) * (s - q) - (r - p) * (d - b);
+      if (det === 0) {
+        return false;
+      } else {
+        lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+        gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+        return { x: a, y: b, d: d};
+      }
+    };
+  }

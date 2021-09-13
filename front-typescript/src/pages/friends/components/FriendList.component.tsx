@@ -40,7 +40,7 @@ const FriendList: React.FC<IFriendsListProps> = ({
 
   useEffect(() => {
     refreshFriends();
-  }, [friends, refreshFriends]);
+  }, [refreshFriends]);
 
   return ( authToken !== "" && user_logged ? (
     <div>

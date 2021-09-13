@@ -46,7 +46,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "socket.io": "^4.2.0"
+    "socket.io": "^4.2.0",
+    "source-map-support": "^0.5.20"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",

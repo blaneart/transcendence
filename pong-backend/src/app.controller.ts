@@ -19,7 +19,7 @@ import { AuthService } from './auth/auth.service';
 import { ProfileService } from './profile/profile.service';
 import { AchievementService } from './achievement/achievement.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto } from './app.dto';
+import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto } from './app.dto';
 import path from 'path';
 
 const multer = require('multer');
@@ -137,6 +137,8 @@ export class AppController {
 @UseGuards(JwtAuthGuard)
 @Post('removeAvatar')
 async removeAvatar(@Request() req) {
+  if (!req.user)
+    throw new HttpException("Bad user", HttpStatus.BAD_REQUEST);
   const response = await this.profileService.updateUserById(req.user.id, {
     avatar: "" + req.user.id42,
     realAvatar: false
@@ -145,10 +147,10 @@ async removeAvatar(@Request() req) {
 }
 
 @Post('/fakeUser/:newName')
-async createFakeUser(@Request() req, @Param('newName') newName: string)
+async createFakeUser(@Param() param: fakeUserDto)
 {
   // Create a new user
-  const newUser = await this.profileService.createFakeUser(newName);
+  const newUser = await this.profileService.createFakeUser(param.newName);
   // Add this user to JWT
   return this.authService.login(newUser);
 }

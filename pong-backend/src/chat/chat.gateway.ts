@@ -409,7 +409,7 @@ export class ChatGateway {
       name: client.user.name,
       message: message.text,
       senderID: client.user.id,
-      sender: interlocutor as UserPublic
+      sender: client.user as UserPublic
     }
 
     // Send the update to other side

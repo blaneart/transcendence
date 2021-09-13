@@ -64,7 +64,8 @@ export class AuthController {
         { twofaSecret: newSecret.secret },
       );
       // Add 2FA achievement
-      this.achievementService.addAchievement(req.user.id, 2);
+      if (!this.achievementService.achievementExists(req.user.id, 2))
+        this.achievementService.addAchievement(req.user.id, 2);
       return responseSecret;
     }
     return response as UserPublic;

@@ -20,7 +20,8 @@ async function uploadHandler(authToken: string, setUser: Function) {
     },
     body: data
   })
-
+  if (!response.ok)
+    return alert("Error while uploading avatar. Sorry.");
   const jsonData = await response.json();
   const userUpdate = jsonData as User;
 

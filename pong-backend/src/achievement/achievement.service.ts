@@ -14,4 +14,12 @@ export class AchievementService {
       const response = await db('user_achievements').returning('*').insert({ user_id: userId, achievement_id: achievementId });
       return response[0];
     }
+
+    async achievementExists(userId: number, achievementId: number): Promise<boolean>
+    {
+      const response = await db('user_achievements').where({ user_id: userId, achievement_id: achievementId }).select('*');
+      if (response.length)
+        return true;
+      return false;
+    }
 }

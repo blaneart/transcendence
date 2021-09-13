@@ -106,8 +106,8 @@ class Pong {
     ]
     this.fn = fn;
     this.auth = authToken;
-    this.players[0].pos.x = 40;
-    this.players[1].pos.x = this._canvas.width - 40;
+    this.players[0].pos.x = 30;
+    this.players[1].pos.x = this._canvas.width - 30;
     this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.socket = socket;

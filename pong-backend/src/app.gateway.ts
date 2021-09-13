@@ -5,76 +5,25 @@ import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 var uuid = require('uuid');
+import {Pong, Ball, Paddle} from './game/game';
+// import Ball from './game/game';
 
-export enum ActionTypes {
-  Data = '[Socket] Data',
-  ClientConnected = '[Socket] Client Connected',
-  ValuePatched = '[Socket] Value Patched',
-  PatchValue = '[Form] Patch Value',
-  Init = '[Init] Init'
-}
-
-export interface FormData {
-  title: string;
-  description: string;
-}
-class Vec {
-  x: number;
-  y: number;
-  constructor(x = 0, y = 0)
-  {
-    this.x = x;
-    this.y = y;
-  }
-  get len()
-  {
-    return Math.sqrt(this.x * this.x + this.y * this.y);
-  }
-  set len(value)
-  {
-    const fact = value / this.len;
-    this.x *= fact;
-    this.y *= fact;
-  }
-}
-
-class Rect {
-  pos: Vec;
-  size: Vec;
-  constructor(w: number, h: number)
-  {
-    this.pos = new Vec();
-    this.size = new Vec(w, h);
-  }
-  get left()
-  {
-    return this.pos.x;
-  }
-  get right()
-  {
-    return this.pos.x + this.size.x;
-  }
-  get top()
-  {
-    return this.pos.y;
-  }
-  get bottom()
-  {
-    return this.pos.y + this.size.y;
-  }
-}
-
-class Player {
+export class Player {
   name: string;
   id: number;
+  paddle: Paddle;
   socketId: string;
   position: number;
+  dp: number;
   constructor(name: string, id: number, socket: string, pos: number)
   {
-    this.name= name;
+    this.paddle = new Paddle();
+    this.name = name;
     this.id = id;
     this.socketId= socket;
-    this.position = pos;
+    this.paddle.pos.y = pos;
+    this.paddle.pos.x = id === 0 ? 30 : 800 - 30;
+    this.dp = 0;
   }
 
   get Name()
@@ -104,15 +53,6 @@ class Player {
 
 }
 
-class Ball extends Rect {
-  vel: Vec;
-  constructor()
-  {
-    super(18,18);
-    this.vel = new Vec(100, 100);
-  }
-}
-
 @WebSocketGateway(3002, { cors: true })
 export class AppGateway implements OnGatewayInit {
   rooms = {};
@@ -128,7 +68,6 @@ export class AppGateway implements OnGatewayInit {
     this.logger.log(
       `Client connected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
-    this.server.emit(ActionTypes.ClientConnected, this.connectedClients);
   }
 
   handleDisconnect(client: Socket) {
@@ -153,7 +92,7 @@ export class AppGateway implements OnGatewayInit {
     /* creates new room if every room is full*/
     if (!roomName)
     {
-      console.log(roomName);
+      // console.log(roomName);
       roomName = uuid.v4();
       playerId =  Math.random()>=0.5? 1 : 0;
       if (!this.rooms[roomName])
@@ -161,8 +100,6 @@ export class AppGateway implements OnGatewayInit {
           players: [],
           scores: [0,0],
           ball: new Ball(),
-          ball_speed: [0,0],
-          ball_position: [50, 50],
         }
         this.rooms[roomName].players[playerId] = new Player(userName, playerId, socket.id, 100)
     }
@@ -189,19 +126,37 @@ export class AppGateway implements OnGatewayInit {
     }
   }
 
+  @SubscribeMessage('playerPos')
+  updatePlayers(client: Socket, new_pos: number[])
+  {
+    let roomName = this.getRoomNameBySocket(client)
+    // console.log(client.id, this.getRoomNameBySocket(client))
+    let id = 0;
+    if (this.rooms[roomName].players[0].socketId == client.id)
+      id = this.rooms[roomName].players[0].id;
+    else
+      id = this.rooms[roomName].players[1].id;
+    // console.log(this.rooms[roomName].players[id].paddle)
+    // console.log('pos', new_pos, dpos);
+    this.rooms[roomName].players[id].paddle.pos.y = new_pos[0];
+    this.rooms[roomName].players[id].dp = new_pos[1];
+    client.broadcast.emit('getPosition', new_pos[0]);
+  }
+
   @SubscribeMessage('subscribe')
   pushBall(client: Socket)
   {
 
 
-    const callback = (dt: number, ball: Ball) => {
-
-      ball.pos.x += ball.vel.x * (dt / 1000);
-      ball.pos.y += ball.vel.y * (dt / 1000);
-      if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10 || ball.pos.x > 1000)
+    const callback = (dt: number, pong: Pong) => {
+      if (this.rooms[roomName].players[0].id === 0)
+        pong.update(dt /1000, this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
+      else 
+        pong.update(dt /1000, this.rooms[roomName].players[1], this.rooms[roomName].players[0]);
+      if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10 || pong.ball.pos.x > 1000)
         clearInterval(interval);
-      console.log(ball.pos);
-      this.server.to(roomName).emit('getBallPosition', ball.pos);
+      this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
+      this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
 
   };
 
@@ -209,11 +164,9 @@ export class AppGateway implements OnGatewayInit {
     let roomName = this.getRoomNameBySocket(client);
     var interval = null;
     let dt  = 10;
-    let myBall = this.rooms[roomName].ball;
-    interval = setInterval(function() {callback(dt, myBall);}, dt);
-    // interval = setInterval(() => {
-    //   msg.posx = msg.posx + 1;
-    //   // Object.keys(TextFile)[0]
+    var myBall = this.rooms[roomName].ball;   
+    let pong = new Pong(myBall, this.rooms[roomName].scores);
+    interval = setInterval(function() {callback(dt, pong)}, dt);
 
   }
 
@@ -232,16 +185,12 @@ export class AppGateway implements OnGatewayInit {
       this.logger.log('Initialize');
   }
 
-  @SubscribeMessage(ActionTypes.PatchValue)
-  patchValue(client: Socket, payload: Partial<FormData>) {
-    this.logger.log(`Patch value: ${JSON.stringify(payload)}.`);
-    client.broadcast.emit(ActionTypes.ValuePatched, payload);
-  }
 
-  @SubscribeMessage('msgToServer')
-  handleMessage(client: Socket, text: number)  {
-        client.broadcast.emit('getPosition', text);
-  }
+
+  // @SubscribeMessage('msgToServer')
+  // handleMessage(client: Socket, text: number)  {
+  //       client.broadcast.emit('getPosition', text);
+  // }
   
 
 
@@ -250,8 +199,8 @@ export class AppGateway implements OnGatewayInit {
     let message = {
       pos_x: 400,
       pos_y: Math.random() * 600,
-      vel_x: 300 * (Math.random() > .5 ? 1 : -1),
-      vel_y: 300 * (Math.random() * 2  -1)
+      vel_x: 500 * (Math.random() > .5 ? 1 : -1),
+      vel_y: 500 * (Math.random() * 2  -1)
     }
     this.server.emit('getBallSpeed', message)
   }

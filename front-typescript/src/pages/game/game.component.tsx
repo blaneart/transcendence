@@ -119,7 +119,10 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {
-              pong!.players[id].pos.y = event.offsetY - pong!.players[id].size.y / 2;
+              let old_pos = pong!.players[id].pos.y;
+              pong!.players[id].pos.y = (event.offsetY - (pong!.players[id].size.y / 2));
+              let d_pos = pong!.players[id].pos.y - old_pos;
+              socket.emit('playerPos', pong!.players[id].pos.y, d_pos);
           });
           socket.emit('subscribe');
         //   window.addEventListener('keydown', event => {

@@ -26,7 +26,7 @@ class Rect {
   pos: Vec;
   size: Vec;
   constructor(w: number, h: number)
-  {~~
+  {
     this.pos = new Vec();
     this.size = new Vec(w, h);
   }

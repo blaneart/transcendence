@@ -270,13 +270,13 @@ class Pong {
       this.reset(playerId);
     }
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
+	{
       this.ball.vel.y = -this.ball.vel.y;
-	  // if (this.ball.top < 0)
-		// this.ball.pos.y = 0;
-	  // else
-		// this.ball.pos.y = this._canvas.height - this.ball.size.y;
-    // } 
-    // this.players[1].pos.y = this.ball.pos.y;
+	  if (this.ball.top < 0)
+		this.ball.pos.y = 0;
+	  else
+		this.ball.pos.y = this._canvas.height - this.ball.size.y;
+    } 
     this.players.forEach(player => this.collide(player, this.ball));
     this.draw(); 
   }

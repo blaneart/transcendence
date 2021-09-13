@@ -26,7 +26,7 @@ class Rect {
   pos: Vec;
   size: Vec;
   constructor(w: number, h: number)
-  {~~
+  {
     this.pos = new Vec();
     this.size = new Vec(w, h);
   }
@@ -64,7 +64,7 @@ export class Ball extends Rect {
   acceleration: number;
   constructor()
   {
-    super(16, 16);
+    super(18, 18);
     this.vel = new Vec();
     this.acceleration = 5;
   }
@@ -139,15 +139,19 @@ export class Pong {
             pos.dx = -pos.dx;
             break;
           case 'top':
+			  pos.dy = -pos.dy;
+			  pos.dx = -pos.dx
+			  break;
           case 'bottom':
-            pos.y = pt.y;
-            pos.dy = -pos.dy;
+			pos.dy = -pos.dy;
+			pos.dx = -pos.dx
+
             break;
         }
         if (paddle.dp < 0)
-        pos.dy = pos.dy * (pos.dy < 0 ? 0.5 : 1.5);
+        	pos.dy = ((paddle.paddle.pos.y  + paddle.paddle.size.y / 2) - (this.ball.pos.y + this.ball.size.y / 2)) * -8;
       else if (paddle.dp > 0)
-        pos.dy = pos.dy * (pos.dy > 0 ? 0.5 : 1.5); 
+			pos.dy = ((paddle.paddle.pos.y  + paddle.paddle.size.y / 2) - (this.ball.pos.y + this.ball.size.y / 2)) * -8;
       }
 
     // console.log(pos);
@@ -155,9 +159,9 @@ export class Pong {
     this.ball.pos.y = pos.y;
     this.ball.vel.x = pos.dx;
     this.ball.vel.y = pos.dy;
-    if (this.ball.left < 0)
+    if (this.ball.right < 0)
       this.goal(0);
-    if (this.ball.right > this.width)
+    if (this.ball.left > this.width)
       this.goal(1);
     }
 
@@ -184,6 +188,7 @@ export class Pong {
     this.ball.pos.x= 400;
     this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
     this.ball.vel.x = pos ? -Math.random() * 200 : Math.random() * 200;
+    this.ball.vel.y = pos ? -Math.random() * 200 : Math.random() * 200;
   }
   
   ballIntercept(ball: Ball, rect, nx, ny){
@@ -211,7 +216,7 @@ export class Pong {
       pt = this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
         rect.left   - ball.size.x / 2, 
         rect.top    - ball.size.x / 2, 
-        rect.left   - ball.size.x / 2, 
+        rect.right   - ball.size.x / 2, 
         rect.bottom + ball.size.x / 2,
         "left");
         if (pt)

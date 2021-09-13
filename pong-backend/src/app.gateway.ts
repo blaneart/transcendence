@@ -248,3 +248,5 @@ export class AppGateway implements OnGatewayInit {
     this.getWaitingRoom(socket, userName);
   }
 }
+
+export default Player;

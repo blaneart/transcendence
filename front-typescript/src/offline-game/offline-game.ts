@@ -181,8 +181,7 @@ class Offline_Pong {
     if (this._context !== null)
     {
       this._context.fillStyle = "black";
-      this._context.fillRect(0,0,
-                              this._canvas.width, this._canvas.height);
+      this._context.fillRect(0,0,this._canvas.width, this._canvas.height);
       this._context.fillStyle = 'white';
       this._context.beginPath();
       this._context.strokeStyle = "white";
@@ -238,15 +237,11 @@ class Offline_Pong {
 		this.ball.pos.y = this._canvas.height - this.ball.size.y;
     }
     this.players.forEach(player => this.collide(player, this.ball));
-
 	this.changedifficulty(difficulty);
-	if (this.players[1].botDifficulty > 0)
-	{
-		if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
-			this.players[1].pos.y += this.players[1].botDifficulty;
-		else if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) <= -this.players[1].botDifficulty)
-			this.players[1].pos.y -= this.players[1].botDifficulty;
-	}
+	if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
+		this.players[1].pos.y += this.players[1].botDifficulty;
+	else if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) <= -this.players[1].botDifficulty)
+		this.players[1].pos.y -= this.players[1].botDifficulty;
     this.draw(); 
   }
 }

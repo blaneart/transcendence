@@ -42,7 +42,6 @@ const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficult
     const [restart, setRestart] = useState<Boolean>(false)
 
     useEffect(() => {
-		console.log('in the game.component.tsx file: ', difficultyLvl.number);
         setIsGameEnded('game')
         let canvas = document.getElementById('forCanvas');
         if (canvas)

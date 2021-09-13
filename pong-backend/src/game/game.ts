@@ -1,6 +1,7 @@
 import { globalAgent } from "http";
 import { runInThisContext } from "vm";
 import {Player} from '../app.gateway';
+
 class Vec {
   x: number;
   y: number;
@@ -26,7 +27,7 @@ class Rect {
   pos: Vec;
   size: Vec;
   constructor(w: number, h: number)
-  {~~
+  {
     this.pos = new Vec();
     this.size = new Vec(w, h);
   }

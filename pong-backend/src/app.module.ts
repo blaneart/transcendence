@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { GameGateway } from './game/game.gateway';
+import { AppGateway } from './app.gateway';
 import { AchievementService } from './achievement/achievement.service';
 import { ChatModule } from './chat/chat.module';
 import { FriendDuoModule } from './friendDuo/friendDuo.module';
@@ -30,6 +31,6 @@ import { FriendDuoService } from './friendDuo/friendDuo.service';
     FriendDuoModule,
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController, AuthController],
-  providers: [AppService, GameGateway, ProfileService, SigninService, AchievementService, ChatGateway, ChatService, FriendDuoService],
+  providers: [AppService, AppGateway, GameGateway, ProfileService, SigninService, AchievementService, ChatGateway, ChatService, FriendDuoService],
 })
 export class AppModule {}

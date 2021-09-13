@@ -19,9 +19,7 @@ import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 
-
-const ENDPOINT = "http://127.0.0.1:3002";
-
+const ENDPOINT = "http://127.0.0.1:3003";
 
 interface IState {
   user: User | null;
@@ -115,39 +113,23 @@ async function getMe(authToken: string): Promise<User> {
   return jsonData as User;
 }
 
-
-
-function receiveMessage(msg: string)
-{
-  console.log(msg);
-}
-
-
-
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
-  const [isSigned, setIsSigned] = useState(false);
-  const [response, setResponse] = useState("");
 
+    // if (authToken) {
+    //   const [socket] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
+    //     auth: {
+    //       token: authToken
+    //     }
+    //   }));
 
- 
-
-  // const socket = (io(ENDPOINT));
-
-  // useEffect(() => {
-    // socket?.on('msgToClient', (msg: string) => {
-      // receiveMessage(msg);
-    // });
-    // socket?.emit("msgToServer", "lel");
-  // }, []);
- // const  sendMessage = (event: any) => {
-    //   console.log('front')
-    //   event.preventDefault();
-    //   socket?.emit("msgToServer", event.target.value );
+    //   if (authToken !== "" && user) {
+    //     socket.emit('login');
+    //   }
     // }
+
   let history = useHistory();
-   
 
   useEffect(() => {
     
@@ -178,7 +160,6 @@ function App() {
  
   return (
     <div className="App">
-      {/* <input type="text" onChange={ sendMessage } /> */}
       <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
       <Switch>
         <Route exact path="/">
@@ -188,6 +169,12 @@ function App() {
           <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
           <Difficulty difficultyLvl={difficulty}/>
         </Route>
+        <Route path="/cheats">
+          <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
+        </Route>
+      </Switch>
+      {authToken !== "" ?
+      <Switch>
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
@@ -198,17 +185,11 @@ function App() {
           {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}
         </Route>
         <Route path="/friends">
-          {authToken !== "" && user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
+          {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
         </Route>
-        <Route path="/cheats">
-          <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
-        </Route>
-        {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
-        {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}
       </Switch>
-      {/* We should add this: */}
-      {/* <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> */}
- </div>
+      : <p></p>}
+    </div>
   );
 }
 

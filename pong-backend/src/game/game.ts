@@ -146,7 +146,6 @@ export class Pong {
           case 'bottom':
 			pos.dy = -pos.dy;
 			pos.dx = -pos.dx
-
             break;
         }
         if (paddle.dp < 0)

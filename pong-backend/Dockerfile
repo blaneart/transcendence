@@ -9,6 +9,7 @@ COPY ["package.json", "package-lock.json*", "./"]
 
 RUN npm install --production
 RUN npm install -g @nestjs/cli
+RUN mkdir /images
 
 COPY . .
 

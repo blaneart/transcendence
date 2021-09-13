@@ -3,7 +3,8 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
-import { Room, Direct, ChatMessageUpdate, UserPublic, DirectMessageUpdate } from "./chat.types";
+import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate } from "./chat.types";
+import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
 import { LoginAttempt, DirectMessage, BanRequest, ChatMessage } from "./chat.dto";
 

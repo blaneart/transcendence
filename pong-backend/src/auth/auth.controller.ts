@@ -1,10 +1,12 @@
-import { Controller, Post, UseGuards, Request } from "@nestjs/common";
+import { Controller, Post, UseGuards, Request, Body, HttpException, HttpStatus } from "@nestjs/common";
 import { AchievementService } from "src/achievement/achievement.service";
 import { ProfileService } from "src/profile/profile.service";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from './local-auth.guard';
 import { TemporaryJwtAuthGuard } from './temporary-jwt-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Check2FADto, Set2FADTO } from "./auth.dto";
+import { UserPublic } from "src/app.types";
 
 const twofactor = require('node-2fa');
 
@@ -17,39 +19,46 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard) // Checks OAuth with 42 API
   @Post('login')
-  async login(@Request() req) {
+  async login(@Request() req) { // No user input: no DTO
     // Issue temporary JWT if 2fa or full JWT if not 2fa.
     return this.authService.login(req.user);
   }
 
   @UseGuards(TemporaryJwtAuthGuard) // Checks temporary JWT, but not 2fa
   @Post('check2fa')
-  async check2fa(@Request() req) {
+  async check2fa(@Request() req, @Body() body: Check2FADto) {
+    // Find the user in our database
     const user = await this.profileService.getUserById(req.user.id);
-    if (!user || !req.body.code) {
-      return { message: 'nope' };
-    }
-    const ret = twofactor.verifyToken(user.twofaSecret, req.body.code);
+
+    // If the user doesn't exist, something's probably very wrong
+    if (!user)
+      throw new HttpException("Bad user", HttpStatus.BAD_REQUEST);
+
+    // Validate the token
+    const ret = twofactor.verifyToken(user.twofaSecret, body.code);
     if (ret && ret.delta === 0) {
       return this.authService.loginAndTwofa(user);
     }
-    return { message: 'nope' };
+
+    // Refuse a bad code
+    throw new HttpException("Bad Code", HttpStatus.BAD_REQUEST);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('set2fa')
-  async set2fa(@Request() req) {
-    const val = req.body.value;
-    if (val !== true && val !== false) return { status: -1 };
-    const futureValue: boolean = val === true ? true : false;
+  async set2fa(@Request() req, @Body() body: Set2FADTO) {
+    // Update the user in our database
     const response = await this.profileService.updateUserById(req.user.id, {
-      twofa: futureValue,
+      twofa: body.value,
     });
-    if (futureValue === true) {
+    // If we're turning 2FA on, create and save the new secret
+    if (body.value === true) {
+      // Create the new secret
       const newSecret = twofactor.generateSecret({
         name: 'Transcendence',
         account: response.name,
       });
+      // Save it to the database
       const responseSecret = await this.profileService.updateUserById(
         req.user.id,
         { twofaSecret: newSecret.secret },
@@ -58,6 +67,6 @@ export class AuthController {
       this.achievementService.addAchievement(req.user.id, 2);
       return responseSecret;
     }
-    return response; // TODO NOT SEND 2FA SECRET
+    return response as UserPublic;
   }
 }

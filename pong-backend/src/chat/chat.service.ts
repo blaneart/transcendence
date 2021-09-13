@@ -1,4 +1,5 @@
-import { ChatMessageUpdate, DirectMessageUpdate, UserPublic } from './chat.types';
+import { ChatMessageUpdate, DirectMessageUpdate } from './chat.types';
+import { UserPublic } from 'src/app.types';
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
 import { Room, Direct } from './chat.types';

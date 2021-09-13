@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import MenuItem from '../menu-item/menu-item.component';
 
 import './menu.styles.scss';
@@ -23,7 +23,6 @@ interface IMenuState{
         title: string,
         linkUrl: string,
         id: number
-    
 }
 
 const Menu: React.FC<IMenuProps> = ({ user }) => {
@@ -86,7 +85,6 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
         }
     ]
 
-    
     const renderMenuList = (): JSX.Element[] => {
         return sections.map(({id, ...otherSectionsProps}) => {
             return(

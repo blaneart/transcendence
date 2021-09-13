@@ -185,8 +185,8 @@ function App() {
           <Menu user={user}/>
         </Route>
         <Route path="/playbots">
-          <Difficulty difficultyLvl={difficulty}/>
           <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+          <Difficulty difficultyLvl={difficulty}/>
         </Route>
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />

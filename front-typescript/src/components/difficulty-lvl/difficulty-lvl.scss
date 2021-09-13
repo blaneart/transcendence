@@ -6,6 +6,7 @@
 	font-weight: bold;
 	line-height: 34px;
 	height: 80px;
+	margin-left: auto;
 	margin-right: auto;
 	margin-top: auto;
 	padding: 0;
@@ -16,11 +17,14 @@
 .board-row:after {
 	clear: both;
 	content: "";
-	display: table;
+	display:table;
+}
+
+.game-board {
+	display: inline-block;
 }
 
 .difficulty-item {
-	width: 20px;
-	margin: 30px 150px;
+	margin-top: 630px;
+	text-align: center;
 }
-

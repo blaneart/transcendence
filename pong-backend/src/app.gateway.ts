@@ -15,6 +15,7 @@ interface User {
   twofa: boolean;
   twofaSecret: string;
   realAvatar: boolean
+  status: number;
 }
 
 // TypeScript needs to know that our auth guards append the user to the socket
@@ -66,9 +67,18 @@ export class AppGateway {
   @SubscribeMessage('logout')
   async handleLogout(client: AuthenticatedSocket)
   {
-    connectedIds => connectedIds !== client.user.id
+    this.connectedIds = this.connectedIds.filter(
+      connectedId => connectedId !== client.user.id
+    );
     this.logger.log(
       `Client disconnected: ${client.user.id} [${client.user.name}] disconnected.`
     );
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('getIds')
+  async getConnectedIds(client: AuthenticatedSocket)
+  {
+    return this.connectedIds as number[];
   }
 }

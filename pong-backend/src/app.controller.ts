@@ -19,7 +19,7 @@ import { AuthService } from './auth/auth.service';
 import { ProfileService } from './profile/profile.service';
 import { AchievementService } from './achievement/achievement.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto } from './app.dto';
+import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto } from './app.dto';
 import path from 'path';
 
 const multer = require('multer');
@@ -61,7 +61,6 @@ export class AppController {
     return users;
   }
 
-
   @UseGuards(JwtAuthGuard)
   @Post('account/setName')
   async setName(@Request() req, @Body() body: setNameDto) {
@@ -76,6 +75,18 @@ export class AppController {
       name: body.value,
     });
     console.log(response.name);
+    return response;
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Post('account/setStatus')
+  async setStatus(@Request() req, @Body() body: setStatusDto) {
+    console.log('status changed');
+    const response = await this.profileService.updateUserById(
+      req.user.id, {
+      status: body.value,
+    });
     return response;
   }
 

@@ -44,7 +44,11 @@ async function removeFriend(id1: number, id2: number, authToken: string) {
     });
 }
 
-const UserComponent: React.FC<IUserProps> = ({ id1, friendUser, authToken }) => {
+const UserComponent: React.FC<IUserProps> = ({
+  id1,
+  friendUser,
+  authToken,
+  }) => {
 
   const [friend, setFriend] = useState<boolean>(false);
 
@@ -84,6 +88,7 @@ const UserComponent: React.FC<IUserProps> = ({ id1, friendUser, authToken }) => 
       {friend ? (<button onClick={(e) => handleUnfriend(id1, friendUser.id, authToken)}>Unfriend</button>)
       : <button onClick={(e) => handleBefriend(id1, friendUser.id, authToken)} >Befriend</button>}
       <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
+      {friendUser.status === 0 ? <p>Offline</p> : <p>Online</p>}
     </div>
   );
 }

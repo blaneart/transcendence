@@ -1,4 +1,4 @@
-import { IsString, IsNumberString, IsNotEmpty } from "class-validator";
+import { IsNumber, IsString, IsNumberString, IsNotEmpty } from "class-validator";
 
 export class getUserByNameDto {
   @IsNotEmpty()
@@ -8,7 +8,7 @@ export class getUserByNameDto {
 
 export class getUserByIdDto {
   @IsNotEmpty()
-  @IsNumberString()
+  @IsNumber()
   value: number
 }
 

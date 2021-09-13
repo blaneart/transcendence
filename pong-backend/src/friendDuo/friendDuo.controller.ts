@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Param, Delete, UseGuards, Request, HttpException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Put, Param, Delete, UseGuards, Request, HttpException, HttpCode, HttpStatus, ParseIntPipe } from '@nestjs/common';
 import { FriendDuoService } from './friendDuo.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -10,7 +10,7 @@ export class FriendDuoController {
   // Create a new duo with given ids
   @UseGuards(JwtAuthGuard)
   @Put('/:id1/:id2')
-  async AddFriend(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
+  async AddFriend(@Request() request, @Param('id1', ParseIntPipe) id1: number, @Param('id2', ParseIntPipe) id2: number)
   {
     // Create the duo using the service
     return await this.friendDuoService.createDuo(id1, id2);
@@ -18,7 +18,7 @@ export class FriendDuoController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('/:id1/:id2')
-  async RemoveFriend(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
+  async RemoveFriend(@Request() request, @Param('id1', ParseIntPipe) id1: number, @Param('id2', ParseIntPipe) id2: number)
   {
     // Find the duo by id1
     const response = await this.friendDuoService.getDuoId(id1, id2);
@@ -34,7 +34,7 @@ export class FriendDuoController {
 
   @UseGuards(JwtAuthGuard)
   @Get('of/:id1')
-  async getFriendsOf(@Request() request, @Param('id1') id1: number)
+  async getFriendsOf(@Request() request, @Param('id1', ParseIntPipe) id1: number)
   {
     const array = await this.friendDuoService.getFriendsArray(id1);
     return array;
@@ -42,7 +42,7 @@ export class FriendDuoController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/:id1/:id2')
-  async getFriendDuo(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
+  async getFriendDuo(@Request() request, @Param('id1', ParseIntPipe) id1: number, @Param('id2', ParseIntPipe) id2: number)
   {
     const id = await this.friendDuoService.getDuoId(id1, id2);
     return id;
@@ -50,7 +50,7 @@ export class FriendDuoController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/exist/:id1/:id2')
-  async getDuoExistence(@Request() request, @Param('id1') id1: number, @Param('id2') id2: number)
+  async getDuoExistence(@Request() request, @Param('id1', ParseIntPipe) id1: number, @Param('id2', ParseIntPipe) id2: number)
   {
     const bool = await this.friendDuoService.DoesDuoExist(id1, id2);
     return bool;

@@ -6,6 +6,7 @@ import { RegisterController } from './register/register.controller';
 import { ProfileController } from './profile/profile.controller';
 import { ProfileService } from './profile/profile.service';
 import { SigninService } from './signin/signin.service';
+import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -28,7 +29,7 @@ import { FriendDuoService } from './friendDuo/friendDuo.service';
     ChatModule,
     FriendDuoModule,
   ],
-  controllers: [AppController, SigninController, RegisterController, ProfileController],
+  controllers: [AppController, SigninController, RegisterController, ProfileController, AuthController],
   providers: [AppService, AppGateway, ProfileService, SigninService, AchievementService, ChatGateway, ChatService, FriendDuoService],
 })
 export class AppModule {}

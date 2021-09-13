@@ -3,27 +3,16 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
-import { Room, Direct, ChatMessageUpdate, UserPublic, DirectMessageUpdate } from "./chat.types";
+import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate } from "./chat.types";
+import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
+import { LoginAttempt, DirectMessage, BanRequest, ChatMessage } from "./chat.dto";
 
 // The kind of the message (to extend later)
 enum ChatMessageType {
   TEXT,
   GAME_INVITE,
   GAME_SCORE
-}
-
-// The update we get from frontend to update the DB
-interface ChatMessage {
-  type: ChatMessageType,
-  text: string
-  room: string
-}
-
-// The update we get from frontend to update the DB
-interface DirectMessage {
-  text: string
-  userB: string
 }
 
 interface User {
@@ -41,23 +30,6 @@ interface User {
 // TypeScript needs to know that our auth guards append the user to the socket
 interface AuthenticatedSocket extends Socket {
   user: User
-}
-
-interface LoginAttempt {
-  roomName: string,
-  password: string
-}
-
-// The message we receive when an admin wants to ban a user
-interface BanRequest {
-  roomName: string,
-  userId: number,
-  minutes: number
-}
-
-interface MakeAdminRequest {
-  roomName: string,
-  userId: number
 }
 
 @WebSocketGateway(8080, { cors: true })
@@ -90,8 +62,13 @@ export class ChatGateway {
   // Handle a request to join a room
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('requestJoin')
-  async handleEvent(client: AuthenticatedSocket, data: string) {
-    const room = await this.chatService.findRoomByName(data);
+  async handleEvent(client: AuthenticatedSocket, roomName: string) {
+
+    // Manually validate room name
+    if (!roomName || roomName === "")
+      throw new WsException("Bad request");
+
+    const room = await this.chatService.findRoomByName(roomName);
 
     // Store the user in the data property that is always accessible
     client.data.user = client.user;
@@ -208,10 +185,14 @@ export class ChatGateway {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('deleteRoom')
-  async handleDelete(client: AuthenticatedSocket, data: string) {
+  async handleDelete(client: AuthenticatedSocket, roomName: string) {
+
+    // Manually validate room name
+    if (!roomName || roomName === "")
+      throw new WsException("Bad request");
 
     // Find the room we're talking about
-    const room = await this.chatService.findRoomByName(data);
+    const room = await this.chatService.findRoomByName(roomName);
 
     // Ensure the room exists
     if (!room)
@@ -374,7 +355,12 @@ export class ChatGateway {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('requestJoinDm')
   async handleJoinDm(client: AuthenticatedSocket, userName: string) {
-    // Find the user instance in our database
+
+    // Manually validate username
+    if (!userName || userName === "")
+      throw new WsException("Bad request");
+
+      // Find the user instance in our database
     const user = await this.profileService.getUserByName(userName);
 
     // Ensure the user we're talking about exists

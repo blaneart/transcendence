@@ -195,7 +195,7 @@ function App() {
           {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p> }
         </Route>
         <Route path="/users">
-          <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} />
+          {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}
         </Route>
         <Route path="/friends">
           {authToken !== "" && user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}

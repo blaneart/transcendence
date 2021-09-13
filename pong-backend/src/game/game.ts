@@ -1,6 +1,6 @@
 import { globalAgent } from "http";
 import { runInThisContext } from "vm";
-import {Player} from '../app.gateway';
+import {Player} from './game.gateway';
 
 class Vec {
   x: number;

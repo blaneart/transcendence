@@ -5,7 +5,7 @@ import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 var uuid = require('uuid');
-import {Pong, Ball, Paddle} from './game/game';
+import {Pong, Ball, Paddle} from './game';
 // import Ball from './game/game';
 
 export class Player {
@@ -54,14 +54,14 @@ export class Player {
 }
 
 @WebSocketGateway(3002, { cors: true })
-export class AppGateway implements OnGatewayInit {
+export class GameGateway implements OnGatewayInit {
   rooms = {};
 
   @WebSocketServer() 
   server: Server;
   connectedClients = [];
   playersId = {};
-  private logger =  new Logger('AppGateway');
+  private logger =  new Logger('GameGateway');
   handleConnection(client: Socket)
   {
     this.connectedClients = [...this.connectedClients, client.id]

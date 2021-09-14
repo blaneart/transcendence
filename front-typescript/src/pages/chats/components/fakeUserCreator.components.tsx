@@ -1,4 +1,3 @@
-import { setupMaster } from "cluster";
 import React, { useState } from "react";
 import { User } from '../../../App.types';
 
@@ -32,7 +31,7 @@ const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ setAuthToken, setUser
   const submitHandler = (e: any) => {
     e.preventDefault();
     // Make a response to backend
-    const response = fetch(
+    fetch(
       `http://127.0.0.1:3000/fakeUser/${newName}/`,
       {
         method: "POST"

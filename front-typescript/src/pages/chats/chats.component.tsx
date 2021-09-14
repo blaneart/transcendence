@@ -1,7 +1,6 @@
 import { Switch, Route } from "react-router";
 import RoomList from "./components/roomList.component";
 import RoomView from "./components/roomView.component";
-import FakeUserCreator from "./components/fakeUserCreator.components";
 import DirectView from "./direct/directView.component";
 import "./chats.scss";
 

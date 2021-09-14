@@ -101,7 +101,7 @@ const Profile: React.FC<IProfilePageProps> = ({
             loses={(profile_user as User).games - (profile_user as User).wins}
           />
           <h1>{paramName}</h1>
-          {user.name == paramName ? (
+          {user.name === paramName ? (
           <div>
             <div>
               Change name :

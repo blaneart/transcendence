@@ -74,7 +74,7 @@ const UserComponent: React.FC<IUserProps> = ({
   }, [friend, refreshUsers]);
 
   return (
-    id1 != user.id ?
+    id1 !== user.id ?
     <div>
       <Link to={`/users/${user.name}`}>
         <div style={{display: 'inline-block'}}>

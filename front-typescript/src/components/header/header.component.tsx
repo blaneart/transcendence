@@ -10,10 +10,17 @@ import { setupMaster } from 'cluster';
 interface IHeaderProps {
     authToken: string;
     user?: User | null;
+    logoutHandler: Function;
     setUser: Function;
     setAuthToken: Function;
 } 
-async function Click(authToken: string, user: User, setUser: Function, setAuthToken: Function)
+async function Click(
+  authToken: string,
+  user: User,
+  setUser: Function,
+  setAuthToken: Function,
+  logoutHandler: Function
+  )
 {
     let newStatus = user.status == 1 ? 0 : 1;
     const data = {
@@ -28,11 +35,13 @@ async function Click(authToken: string, user: User, setUser: Function, setAuthTo
       },
       body: JSON.stringify(data),
     });
+    logoutHandler();
     setUser(null);
     setAuthToken(null);
 }
 
-const Header: React.FC<IHeaderProps> = ({authToken, user, setUser, setAuthToken}) => {
+
+const Header: React.FC<IHeaderProps> = ({authToken, user, logoutHandler, setUser, setAuthToken}) => {
     return(
     <div className='header'>
         <Link to="/">
@@ -42,7 +51,7 @@ const Header: React.FC<IHeaderProps> = ({authToken, user, setUser, setAuthToken}
         {
             user ? 
             <div className='option-right'>
-            <CustomButton isLogged={1} onClick={() => (Click(authToken, user, setUser, setAuthToken))} avatar_name={user.avatar} realAvatar={user.realAvatar}>SIGN OUT</CustomButton>
+            <CustomButton isLogged={1} onClick={async () => {await Click(authToken, user, setUser, setAuthToken, logoutHandler);}} avatar_name={user.avatar} realAvatar={user.realAvatar}>SIGN OUT</CustomButton>
             </div>
             :
             <div className='option-right'><Login/></div>

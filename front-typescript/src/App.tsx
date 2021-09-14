@@ -50,11 +50,9 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse> {
 
 async function updateStatus(
   setUser: Function,
-  setProfileUser: Function,
-  newStatus: number,
   authToken: string,
 ) {
-
+  let newStatus = 1;
   const data = {
     value: newStatus,
   };
@@ -72,7 +70,6 @@ async function updateStatus(
   const userUpdated = jsonData as User;
 
   setUser(userUpdated);
-  setProfileUser(userUpdated);
 }
 
 // Use a temporary grant and a 2fa code to obtain the permanent JWT
@@ -113,6 +110,7 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
 
   setUser(authResponse.user);
   setAuthToken(authResponse.access_token);
+  updateStatus(setUser, authResponse.access_token);
   // Save user in browser state
   localStorage.setItem("pongUser", JSON.stringify(authResponse.user));
   localStorage.setItem("pongToken", authResponse.access_token);
@@ -130,6 +128,14 @@ async function getMe(authToken: string): Promise<User> {
   //   console.log(data);
   const jsonData = await response.json();
   return jsonData as User;
+}
+
+function logoutHandler()
+{
+  return function () {
+    localStorage.removeItem("pongUser");
+    localStorage.removeItem("pongToken");
+  };
 }
 
 function App() {
@@ -167,7 +173,7 @@ function App() {
  
   return (
     <div className="App">
-      <Header authToken={authToken} user={user} setUser={setUser} setAuthToken={setAuthToken} />
+      <Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} />
       <Switch>
         <Route exact path="/">
           <Menu user={user}/>

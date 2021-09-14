@@ -35,6 +35,19 @@ async function createAchievements() {
     }
 }
 
+async function createGames() {
+  const exists = await db.schema.hasTable('games');
+
+  if (!exists) {
+      await db.schema.createTable('games', function(t) {
+        t.increments('id').primary();
+        t.integer('winner');
+        t.integer('loser');
+        t.integer('loserScore');
+      });
+    }
+}
+
 async function createRoom() {
   const exists = await db.schema.hasTable('room');
     if (!exists) {
@@ -193,6 +206,7 @@ export const db = knex({
   createUsers()
     .then(() => createRoom())
     .then(() => createAchievements())
+    .then(() => createGames())
     .then(() => createParticipants())
     .then(() => createMessage())
     .then(() => createBlockList())

@@ -28,7 +28,6 @@ async function getFriendById(id2: number, authToken: string)
 }
 
 async function addBackFriend(id1: number, id2: number, authToken: string, setBool: Function) {
-
   setBool(true);
   const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
     method: "PUT",
@@ -40,7 +39,6 @@ async function addBackFriend(id1: number, id2: number, authToken: string, setBoo
 }
 
 async function removeFriend(id1: number, id2: number, authToken: string, setBool: Function) {
-
   setBool(false);
     const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
       method: "DELETE",
@@ -92,6 +90,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
       {bool ? <button onClick={(e) => handleUnfriend(id1, friendUser.id, authToken, setBool)}>Unfriend</button> 
       : <button onClick={(e) => handleAddBackFriend(id1, friendUser.id, authToken, setBool)}>Add Back</button>}
       <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
+      {friendUser.status === 0 ? <p>Offline</p> : <p>Online</p>}
     </div>
       : <p>Not Found</p>
   );

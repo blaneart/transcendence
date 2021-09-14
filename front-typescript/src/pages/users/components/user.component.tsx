@@ -4,7 +4,7 @@ import { User } from '../users.types';
 
 interface IUserProps {
   id1: number;
-  friendUser: User;
+  user: User;
   authToken: string;
 }
 
@@ -46,14 +46,14 @@ async function removeFriend(id1: number, id2: number, authToken: string) {
 
 const UserComponent: React.FC<IUserProps> = ({
   id1,
-  friendUser,
+  user,
   authToken,
   }) => {
 
   const [friend, setFriend] = useState<boolean>(false);
 
   const refreshUsers = useCallback(() => {
-    getFriend(id1, friendUser.id, authToken).then(newRelationship => {
+    getFriend(id1, user.id, authToken).then(newRelationship => {
       setFriend(newRelationship);
     });
   }, [authToken]);
@@ -74,22 +74,23 @@ const UserComponent: React.FC<IUserProps> = ({
   }, [friend, refreshUsers]);
 
   return (
+    id1 != user.id ?
     <div>
-      <Link to={`/users/${friendUser.name}`}>
+      <Link to={`/users/${user.name}`}>
         <div style={{display: 'inline-block'}}>
-        {friendUser.name}
+        {user.name}
         <div className='image'
           style={{
-          backgroundImage: (friendUser.realAvatar ? `url(http://127.0.0.1:3000/static/${friendUser.avatar})` : `url(https://source.boringavatars.com/beam/150/${friendUser.avatar})`)
+          backgroundImage: (user.realAvatar ? `url(http://127.0.0.1:3000/static/${user.avatar})` : `url(https://source.boringavatars.com/beam/150/${user.avatar})`)
         }}
         />
         </div>
       </Link>
-      {friend ? (<button onClick={(e) => handleUnfriend(id1, friendUser.id, authToken)}>Unfriend</button>)
-      : <button onClick={(e) => handleBefriend(id1, friendUser.id, authToken)} >Befriend</button>}
-      <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
-      {friendUser.status === 0 ? <p>Offline</p> : <p>Online</p>}
+      {friend ? (<button onClick={(e) => handleUnfriend(id1, user.id, authToken)}>Unfriend</button>)
+      : <button onClick={(e) => handleBefriend(id1, user.id, authToken)} >Befriend</button>}
+      <Link to={`/chats/dms/` + user.name}>{"  "} DM {" "}</Link>
     </div>
+    : <p></p>
   );
 }
 

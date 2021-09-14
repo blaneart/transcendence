@@ -361,7 +361,7 @@ class Offline_Pong {
   {
     if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
       this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
-      this.ball.vel.y = 300 * (Math.random() * 2 - 1);
+      this.ball.vel.y = 100 * (Math.random() * 2 - 1);
       this.ball.vel.len = 400;
 	  this.ball.lastTouch = 0;
     }

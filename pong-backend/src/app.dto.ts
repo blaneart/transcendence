@@ -18,6 +18,12 @@ export class setNameDto {
   value: string
 }
 
+export class setStatusDto {
+  @IsNotEmpty()
+  @IsNumber()
+  value: number
+}
+
 export class setGamesDto {
   @IsNotEmpty()
   @IsNumberString()

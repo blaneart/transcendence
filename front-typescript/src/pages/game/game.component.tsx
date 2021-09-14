@@ -55,7 +55,8 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {
       console.log(socket);
-      socket.emit('joinRoom', user!.name);
+      if (user)
+        socket.emit('joinRoom', user.name);
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })
@@ -124,19 +125,14 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
               let d_pos = pong!.players[id].pos.y - old_pos;
               socket.emit('playerPos', pong!.players[id].pos.y, d_pos);
           });
-          socket.emit('subscribe');
         //   window.addEventListener('keydown', event => {
         //     if (event.code == 'KeyW')
         //       pong.players[id ? 0 : 1].pos.y = pong.players[0].pos.y - 25;
         //     else if (event.code == 'KeyS')
         //       pong.players[id ? 0 : 1].pos.y = pong.players[0].pos.y + 25;
         // });
-      //     canvas.addEventListener('click', event => {
-      //     pong.start();
-      // });
       return () => {
           socket?.emit('quitGame', pong!.players[0].score, pong!.players[1].score)
-          // socket?.disconnect();
           pong!.end();
         }
       }
@@ -153,35 +149,7 @@ useEffect(() => {
 
 
 /* write result to database, bugged as hell; */
-useEffect(() => {
-  async function  updateGameStats(result: string, authToken: string){
-    if (user)
-    {
-      var data = {
-        games: user.games + 1,
-        wins: result === 'won' ? user.wins + 1 : user.wins,
-      }
-      const response = await fetch('http://127.0.0.1:3000/account/setGames', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify(data),
-      });
-      const jsonData = await response.json();
-      const userUpdate = jsonData as User;
-    
-      setUser(userUpdate);
-      localStorage.setItem("pongUser", JSON.stringify(userUpdate));
-    }
-    setIsGameEnded(result);
-    return null;
-  }
-  if (updateStats)
-    updateGameStats('won', authToken);
 
-}, [updateStats])
 
 
   const changeGameState = (user: User, result: string) => {
@@ -205,7 +173,7 @@ useEffect(() => {
         {
           ready ?
         <>
-          <GameHeader playerId = {id} userName={user!.name} enemyName={enemyName}/>
+          <GameHeader playerId = {id} userName={user.name} enemyName={enemyName}/>
         <canvas id="forCanvas" width={800} height={600}></canvas>
         <h1>{gameId}</h1>
         </>

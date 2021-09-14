@@ -39,6 +39,7 @@ export class ProfileService {
       this.achievementService.addAchievement(new_user[0].id, 0);
       // Add the 42 integration achievement
       this.achievementService.addAchievement(new_user[0].id, 1);
+      this.updateUserById(new_user[0].id, {status: 1});
       return new_user[0];
     }
     // Return old user
@@ -84,7 +85,8 @@ export class ProfileService {
       .insert({
         name: newName,
         id42: Math.ceil(Math.random()*-1000), // a negative number to distinguish
-        avatar: newName + ""
+        avatar: newName + "",
+        status: 1
       });
     return response[0];
   }

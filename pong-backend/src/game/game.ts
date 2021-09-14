@@ -1,7 +1,6 @@
 import { globalAgent } from "http";
 import { runInThisContext } from "vm";
 import {Player} from './game.gateway';
-
 class Vec {
   x: number;
   y: number;
@@ -76,15 +75,6 @@ export class Ball extends Rect {
   }
 }
 
-// class Player extends Rect {
-//   score: number;
-//   constructor()
-//   {
-//     super(20,100);
-//     this.score = 9;
-//   }
-// }
-
 
 
 export class Pong {
@@ -116,10 +106,9 @@ export class Pong {
     let pos = this.accelerate(this.ball.pos.x, this.ball.pos.y, this.ball.vel.x, this.ball.vel.y, this.ball.acceleration, dt);
     // this.ball.pos.x = this.ball.pos.x + this.ball.vel.x * (dt);
     // this.ball.pos.y = this.ball.pos.y + this.ball.vel.y * (dt);
-    // console.log(pos);
     if ((this.ball.vel.y > 0) && (this.ball.bottom > this.height))
     {
-      pos.y = this.height;
+      pos.y = this.height - this.ball.size.y;
       pos.dy = -pos.dy;
     }
     else if ((this.ball.vel.y < 0) && (this.ball.top < 0))
@@ -141,25 +130,27 @@ export class Pong {
             break;
           case 'top':
           case 'bottom':
-			pos.y = pt.y;
-			pos.dy = -pos.dy;
-			pos.dx = -pos.dx;
+
+            pos.y = pt.y;
+            pos.dy = -pos.dy;
+
             break;
         }
         if (paddle.dp < 0)
-        	pos.dy = ((paddle.paddle.pos.y  + paddle.paddle.size.y / 2) - (this.ball.pos.y + this.ball.size.y / 2)) * -8;
+        pos.dy = pos.dy * (pos.dy < 0 ? 0.5 : 1.5);
       else if (paddle.dp > 0)
-			pos.dy = ((paddle.paddle.pos.y  + paddle.paddle.size.y / 2) - (this.ball.pos.y + this.ball.size.y / 2)) * -8;
+        pos.dy = pos.dy * (pos.dy > 0 ? 0.5 : 1.5); 
       }
 
-    // console.log(pos);
     this.ball.pos.x = pos.x;
     this.ball.pos.y = pos.y;
     this.ball.vel.x = pos.dx;
     this.ball.vel.y = pos.dy;
     if (this.ball.right < 0)
       this.goal(1);
-    if (this.ball.left > this.width)
+    if (this.ball.left
+       > this.width)
+
       this.goal(0);
     }
 
@@ -178,25 +169,19 @@ export class Pong {
   {
     // this.players[pos].score += 1;
     this.scores[pos] += 1;
-
     this.reset(pos);
   }
   reset(pos: number)
   {
     this.ball.pos.x= 400;
     this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
+    this.ball.vel.y = 
     this.ball.vel.x = pos ? -Math.random() * 200 : Math.random() * 200;
     this.ball.vel.y = pos ? -Math.random() * 100 : Math.random() * 100;
   }
   
   ballIntercept(ball: Ball, rect, nx, ny){
     var pt =null;
-    console.log('(x00,y00', ball.pos.x, ball.pos.y, ')\n x1,y1(', ball.pos.x + nx, ball.pos.y + ny, ')\n w1,z1(',
-        rect.right, 
-        rect.top, 
-        ')\n w2,z2(',
-        rect.right,  
-        rect.bottom)
     if (nx < 0)
     {
       pt = this.intercept(ball.pos.x , ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
@@ -205,9 +190,6 @@ export class Pong {
         rect.right,  
         rect.bottom,
         "right");
-        // console.log('rect: ' , rect.right);
-        if (pt)
-          console.log('return', pt);
     }
     else if (nx > 0)
     {
@@ -217,8 +199,7 @@ export class Pong {
         rect.left   - ball.size.x / 2, 
         rect.bottom + ball.size.x / 2,
         "left");
-        if (pt)
-          console.log('return', pt);
+      
       }
     if (!pt) {
       if (ny < 0) {
@@ -228,8 +209,7 @@ export class Pong {
                                      rect.right  + ball.size.x, 
                                      rect.bottom + ball.size.x,
                                      "bottom");
-          if (pt)
-                                     console.log('return', pt);
+
         }
       else if (ny > 0) {
           pt =this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
@@ -238,8 +218,7 @@ export class Pong {
                                      rect.right  + ball.size.x, 
                                      rect.top    - ball.size.x,
                                      "top");
-          if (pt)
-            console.log('return', pt);
+
     }
   }
   return pt;

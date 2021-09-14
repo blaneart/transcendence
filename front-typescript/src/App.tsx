@@ -18,9 +18,8 @@ import Offline_Game from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
-
-
-const ENDPOINT = "http://127.0.0.1:3002";
+import Watch from "./pages/watch/watch.component";
+const ENDPOINT = "http://127.0.0.1:3003";
 
 
 interface IState {
@@ -47,6 +46,30 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse> {
   //   console.log(data);
   const jsonData = await response.json();
   return jsonData as AuthResponse;
+}
+
+async function updateStatus(
+  setUser: Function,
+  authToken: string,
+) {
+  let newStatus = 1;
+  const data = {
+    value: newStatus,
+  };
+
+  const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  const jsonData = await response.json();
+  const userUpdated = jsonData as User;
+
+  setUser(userUpdated);
 }
 
 // Use a temporary grant and a 2fa code to obtain the permanent JWT
@@ -87,18 +110,10 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
 
   setUser(authResponse.user);
   setAuthToken(authResponse.access_token);
+  updateStatus(setUser, authResponse.access_token);
   // Save user in browser state
   localStorage.setItem("pongUser", JSON.stringify(authResponse.user));
   localStorage.setItem("pongToken", authResponse.access_token);
-}
-
-function logoutHandler(setUser: Function, setAuthToken: Function) {
-  return function () {
-    localStorage.removeItem("pongUser");
-    localStorage.removeItem("pongToken");
-    setUser(null);
-    setAuthToken(null);
-  };
 }
 
 async function getMe(authToken: string): Promise<User> {
@@ -115,39 +130,19 @@ async function getMe(authToken: string): Promise<User> {
   return jsonData as User;
 }
 
-
-
-function receiveMessage(msg: string)
+function logoutHandler()
 {
-  console.log(msg);
+  return function () {
+    localStorage.removeItem("pongUser");
+    localStorage.removeItem("pongToken");
+  };
 }
-
-
 
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
-  const [isSigned, setIsSigned] = useState(false);
-  const [response, setResponse] = useState("");
 
-
- 
-
-  // const socket = (io(ENDPOINT));
-
-  // useEffect(() => {
-    // socket?.on('msgToClient', (msg: string) => {
-      // receiveMessage(msg);
-    // });
-    // socket?.emit("msgToServer", "lel");
-  // }, []);
- // const  sendMessage = (event: any) => {
-    //   console.log('front')
-    //   event.preventDefault();
-    //   socket?.emit("msgToServer", event.target.value );
-    // }
   let history = useHistory();
-   
 
   useEffect(() => {
     
@@ -178,8 +173,7 @@ function App() {
  
   return (
     <div className="App">
-      {/* <input type="text" onChange={ sendMessage } /> */}
-      <Header user={user} logoutHandler={logoutHandler(setUser, setAuthToken)} />
+      <Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} />
       <Switch>
         <Route exact path="/">
           <Menu user={user}/>
@@ -188,6 +182,12 @@ function App() {
           <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
           <Difficulty difficultyLvl={difficulty}/>
         </Route>
+        <Route path="/cheats">
+          <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
+        </Route>
+      </Switch>
+      {authToken !== "" ?
+      <Switch>
         <Route path="/play">
           <Game user={user} setUser={setUser} authToken={authToken} />
         </Route>
@@ -198,17 +198,14 @@ function App() {
           {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}
         </Route>
         <Route path="/friends">
-          {authToken !== "" && user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
+          {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
         </Route>
-        <Route path="/cheats">
-          <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
+        <Route path="/watch">
+          <Watch />
         </Route>
-        {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
-        {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}
       </Switch>
-      {/* We should add this: */}
-      {/* <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> */}
- </div>
+      : <p></p>}
+    </div>
   );
 }
 

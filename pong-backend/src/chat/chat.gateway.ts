@@ -25,6 +25,7 @@ interface User {
   twofa: boolean;
   twofaSecret: string;
   realAvatar: boolean
+  status: number;
 }
 
 // TypeScript needs to know that our auth guards append the user to the socket

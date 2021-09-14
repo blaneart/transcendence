@@ -27,7 +27,11 @@ async function getUsers(authToken: string): Promise<User[]> {
   return jsonData as User[];
 }
 
-const UsersList: React.FC<IUsersListProps> = ({ user_logged, setUser,  authToken }) => {
+const UsersList: React.FC<IUsersListProps> = ({
+  user_logged,
+  setUser,
+  authToken,
+  }) => {
 
   const [users, setUsers] = useState<User[]>([(user_logged as User),]);
 
@@ -46,8 +50,8 @@ const UsersList: React.FC<IUsersListProps> = ({ user_logged, setUser,  authToken
     <div>
       <h2>Users: </h2>
       {users.map((user) =>
-      <div className='.friend' key={user.id}>
-        <UserComponent id1={user_logged.id} friendUser={user} authToken={authToken} />
+      <div className='friend' key={user.id}>
+        <UserComponent id1={user_logged.id} user={user} authToken={authToken} />
       </div>)}
 
     </div>) : <div>Please Log !</div>

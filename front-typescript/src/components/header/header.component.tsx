@@ -13,7 +13,8 @@ interface IHeaderProps {
     logoutHandler: Function;
     setUser: Function;
     setAuthToken: Function;
-} 
+}
+
 async function Click(
   authToken: string,
   user: User,

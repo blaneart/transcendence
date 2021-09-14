@@ -39,3 +39,18 @@ export class fakeUserDto {
   @IsNotEmpty()
   newName: string
 }
+
+
+export class saveGameDto {
+  @IsNotEmpty()
+  @IsNumber()
+  winner: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  loser: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  loserScore: number
+}

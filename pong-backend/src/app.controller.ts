@@ -3,6 +3,7 @@ import {
   Get,
   Request,
   Post,
+  Put,
   Patch,
   UseGuards,
   Body,
@@ -18,8 +19,9 @@ import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
 import { ProfileService } from './profile/profile.service';
 import { AchievementService } from './achievement/achievement.service';
+import { GameService } from './game/game.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto } from './app.dto';
+import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto, saveGameDto } from './app.dto';
 import path from 'path';
 
 const multer = require('multer');
@@ -32,6 +34,7 @@ export class AppController {
     private authService: AuthService,
     private profileService: ProfileService,
     private achievementService: AchievementService,
+    private gameService: GameService,
   ) { }
 
   @Get()
@@ -165,4 +168,5 @@ async createFakeUser(@Param() param: fakeUserDto)
   // Add this user to JWT
   return this.authService.login(newUser);
 }
+
 }

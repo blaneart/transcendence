@@ -56,7 +56,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     useEffect(() => {
       console.log(socket);
       if (user)
-        socket.emit('joinRoom', user.name);
+        socket.emit('joinRoom', user.name, user.id);
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })

@@ -43,14 +43,13 @@ const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficult
     const [restart, setRestart] = useState<Boolean>(false)
 
     useEffect(() => {
-		console.log('in the game.component.tsx file: ', difficultyLvl.number);
         setIsGameEnded('game')
         let canvas = document.getElementById('forCanvas');
         if (canvas)
           canvas.style.opacity = '1';
         if (canvas !== null)
         {
-            var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl);
+            var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl, true, 1);
             canvas.addEventListener('mousemove', event => {
                 pong.players[0].pos.y = event.offsetY - pong.players[0].size.y / 2;
             });

@@ -193,7 +193,6 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
     // If we've been promoted, we instantly get the rights
     socket.on("promoted", (id) => {
-      alert(`promoted ${id}`);
       if (id == userId)
         setAmAdmin(true);
     })

@@ -13,6 +13,7 @@ services:
     build: ../pong-backend/
     ports:
       - "3000:3000"
+      - "8080:8080"
     environment: 
       - API_UID=${API_UID}
       - API_SECRET=${API_SECRET}

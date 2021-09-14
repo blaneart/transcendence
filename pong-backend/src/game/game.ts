@@ -66,7 +66,7 @@ export class Ball extends Rect {
   {
     super(18, 18);
     this.vel = new Vec();
-    this.acceleration = 5;
+    this.acceleration = 50;
   }
   setPosition(x: number, y: number)
   {
@@ -104,8 +104,7 @@ export class Pong {
   {
     
     let pos = this.accelerate(this.ball.pos.x, this.ball.pos.y, this.ball.vel.x, this.ball.vel.y, this.ball.acceleration, dt);
-    // this.ball.pos.x = this.ball.pos.x + this.ball.vel.x * (dt);
-    // this.ball.pos.y = this.ball.pos.y + this.ball.vel.y * (dt);
+
     if ((this.ball.vel.y > 0) && (this.ball.bottom > this.height))
     {
       pos.y = this.height - this.ball.size.y;
@@ -175,9 +174,9 @@ export class Pong {
   {
     this.ball.pos.x= 400;
     this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
-    this.ball.vel.y = 
-    this.ball.vel.x = pos ? -Math.random() * 200 : Math.random() * 200;
-    this.ball.vel.y = pos ? -Math.random() * 100 : Math.random() * 100;
+    // this.ball.vel.y = 
+    this.ball.vel.x = pos ? -Math.random() * 2000 : Math.random() * 2000;
+    this.ball.vel.y = pos ? -Math.random() * 1000 : Math.random() * 1000;
   }
   
   ballIntercept(ball: Ball, rect, nx, ny){

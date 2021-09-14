@@ -56,7 +56,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     useEffect(() => {
       console.log(socket);
       if (user)
-        socket.emit('joinRoom', user.name);
+        socket.emit('joinRoom', user.name, user.id);
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })
@@ -76,6 +76,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
   }, [restart]);
 
 
+
   /* function that starts the game, destroys game when ended */
   useEffect(() => {
     
@@ -84,29 +85,29 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       pong.end();
       setIsGameEnded('game');
     }
-    async function  updateGameStats(result: string, authToken: string){
-      if (user)
-      {
-        var data = {
-          games: user.games + 1,
-          wins: result === 'won' ? user.wins + 1 : user.wins,
-        }
-        const response = await fetch('http://127.0.0.1:3000/account/setGames', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify(data),
-        });
-        const jsonData = await response.json();
-        const userUpdate = jsonData as User;
+    // async function  updateGameStats(result: string, authToken: string){
+    //   if (user)
+    //   {
+    //     var data = {
+    //       games: user.games + 1,
+    //       wins: result === 'won' ? user.wins + 1 : user.wins,
+    //     }
+    //     const response = await fetch('http://127.0.0.1:3000/account/setGames', {
+    //       method: 'PATCH',
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': `Bearer ${authToken}`
+    //       },
+    //       body: JSON.stringify(data),
+    //     });
+    //     const jsonData = await response.json();
+    //     const userUpdate = jsonData as User;
       
-        setUser(userUpdate);
-      }
-      setIsGameEnded(result);
-      return null;
-    }
+    //     setUser(userUpdate);
+    //   }
+    //   setIsGameEnded(result);
+    //   return null;
+    // }
 
     setIsGameEnded('game')
     if (ready)
@@ -116,7 +117,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          pong = new Pong(updateGameStats, canvas, authToken, socket, id);
+          pong = new Pong(setIsGameEnded, canvas, authToken, socket, id);
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {
@@ -149,7 +150,6 @@ useEffect(() => {
 
 
 /* write result to database, bugged as hell; */
-
 
 
   const changeGameState = (user: User, result: string) => {

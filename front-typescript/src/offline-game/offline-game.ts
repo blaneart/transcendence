@@ -4,6 +4,8 @@
 //   y: number
 // }
 
+import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
+
 // interface Vec {
 //   x: number,
 //   y: number
@@ -58,19 +60,33 @@ class Rect {
 
 class Ball extends Rect {
   vel: Vec;
+  lastTouch: number
   constructor()
   {
     super(18,18);
     this.vel = new Vec();
+	this.lastTouch = 0;
   }
+}
+
+class PowerUp extends Rect {
+	type: number;
+
+	constructor () {
+		super(50, 50);
+		this.type = 0
+	}
 }
 
 class Player extends Rect {
   score: number;
   botDifficulty: number;
+  empowered: number;
+
   constructor(difficulty: number)
   {
     super(20,100);
+	this.empowered = 0;
     this.score = 0;
 	this.botDifficulty = difficulty;
   }
@@ -84,9 +100,17 @@ class Offline_Pong {
   ball: Ball;
   animation: number;
   players: Player [];
+  obstacles: Rect [];
   auth: string;
-  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any)
+  curr_powerUp: PowerUp;
+  powerups: boolean;
+  curr_map: number;
+
+  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, powerups: boolean, mapnb: number)
   {
+	  this.curr_map = mapnb;
+	this.powerups = powerups;
+	this.curr_powerUp = new PowerUp();
     this._canvas = <HTMLCanvasElement> canvas;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball();
@@ -99,6 +123,42 @@ class Offline_Pong {
       new Player(-1),
       new Player(difficultyBot.number + 1),
     ]
+	if (this.curr_map === 1)
+	{
+		this.obstacles = [
+			new Rect(50, 50),
+			new Rect(50, 50),
+			new Rect(50, 50),
+			new Rect(50, 50)
+		]
+		this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
+		this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
+		this.obstacles[1].pos.x = this._canvas.width * 2 / 3 - this.obstacles[1].size.x / 2;
+		this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
+		this.obstacles[2].pos.x = this._canvas.width / 3 - this.obstacles[2].size.x / 2;
+		this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
+		this.obstacles[3].pos.x = this._canvas.width *2 / 3 - this.obstacles[3].size.x / 2;
+		this.obstacles[3].pos.y = this._canvas.height * 2 / 3 - this.obstacles[3].size.y / 2;
+	}
+	else if (this.curr_map === 2)
+	{
+		this.obstacles = [
+			new Rect(15, 40),
+			new Rect(15, 80),
+			new Rect(15, 40),
+			new Rect(15, 80)
+		]
+		this.obstacles[0].pos.x = this._canvas.width / 2 - this.obstacles[0].size.x / 2;
+		this.obstacles[0].pos.y = 0;
+		this.obstacles[1].pos.x = this._canvas.width / 2 - this.obstacles[1].size.x / 2;
+		this.obstacles[1].pos.y = this._canvas.height / 4 - this.obstacles[1].size.y / 2;
+		this.obstacles[2].pos.x = this._canvas.width / 2  - this.obstacles[2].size.x / 2;
+		this.obstacles[2].pos.y = this._canvas.height - this.obstacles[2].size.y;
+		this.obstacles[3].pos.x = this._canvas.width / 2 - this.obstacles[3].size.x / 2;
+		this.obstacles[3].pos.y = this._canvas.height * 3 / 4 - this.obstacles[3].size.y / 2;
+	}
+	else
+		this.obstacles = [];
     this.auth = authToken;
     this.players[0].pos.x = 20;
     this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
@@ -138,9 +198,115 @@ class Offline_Pong {
         player.top < ball.bottom && player.bottom > ball.top)
         {
           ball.vel.x = -ball.vel.x;
-          ball.vel.y = ((player.pos.y  + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15;
+		  if (player.botDifficulty < 0)
+			ball.pos.x = player.pos.x + player.size.x;
+		  else
+			ball.pos.x = player.pos.x - ball.size.x;
+          ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 / player.size.y;
           ball.vel.len *= 1.05;
+		  if (player.empowered === 2 || player.empowered === 4)
+		  {
+			ball.vel.len *= 2.5;
+			if (player.empowered === 4)
+				player.empowered = 1;
+			else
+				player.empowered = 0;
+		  }
+		  if (player.pos.x < this._canvas.width / 2)
+			this.ball.lastTouch = 1;
+		  else
+			this.ball.lastTouch = 2;
         }
+  }
+
+  collideObstacles(obstacle: Rect, ball: Ball)
+  {
+	let vert = 0
+	let left = ball.vel.x > 0 ? -1 : 1;
+    if (obstacle.left < ball.right && obstacle.right > ball.left &&
+        obstacle.top < ball.bottom && obstacle.bottom > ball.top)
+        {
+			if (ball.vel.y < 0)
+			{
+				if (left >= 0)
+				{
+					if (Math.abs(ball.vel.x) > Math.abs(ball.vel.y))
+					{
+						ball.pos.x = obstacle.pos.x + obstacle.size.x;
+						vert = -1;
+					}
+					else
+					{
+						ball.pos.y = obstacle.pos.y + obstacle.size.y;
+						vert = 1;
+					}
+				}
+				else
+				{
+					if (Math.abs(ball.vel.x) > Math.abs(ball.vel.y))
+					{
+						ball.pos.x = obstacle.pos.x - ball.size.x;
+						vert = -1;
+
+					}
+					else
+					{
+						ball.pos.y = obstacle.pos.y + obstacle.size.y;
+						vert = 1;
+
+					}
+				}
+			}
+			else
+			{
+				if (left >= 0)
+				{
+					if (Math.abs(ball.vel.x) > Math.abs(ball.vel.y))
+					{
+						ball.pos.x = obstacle.pos.x + obstacle.size.x;
+						vert = -1;
+
+					}
+					else
+					{
+						ball.pos.y = obstacle.pos.y - ball.size.y;
+						vert = 1;
+
+					}
+				}
+				else
+				{
+					if (Math.abs(ball.vel.x) > Math.abs(ball.vel.y))
+					{
+						ball.pos.x = obstacle.pos.x - ball.size.x;
+						vert = -1;
+
+					}
+					else
+					{
+						ball.pos.y = obstacle.pos.y - ball.size.y;
+						vert = 1;
+					}
+				}
+			}
+			ball.vel.y = (((obstacle.pos.y + obstacle.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 30 / obstacle.size.y;
+			if (vert === -1)
+        		ball.vel.x = -ball.vel.x;
+		}
+  }
+
+  touched(rect: PowerUp, ball: Ball)
+  {
+	if (rect.left < ball.right && rect.right > ball.left &&
+        rect.top < ball.bottom && rect.bottom > ball.top && ball.lastTouch !== 0)
+	{
+		if (this.players[ball.lastTouch - 1].empowered === 1 && rect.type !== 1)
+			this.players[ball.lastTouch - 1].empowered += rect.type + 1;
+		else
+			this.players[ball.lastTouch - 1].empowered = rect.type;
+		rect.type = 0;
+		this.ball.lastTouch = 0;
+	}
   }
 
   end()
@@ -155,12 +321,17 @@ class Offline_Pong {
 
   reset()
   {
+	this.ball.lastTouch = 0;
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
     this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
 	this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
 	this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
+	this.players[1].size.y = 100;
+	this.players[0].size.y = 100;
+	this.players[0].empowered = 0;
+	this.players[1].empowered = 0;
   }
 
   isGameEnded() : boolean
@@ -168,12 +339,31 @@ class Offline_Pong {
     return (this.players[0].score >= 10 || this.players[1].score >= 10)
   }
 
+  poweringUp(player: Player)
+  {
+	if (player.size.y > 100)
+	{
+		player.size.y -= 0.3;
+		if (player.size.y < 100)
+			player.size.y = 100;
+	}
+	if (player.empowered === 3 || player.empowered === 5)
+	{
+		player.size.y = 300;
+		if (player.empowered === 5)
+			player.empowered = 1;
+		else
+			player.empowered = 0;
+	}
+  }
+
   start()
   {
     if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
       this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
-      this.ball.vel.y = 300 * (Math.random() * 2  -1);
+      this.ball.vel.y = 100 * (Math.random() * 2 - 1);
       this.ball.vel.len = 400;
+	  this.ball.lastTouch = 0;
     }
   }
   draw()
@@ -191,6 +381,9 @@ class Offline_Pong {
       this._context.stroke();
       this.players.forEach(player => this.drawRect(player));
       this.players.forEach((player, index) => this.drawScore(player.score.toString(), index));
+	  this.obstacles.forEach(obstacles => this.drawObstacles(obstacles));
+	  if (this.curr_powerUp.type !== 0)
+		this.drawPowerUp(this.curr_powerUp);
       if (!this.isGameEnded())
       {
         this._context.fillStyle = 'white';
@@ -208,24 +401,62 @@ class Offline_Pong {
       this._context.fillText(scores, align * (index + 1), 100);
     }
   }
-  drawRect(rect: Rect)
+  drawRect(rect: Player)
   {
     if (this._context !== null)
-    {
-      this._context.fillStyle = "white";
+	{
+		if (rect.empowered === 2 || rect.empowered === 4)
+			this._context.fillStyle = "red";
+		else if (rect.empowered === 1)
+			this._context.fillStyle = "blue";
+		else if (rect.size.y > 100)
+			this._context.fillStyle = "green";
+		else
+			this._context.fillStyle = "white";
       this._context.fillRect(rect.pos.x, rect.pos.y, 
                             rect.size.x, rect.size.y);
       }
+  }
 
+  drawObstacles(rect: Rect)
+  {
+	  if (this._context !== null)
+	  {
+		this._context.fillStyle = "white";
+		this._context.fillRect(rect.pos.x, rect.pos.y, 
+			rect.size.x, rect.size.y);
+	  }
+  }
+  drawPowerUp(powerUp: PowerUp)
+  {
+	  if (this._context !== null)
+	  {
+		  if (powerUp.type === 3)
+		  	this._context.fillStyle = "green";
+		  else if (powerUp.type === 2)
+		  	this._context.fillStyle = "red";
+		  else
+		  	this._context.fillStyle = "blue";
+
+		  this._context.fillRect(powerUp.pos.x, powerUp.pos.y, 
+			powerUp.size.x, powerUp.size.y);
+	  }
   }
   update(dt: number, difficulty: any) {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
 
+	if (this.powerups === true && this.ball.vel.x !== 0 && this.curr_powerUp.type === 0 && Math.floor(Math.random() * 100) === 50)
+	{
+		this.curr_powerUp.pos.x = this._canvas.width / 2 - this.curr_powerUp.size.x / 2;
+		this.curr_powerUp.pos.y = Math.random() * (this._canvas.height - this.curr_powerUp.size.y / 2);
+		this.curr_powerUp.type = Math.floor(Math.random() * 3) + 1;
+	}
     if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
-      this.players[playerId].score++;
+	  if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
+      	this.players[playerId].score++;
       this.reset();
     }
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
@@ -236,7 +467,10 @@ class Offline_Pong {
 	  else
 		this.ball.pos.y = this._canvas.height - this.ball.size.y;
     }
+	this.touched(this.curr_powerUp, this.ball);
     this.players.forEach(player => this.collide(player, this.ball));
+    this.obstacles.forEach(obstacles => this.collideObstacles(obstacles, this.ball));
+    this.players.forEach(player => this.poweringUp(player));
 	this.changedifficulty(difficulty);
 	if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
 		this.players[1].pos.y += this.players[1].botDifficulty;

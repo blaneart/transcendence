@@ -138,12 +138,12 @@ class Pong {
 
   start()
   {
-    this.socket.emit('subscribe');
 
     this.socket.on('changeScore', (message: number[]) => {
       this.players[0].score = message[0];
       this.players[1].score = message[1];
-  })
+      this.draw();
+    })
     this.socket.emit('launchBall');
     this.socket.on('getBallSpeed', (message: Vec) => {
         console.log(message);
@@ -155,10 +155,11 @@ class Pong {
         this._canvas.style.opacity = '0.5';
       }
       if (this.players[this.id].score >= 10)
-        this.fn('won', this.auth);
+        this.fn('won');
       else
-        this.fn('lost', this.auth);
+        this.fn('lost');
       this.socket.emit('leaveRoom');
+      this.end();
     })
     this.socket.on('getPosition', (position: number) => {
       this.players[this.enemy_id].pos.y = position;
@@ -168,24 +169,20 @@ class Pong {
     })
 
 
-    if (this.game_ended)
-    {
-        if (this.players[this.id].score >= 10)
-          this.fn('won', this.auth);
-        else
-          this.fn('lost', this.auth);
-        this.socket.emit('leaveRoom');
-        // this.end();
-        this.game_ended = true;
+    // if (this.game_ended)
+    // {
+    //     if (this.players[this.id].score >= 10)
+    //       this.fn('won', this.auth);
+    //     else
+    //       this.fn('lost', this.auth);
+    //     this.socket.emit('leaveRoom');
+    //     // this.end();
+    //     this.game_ended = true;
 
-    }
+    // }
 
-    if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
-
-
-
-
-  }
+    // if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
+  // }
 
   }
   draw()

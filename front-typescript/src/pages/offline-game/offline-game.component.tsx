@@ -15,6 +15,7 @@ interface User {
   twofa: boolean;
   twofaSecret: string;
   realAvatar: boolean
+  status: number;
 }
 
 

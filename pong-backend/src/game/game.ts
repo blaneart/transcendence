@@ -130,8 +130,10 @@ export class Pong {
             break;
           case 'top':
           case 'bottom':
+
             pos.y = pt.y;
             pos.dy = -pos.dy;
+
             break;
         }
         if (paddle.dp < 0)
@@ -148,6 +150,7 @@ export class Pong {
       this.goal(1);
     if (this.ball.left
        > this.width)
+
       this.goal(0);
     }
 
@@ -174,6 +177,7 @@ export class Pong {
     this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
     this.ball.vel.y = 
     this.ball.vel.x = pos ? -Math.random() * 200 : Math.random() * 200;
+    this.ball.vel.y = pos ? -Math.random() * 100 : Math.random() * 100;
   }
   
   ballIntercept(ball: Ball, rect, nx, ny){

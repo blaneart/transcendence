@@ -1,3 +1,5 @@
+import { NumberLiteralType } from "typescript";
+
 export interface User {
   id: number;
   name: string;
@@ -7,5 +9,6 @@ export interface User {
   wins: number;
   twofa: boolean;
   twofaSecret: string;
-  realAvatar: boolean
+  realAvatar: boolean;
+  status: number;
 }

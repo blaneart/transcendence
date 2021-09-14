@@ -154,8 +154,17 @@ class Offline_Pong {
         player.top < ball.bottom && player.bottom > ball.top)
         {
           ball.vel.x = -ball.vel.x;
+		  if (player.botDifficulty < 0)
+			ball.pos.x = player.pos.x + player.size.x;
+		  else
+			ball.pos.x = player.pos.x - ball.size.x;
           ball.vel.y = (((player.pos.y  + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 / player.size.y;
           ball.vel.len *= 1.05;
+		  if (player.empowered === 2)
+		  {
+			ball.vel.len *= 2.5;
+			player.empowered = 0;
+		  }
 		  if (player.pos.x < this._canvas.width / 2)
 			this.ball.lastTouch = 1;
 		  else
@@ -166,10 +175,9 @@ class Offline_Pong {
   touched(rect: PowerUp, ball: Ball)
   {
 	if (rect.left < ball.right && rect.right > ball.left &&
-        rect.top < ball.bottom && rect.bottom > ball.top)
+        rect.top < ball.bottom && rect.bottom > ball.top && ball.lastTouch !== 0)
 	{
-		if (ball.lastTouch !== 0)
-			this.players[ball.lastTouch - 1].empowered = rect.type;
+		this.players[ball.lastTouch - 1].empowered = rect.type;
 		rect.type = 0;
 		this.ball.lastTouch = 0;
 	}
@@ -212,14 +220,11 @@ class Offline_Pong {
 		if (player.size.y < 100)
 			player.size.y = 100;
 	}
-	switch (player.empowered)
+	if (player.empowered === 3)
 	{
-		case 1:
-		case 2:
-		case 3:
-			player.size.y = 300;
+		player.size.y = 300;
+		player.empowered = 0;
 	}
-	player.empowered = 0;
   }
 
   start()
@@ -268,9 +273,13 @@ class Offline_Pong {
   drawRect(rect: Player)
   {
     if (this._context !== null)
-    {
-		if (rect.size.y > 100)
-      		this._context.fillStyle = "green";
+	{
+		if (rect.empowered === 2)
+			this._context.fillStyle = "red";
+		else if (rect.empowered === 1)
+			this._context.fillStyle = "blue";
+		else if (rect.size.y > 100)
+			this._context.fillStyle = "green";
 		else
 			this._context.fillStyle = "white";
       this._context.fillRect(rect.pos.x, rect.pos.y, 
@@ -306,7 +315,8 @@ class Offline_Pong {
     if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
     {
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
-      this.players[playerId].score++;
+	  if (this.players[playerId ? 0 : 1].empowered !== 1)
+      	this.players[playerId].score++;
       this.reset();
     }
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)

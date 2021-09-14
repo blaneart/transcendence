@@ -89,6 +89,7 @@ class Pong {
   id: number;
   game_ended: boolean;
   fn: Function;
+  enemy_id: number;
   constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number)
   {
     this._canvas = <HTMLCanvasElement> canvas;
@@ -113,7 +114,7 @@ class Pong {
     this.socket = socket;
     let lastTime: number;
     this.id = id;
-
+    this.enemy_id = id ? 0 : 1;
 
     const callback = (millis: number) => {
 
@@ -127,79 +128,65 @@ class Pong {
     this.start();
     callback(0);  
   }
-  collide(player: Player, ball: Ball)
-  {
-    if (player.left < ball.right && player.right > ball.left &&
-        player.top < ball.bottom && player.bottom > ball.top)
-        {
-          ball.vel.x = -ball.vel.x;
-          ball.vel.y += 300 * (1 - .5); 
-          if (ball.vel.len < 500)
-            ball.vel.len *= 1.05;
-        }
-  }
+
   end()
   {
     cancelAnimationFrame(this.animation);
   }
 
 
-  reset(id: number)
-  {
-    this.ball.pos.x = this._canvas.width / 2;
-    this.ball.pos.y = this._canvas.height / 2;
-    this.ball.vel.x = 0;
-    this.ball.vel.y = 0;
-    this.socket.emit('scored', id);
-    this.start()
-
-  }
-
-
-  isGameEnded() : boolean
-  {
-    return (this.players[0].score >= 10 || this.players[1].score >= 10)
-  }
 
   start()
   {
-    if (this.game_ended || this.isGameEnded())
+    this.socket.emit('subscribe');
+
+    this.socket.on('changeScore', (message: number[]) => {
+      this.players[0].score = message[0];
+      this.players[1].score = message[1];
+  })
+    this.socket.emit('launchBall');
+    this.socket.on('getBallSpeed', (message: Vec) => {
+        console.log(message);
+        this.ball.pos = message;
+    })
+    this.socket.on('endGame', () => {
+      if (this._context !== null)
+      {
+        this._canvas.style.opacity = '0.5';
+      }
+      if (this.players[this.id].score >= 10)
+        this.fn('won', this.auth);
+      else
+        this.fn('lost', this.auth);
+      this.socket.emit('leaveRoom');
+    })
+    this.socket.on('getPosition', (position: number) => {
+      this.players[this.enemy_id].pos.y = position;
+    })
+    this.socket.on('getBallPosition', (position: Vec) => {
+      this.ball.pos = position;
+    })
+
+
+    if (this.game_ended)
     {
-        
-        if (this.players[this.id].score >= 10 || this.game_ended)
+        if (this.players[this.id].score >= 10)
           this.fn('won', this.auth);
         else
           this.fn('lost', this.auth);
         this.socket.emit('leaveRoom');
         // this.end();
         this.game_ended = true;
-        if (this._context !== null)
-        {
-          this._canvas.style.opacity = '0.5';
-        }
+
     }
-    this.socket.on('won', message => {
-      this.game_ended = true;
-      this.start();
-    })
+
     if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
 
 
-      this.socket.emit('launchBall');
-      this.socket.on('getBallSpeed', (message: Vec) => {
-          console.log(message);
-          this.ball.pos = message;
-      })
-      this.socket.on('changeScore', (message: number[]) => {
-        this.players[0].score = message[0];
-        this.players[1].score = message[1];
-    })
+
+
   }
-    // if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
-    //   this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
-    //   this.ball.vel.y = 300 * (Math.random() * 2  -1);
-    //   this.ball.vel.len = 400;
-    // }
+
   }
   draw()
   {
@@ -217,14 +204,11 @@ class Pong {
       this._context.stroke();
       this.players.forEach(player => this.drawRect(player));
       this.players.forEach((player, index) => this.drawScore(player.score.toString(), index));
-      if (!this.isGameEnded())
-      {
-        this._context.fillStyle = 'white';
-        this._context.fillRect(this.ball.pos.x, this.ball.pos.y, this.ball.size.x, this.ball.size.y);
-      }
+      this._context.fillStyle = 'white';
+      this._context.fillRect(this.ball.pos.x, this.ball.pos.y, this.ball.size.x, this.ball.size.y);
     }
   }
-
+  
   drawScore(scores: string, index: number)
   {
     const align = this._canvas.width / 3;
@@ -235,6 +219,7 @@ class Pong {
       this._context.fillText(scores, align * (index + 1), 100);
     }
   }
+
   drawRect(rect: Rect)
   {
     if (this._context !== null)
@@ -243,42 +228,9 @@ class Pong {
       this._context.fillRect(rect.pos.x, rect.pos.y, 
                             rect.size.x, rect.size.y);
       }
-
   }
   update(dt: number) {
-    this.socket.on('getPosition', (message: number) => {
-      let playerId = this.id ? 0 : 1;
-      this.players[playerId].pos.y = message;
-    })
-    this.socket.on('getBallPosition', (msg: Vec) => {
-      // console.log(message);
-      this.ball.pos.x = msg.x;
-      this.ball.pos.y = msg.y;
-    })
-    
-    // this.ball.pos.x += this.ball.vel.x * dt;
-    // this.ball.pos.y += this.ball.vel.y * dt;
-    this.socket.emit('msgToServer', this.players[this.id].pos.y);
-    if (this.game_ended && (this.ball.right <= 0 || this.ball.left >= this._canvas.width))
-    {
-      this.ball.vel.x = -this.ball.vel.x;
-    }
-    else if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
-    {
-      let playerId = this.ball.vel.x < 0 ? 1 : 0;
-      // this.players[playerId].score++;
-      this.reset(playerId);
-    }
-    if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
-	{
-      this.ball.vel.y = -this.ball.vel.y;
-	  if (this.ball.top < 0)
-		this.ball.pos.y = 0;
-	  else
-		this.ball.pos.y = this._canvas.height - this.ball.size.y;
-    } 
-    this.players.forEach(player => this.collide(player, this.ball));
-    this.draw(); 
+    this.draw();
   }
 }
 

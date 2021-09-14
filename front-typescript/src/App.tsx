@@ -18,7 +18,7 @@ import Offline_Game from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
-
+import Watch from "./pages/watch/watch.component";
 
 const ENDPOINT = "http://127.0.0.1:3002";
 
@@ -202,6 +202,9 @@ function App() {
         </Route>
         <Route path="/cheats">
           <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
+        </Route>
+        <Route path="/watch">
+          <Watch />
         </Route>
         {/* <Route path='/signin'><SignInRegister loadUser={this.loadUser} user={this.state.user}/></Route> */}
         {/* <Route path='/sign-in' component={SignInAndSignUpPage} /> */}

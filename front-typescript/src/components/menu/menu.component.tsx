@@ -39,6 +39,11 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
             id: 2
         },
         {
+            title: "WATCH",
+            linkUrl: 'watch',
+            id: 9
+        },
+        {
             title: "SETTINGS",
             linkUrl: '',
             id: 3

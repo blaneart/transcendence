@@ -4,21 +4,26 @@ import { time } from 'console';
 import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
+import { GameService } from './game.service';
 var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
+import fetch from 'node-fetch'
+
 // import Ball from './game/game';
 
 export class Player {
   name: string;
+  userId: number;
   id: number;
   paddle: Paddle;
   socketId: string;
   position: number;
   dp: number;
-  constructor(name: string, id: number, socket: string, pos: number)
+  constructor(name: string, userId: number, id: number, socket: string, pos: number)
   {
     this.paddle = new Paddle();
     this.name = name;
+    this.userId = userId;
     this.id = id;
     this.socketId= socket;
     this.paddle.pos.y = pos;
@@ -29,6 +34,11 @@ export class Player {
   get Name()
   {
     return this.name;
+  }
+
+  get UserId()
+  {
+    return this.userId;
   }
 
   get SocketID()
@@ -56,6 +66,7 @@ export class Player {
 @WebSocketGateway(3002, { cors: true })
 export class GameGateway implements OnGatewayInit {
   rooms = {};
+  constructor(private readonly gameService: GameService){}
 
   @WebSocketServer() 
   server: Server;
@@ -83,7 +94,7 @@ export class GameGateway implements OnGatewayInit {
     );
   }
 
-  getWaitingRoom = (socket: Socket, userName: string) =>
+  getWaitingRoom = (socket: Socket, userName: string, userId: number) =>
   {
     let playerId;
     let ready = false;
@@ -103,7 +114,7 @@ export class GameGateway implements OnGatewayInit {
           scores: [0,0],
           ball: new Ball(),
         }
-        this.rooms[roomName].players[playerId] = new Player(userName, playerId, socket.id, 100)
+        this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, socket.id, 100);
     }
     
     /* or assigns player to a room with one player */
@@ -111,10 +122,10 @@ export class GameGateway implements OnGatewayInit {
     {
       ready = true;
       if (!this.rooms[roomName].players[0])
-        playerId  = 0;
+        playerId = 0;
       else
         playerId = 1;
-      this.rooms[roomName].players[playerId] = new Player(userName, playerId, socket.id, 100)
+      this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, socket.id, 100)
       this.rooms[roomName].ready = true;
     }
 
@@ -151,8 +162,6 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('subscribe')
   pushBall(client: Socket)
   {
-
-
     const callback = (dt: number, pong: Pong) => {
       if (!this.rooms[roomName])
         clearInterval(interval)
@@ -160,8 +169,26 @@ export class GameGateway implements OnGatewayInit {
         pong.update(dt /1000, this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
       else 
         pong.update(dt /1000, this.rooms[roomName].players[1], this.rooms[roomName].players[0]);
-      if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
+        if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
       {
+        console.log('end of the game');
+        if (this.rooms[roomName].scores[0] >= 10)
+        {
+           console.log('winner 0');
+            this.gameService.saveGame(
+              this.rooms[roomName].players[1].userId,
+              this.rooms[roomName].players[0].userId,
+              this.rooms[roomName].scores[0]);
+        }
+        else
+        {
+          console.log('winner 1');
+            this.gameService.saveGame(
+            this.rooms[roomName].players[1].userId,
+            this.rooms[roomName].players[0].userId,
+            this.rooms[roomName].scores[0]
+            );
+        }
         this.server.to(roomName).emit('endGame');
         clearInterval(interval);
       }
@@ -255,9 +282,9 @@ export class GameGateway implements OnGatewayInit {
 
 
   @SubscribeMessage('joinRoom')
-  createRoom(socket: Socket, userName: string) {
+  createRoom(socket: Socket, userName: string, userId: number) {
     console.log('joinRoom');
-    this.getWaitingRoom(socket, userName);
+    this.getWaitingRoom(socket, userName, userId);
   }
   
   @SubscribeMessage('getListOfRooms')

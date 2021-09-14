@@ -18,8 +18,9 @@ import Offline_Game from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
-
+import Watch from "./pages/watch/watch.component";
 const ENDPOINT = "http://127.0.0.1:3003";
+
 
 interface IState {
   user: User | null;
@@ -192,6 +193,9 @@ function App() {
         </Route>
         <Route path="/friends">
           {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
+        </Route>
+        <Route path="/watch">
+          <Watch />
         </Route>
       </Switch>
       : <p></p>}

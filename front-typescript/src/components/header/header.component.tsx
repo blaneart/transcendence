@@ -15,7 +15,7 @@ interface IHeaderProps {
 } 
 async function Click(authToken: string, user: User, setUser: Function, setAuthToken: Function)
 {
-    let newStatus = !user.status;
+    let newStatus = user.status == 1 ? 0 : 1;
     const data = {
       value: newStatus,
     };

@@ -50,8 +50,8 @@ const UsersList: React.FC<IUsersListProps> = ({
     <div>
       <h2>Users: </h2>
       {users.map((user) =>
-      <div className='.friend' key={user.id}>
-        <UserComponent id1={user_logged.id} friendUser={user} authToken={authToken} />
+      <div className='friend' key={user.id}>
+        <UserComponent id1={user_logged.id} user={user} authToken={authToken} />
       </div>)}
 
     </div>) : <div>Please Log !</div>

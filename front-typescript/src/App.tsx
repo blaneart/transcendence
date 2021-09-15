@@ -16,6 +16,7 @@ import { User } from './App.types';
 import Offline_Game from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
+import Map from "./components/maps-chooser/maps-chooser.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
 
@@ -169,7 +170,7 @@ function App() {
 
   
   let difficulty = {number: 4};
-  
+  var map = {map: 0, powerup: false};
 
  
   return (
@@ -180,7 +181,10 @@ function App() {
           <Menu user={user}/>
         </Route>
         <Route path="/playbots">
-          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+          <Map history={history} map={map}/>
+        </Route>
+        <Route path="/offline-game">
+          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty} map={map}/>
           <Difficulty difficultyLvl={difficulty}/>
         </Route>
         <Route path="/cheats">

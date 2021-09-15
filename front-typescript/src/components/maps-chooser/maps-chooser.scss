@@ -1,0 +1,29 @@
+.square {
+	background: #fff;
+	border: 1px solid #999;
+	float: left;
+	font-size: 24px;
+	font-weight: bold;
+	line-height: 34px;
+	height: 80px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: auto;
+	padding: 0;
+	text-align: center;
+	width: 220px;
+  }
+
+.board-row:after {
+	clear: both;
+	content: "";
+	display:table;
+}
+
+.game-board {
+	display: inline-block;
+}
+
+.map-item {
+	text-align: center;
+}

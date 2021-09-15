@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { User } from "../../../App.types";
+import UserAvatar from "../../users/components/UserAvatar.component";
 
 import { Direct } from "../chats.types";
 import DirectLink from "./directLink.component";
@@ -87,7 +88,7 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
   }
 
   return (<div>
-    {directs.map((direct) => <DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct} />)}
+    {directs.map((direct) =><div><DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/></div>)}
     <h5 className="text-xl mb-2 mt-4">Start a direct conversation with:</h5>
     <form className="" onSubmit={handleSubmit}>
       <select onChange={handleChange} defaultValue="DEFAULT" required>

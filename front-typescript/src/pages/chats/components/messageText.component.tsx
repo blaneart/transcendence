@@ -1,4 +1,3 @@
-import Avatar from "boring-avatars";
 import React from "react";
 import { MessageType } from "../chats.types";
 import MessageAvatar from "./messageAvatar.component";

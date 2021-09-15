@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Switch,
   Route,
@@ -12,15 +12,15 @@ import Users from "./pages/users/users.component";
 import Friends from "./pages/friends/friends.component";
 
 import Chats from "./pages/chats/chats.component";
-import { io, Socket } from 'socket.io-client';
 import { User } from './App.types';
-import Offline_Game from "./pages/offline-game/offline-game.component";
+import OfflineGame from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
 const ENDPOINT = "http://127.0.0.1:3003";
+
 
 
 interface IState {
@@ -144,9 +144,12 @@ function App() {
   const [authToken, setAuthToken] = useState("");
 
   let history = useHistory();
+  const { search } = useLocation();
+  
 
   useEffect(() => {
     
+    var searchParams: URLSearchParams = new URLSearchParams(search);
     const localStoragePongToken: string | null = localStorage.getItem(
       "pongToken"
     );
@@ -165,11 +168,11 @@ function App() {
         history.replace("/");
       }
     }
-  }, []);
+  }, [authToken, history, user, search]);
 
-  const { search } = useLocation();
+  
   let difficulty = {number: 4};
-  var searchParams: URLSearchParams = new URLSearchParams(search);
+  
 
  
   return (
@@ -180,7 +183,7 @@ function App() {
           <Menu user={user}/>
         </Route>
         <Route path="/playbots">
-          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+          <OfflineGame user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
           <Difficulty difficultyLvl={difficulty}/>
         </Route>
         <Route path="/cheats">
@@ -206,7 +209,7 @@ function App() {
         </Route>
         <Route
         exact
-        path="/watch/:id"
+        path="/watch/:room"
         component={Room}/>
 
       </Switch>

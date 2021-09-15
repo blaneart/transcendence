@@ -24,7 +24,7 @@ async function getFriend(id1: number, id2: number, authToken: string) {
 
 async function addFriend(id1: number, id2: number, authToken: string) {
 
-    const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+    await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -35,7 +35,7 @@ async function addFriend(id1: number, id2: number, authToken: string) {
 
 async function removeFriend(id1: number, id2: number, authToken: string) {
     
-    const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+    await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -56,7 +56,7 @@ const UserComponent: React.FC<IUserProps> = ({
     getFriend(id1, user.id, authToken).then(newRelationship => {
       setFriend(newRelationship);
     });
-  }, [authToken]);
+  }, [authToken, id1, user.id]);
 
   const handleBefriend = async (id1: number, id2: number, authToken: string) => {
     await addFriend(id1, id2, authToken);
@@ -74,7 +74,7 @@ const UserComponent: React.FC<IUserProps> = ({
   }, [friend, refreshUsers]);
 
   return (
-    id1 != user.id ?
+    id1 !== user.id ?
     <div>
       <Link to={`/users/${user.name}`}>
         <div style={{display: 'inline-block'}}>

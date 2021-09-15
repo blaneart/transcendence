@@ -22,7 +22,7 @@ interface BanRequest {
 
 function canIBan(userId: number, room: Room, amAdmin: boolean, message: MessageType): boolean
 {
-  if ((amAdmin || userId === room.ownerID) && message.senderID !== userId && message.senderID != room.ownerID)
+  if ((amAdmin || userId === room.ownerID) && message.senderID !== userId && message.senderID !== room.ownerID)
   {
     return true;
   }
@@ -34,7 +34,7 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
   // Block a user
   const handleBlock = async () => {
     // Send a response to the backend
-    const response = await fetch(
+    await fetch(
       `http://127.0.0.1:3000/chat/block/${message.senderID}/`,
       {
         method: "PUT",

@@ -83,7 +83,7 @@ const Profile: React.FC<IProfilePageProps> = ({
     getUserByName(authToken, (paramName as string)).then(user_ => {
       setProfileUser(user_);
     });
-  }, [authToken]);
+  }, [authToken, paramName]);
 
   useEffect(() => {
     // On setup, we update the users
@@ -101,7 +101,7 @@ const Profile: React.FC<IProfilePageProps> = ({
             loses={(profile_user as User).games - (profile_user as User).wins}
           />
           <h1>{paramName}</h1>
-          {user.name == paramName ? (
+          {user.name === paramName ? (
           <div>
             <div>
               Change name :
@@ -117,7 +117,7 @@ const Profile: React.FC<IProfilePageProps> = ({
               <p className="twofa-text">Save this qr-code in your auth app: </p>
               <div className="twofa-code">
                 <img
-                  src={`https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/Transcendence:${user.name}%3Fsecret=${user.twofaSecret}%26issuer=Transcendence`}
+                  alt='twofa-img' src={`https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/Transcendence:${user.name}%3Fsecret=${user.twofaSecret}%26issuer=Transcendence`}
                 ></img>
               </div>
               <div className="twofa-secret">

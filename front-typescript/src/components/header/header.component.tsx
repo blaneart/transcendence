@@ -5,7 +5,6 @@ import Login from '../login/login.component';
 import CustomButton from '../custom-button/custom-button.component';
 import './header.styles.scss';
 import { User } from "../../App.types";
-import { setupMaster } from 'cluster';
 
 interface IHeaderProps {
     authToken: string;
@@ -23,12 +22,12 @@ async function Click(
   logoutHandler: Function
   )
 {
-    let newStatus = user.status == 1 ? 0 : 1;
+    let newStatus = user.status === 1 ? 0 : 1;
     const data = {
       value: newStatus,
     };
 
-    const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
+    await fetch("http://127.0.0.1:3000/account/setStatus", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +45,7 @@ const Header: React.FC<IHeaderProps> = ({authToken, user, logoutHandler, setUser
     return(
     <div className='header'>
         <Link to="/">
-            <img src={logo} className='logo' />
+            <img src={logo} alt='logo' className='logo' />
         </Link>
         <div className='options'>
         {

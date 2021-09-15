@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import CreateRoom from './createRoom.component';
 import './roomList.styles.scss';
-import { Room, Direct } from '../chats.types';
+import { Room } from '../chats.types';
 import RoomLink from "./roomLink.component";
 import DirectList from "../direct/directList.component";
 
@@ -30,7 +30,6 @@ async function getRooms(authToken: string): Promise<Room[]> {
 const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
 
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [directs, setDirects] = useState<Direct[]>([]);
 
   // useCallback to prevent infinite state updates
   const refreshRooms = useCallback(() => {
@@ -44,7 +43,7 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   useEffect(() => {
     // On setup, we update the rooms
     refreshRooms();
-  }, []); // We don't really reupdate.
+  }, [refreshRooms]); // We don't really reupdate.
 
   return (
     <div className="">

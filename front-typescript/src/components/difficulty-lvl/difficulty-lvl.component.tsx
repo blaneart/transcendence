@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import './difficulty-lvl.scss'
 
@@ -51,10 +51,7 @@ class Board extends React.Component<{difficultyLvl: any}, {square: string[]}> {
 	}
   }
   
-class Difficulty extends React.Component <{difficultyLvl:any}, {}> {
-	constructor(props: any) {
-		super(props)
-	}
+class Difficulty extends React.Component <{difficultyLvl: any}, {}> {
 
 	render() {
 		return (

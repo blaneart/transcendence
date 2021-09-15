@@ -60,7 +60,7 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
 
     // On component unmount, disconnect socket
     return function cleanup() {
-      socket.disconnect();
+      // socket.disconnect();
     };
 
   }, [socket, target]); // We only re-run setup if room name or socket change

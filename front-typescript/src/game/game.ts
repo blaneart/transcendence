@@ -123,7 +123,7 @@ class Pong {
       }
       lastTime = millis;
       this.animation = requestAnimationFrame(callback);
-
+      
   };
     this.start();
     callback(0);  
@@ -144,11 +144,11 @@ class Pong {
       this.players[1].score = message[1];
       this.draw();
     })
-    this.socket.emit('launchBall');
-    this.socket.on('getBallSpeed', (message: Vec) => {
-        console.log(message);
-        this.ball.pos = message;
-    })
+    // this.socket.emit('launchBall');
+    // this.socket.on('getBallSpeed', (message: Vec) => {
+    //     console.log(message);
+    //     this.ball.pos = message;
+    // })
     this.socket.on('endGame', () => {
       if (this._context !== null)
       {

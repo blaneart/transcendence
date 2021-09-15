@@ -13,17 +13,13 @@ interface RoomLinkParams {
 // Get all open rooms from the backend
 async function deleteRoom(authToken: string, roomName: string) {
   // Perform the request to backend
-  const response = await fetch(`http://127.0.0.1:3000/chat/rooms/${roomName}`, {
+  await fetch(`http://127.0.0.1:3000/chat/rooms/${roomName}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
-  // Read response as JSON
-  const jsonData = await response.json();
-  // // Cast response to an array of rooms
-  // return jsonData as Room[];
 }
 
 
@@ -35,7 +31,7 @@ const RoomLink: React.FC<RoomLinkParams> = ({ authToken, room, onDelete, userId 
   return (
     <div>
       <Link to={`/chats/${room.name}`}>{room.name}, owner: {room.owner_name}</Link>
-      {room.ownerID == userId ? <button onClick={deleteHandler}>Delete</button> : null}
+      {room.ownerID === userId ? <button onClick={deleteHandler}>Delete</button> : null}
     </div>
   );
 }

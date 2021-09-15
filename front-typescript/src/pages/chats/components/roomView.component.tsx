@@ -5,7 +5,6 @@ import Composer from "./composer.component";
 import { useHistory } from 'react-router-dom';
 import RoomAdminPanel from "./roomAdminPanel.component";
 import { Room, MessageType } from "../chats.types";
-import Message from "./message.component";
 import MessageList from "./messageList.component";
 
 // We require a token passed as parameter
@@ -193,8 +192,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
     // If we've been promoted, we instantly get the rights
     socket.on("promoted", (id) => {
-      alert(`promoted ${id}`);
-      if (id == userId)
+      if (id === userId)
         setAmAdmin(true);
     })
 
@@ -203,7 +201,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
       socket.disconnect();
     };
 
-  }, [roomName, socket]); // We only re-run setup if room name or socket change
+  }, [roomName, socket, authToken, history, userId]); // We only re-run setup if room name or socket change
   // (In other words, we don't.)
 
 

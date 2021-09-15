@@ -27,6 +27,8 @@ import path from 'path';
 const multer = require('multer');
 const crypto = require("crypto");
 
+import { AvatarError } from './app.exceptions';
+
 @Controller()
 export class AppController {
   constructor(
@@ -117,7 +119,7 @@ export class AppController {
 
           // Check if file extension is there
           if (!fileExtension)
-            return cb(new Error("No file extension"), false);
+            return cb(new AvatarError("No file extension"), false);
           
             // Save the file with a random name
           const id = crypto.randomUUID();
@@ -130,7 +132,7 @@ export class AppController {
         let ext = file.originalname.split('.').pop();
         // Check the extension against a whitelist
         if (ext !== 'png' && ext !== 'jpg' && ext !== 'gif' && ext !== 'jpeg') {
-          return callback(new Error('Only images are allowed'), false)
+          return callback(new AvatarError('Only images are allowed'), false)
         }
         callback(null, true);
       },

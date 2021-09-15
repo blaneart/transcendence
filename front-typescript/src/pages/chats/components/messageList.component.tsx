@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { MessageType, Room } from "../chats.types";
 import Message from "./message.component";
 import { useState, useEffect } from "react";
@@ -39,11 +39,7 @@ interface BlockedUserEntry {
 const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket, amAdmin }) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
-  useEffect(() => {
-    updateBlockList();
-  }, []);
-
-  const updateBlockList = () => {
+  const updateBlockList = useCallback(() => {
     // Get all the blocked users
     getBlockList(authToken).then((users) => {
 
@@ -51,15 +47,16 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
       setBlockList((oldBlockList) => {
         const newBlockList = new Map<number, boolean>(oldBlockList)
         // For each user, add their ID to the map
-        users.map((user) => {
-          newBlockList.set(user.blockedID, true);
-        });
+        users.map((user) => newBlockList.set(user.blockedID, true));
         // Replace the old blocklist state
         return newBlockList;
       });
     });
-  }
+  }, [authToken]);
 
+  useEffect(() => {
+    updateBlockList();
+  }, [updateBlockList]);
 
   return (
     <div className=" px-4 py-4 border border-b-0 border-white border-solid h-full">

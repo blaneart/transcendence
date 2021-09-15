@@ -52,14 +52,14 @@ const Achievements = ({user, authToken, setUser }: AchievementsProps) => {
 
   useEffect(() => {
     getAchievements(user.id, authToken).then(res => setAchievements(res));
-  }, []);
+  }, [user.id, authToken]);
 
   
   return (
     <div>
         <p>Achievements</p>
         {achievements.map((a: any) => <div>
-            <img className="achievement_img" src={a.image}></img>
+            <img className="achievement_img" src={a.image} alt="achievement"></img>
             <p className="achievement_title">{a.name}</p>
             <p className="achievement_description">{a.description}</p>
           <p>

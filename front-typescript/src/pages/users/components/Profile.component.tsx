@@ -83,7 +83,7 @@ const Profile: React.FC<IProfilePageProps> = ({
     getUserByName(authToken, (paramName as string)).then(user_ => {
       setProfileUser(user_);
     });
-  }, [authToken]);
+  }, [authToken, paramName]);
 
   useEffect(() => {
     // On setup, we update the users

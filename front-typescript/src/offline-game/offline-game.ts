@@ -4,7 +4,7 @@
 //   y: number
 // }
 
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
+// import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 // interface Vec {
 //   x: number,

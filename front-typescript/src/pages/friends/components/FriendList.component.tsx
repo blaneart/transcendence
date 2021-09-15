@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
 import { User } from '../users.types';
 import Friend from './friend.component';
 

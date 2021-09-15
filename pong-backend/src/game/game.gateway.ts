@@ -85,9 +85,9 @@ export class GameGateway implements OnGatewayInit {
       connectedClient => connectedClient !== client.id
     );
     let roomName = this.getRoomNameBySocket(client);
-    if (this.rooms[roomName])
-      this.rooms[roomName].ready = false;
-    this.server.emit('getListOfRooms', this.showRooms());
+    // if (this.rooms[roomName])
+    //   this.rooms[roomName].ready = false;
+    // this.server.emit('getListOfRooms', this.showRooms());
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
@@ -198,7 +198,13 @@ export class GameGateway implements OnGatewayInit {
   }
 
 
-
+  @SubscribeMessage('watchMatch')
+  watchMatch(client: Socket, roomName: string)
+  {
+    console.log(roomName);
+    client.join(roomName)
+    console.log(this.server.sockets.adapter.rooms.get(roomName).size)
+  }
 
   @SubscribeMessage('quitGame')
   quitGame(clinet: Socket, score1: number, score2: number) 
@@ -221,16 +227,16 @@ export class GameGateway implements OnGatewayInit {
   
 
 
-  @SubscribeMessage('launchBall')
-  ballLaunch(socket: Socket) {
-    let message = {
-      pos_x: 400,
-      pos_y: Math.random() * 600,
-      vel_x: 500 * (Math.random() > .5 ? 1 : -1),
-      vel_y: 500 * (Math.random() * 2  -1)
-    }
-    this.server.emit('getBallSpeed', message)
-  }
+  // @SubscribeMessage('launchBall')
+  // ballLaunch(socket: Socket) {
+  //   let message = {
+  //     pos_x: 400,
+  //     pos_y: Math.random() * 600,
+  //     vel_x: 500 * (Math.random() > .5 ? 1 : -1),
+  //     vel_y: 500 * (Math.random() * 2  -1)
+  //   }
+  //   this.server.emit('getBallSpeed', message)
+  // }
 
 
   @SubscribeMessage('scored')

@@ -4,7 +4,7 @@
 //   y: number
 // }
 
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
+// import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 // interface Vec {
 //   x: number,
@@ -106,12 +106,12 @@ class Offline_Pong {
   powerups: boolean;
   curr_map: number;
 
-  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, powerups: boolean, mapnb: number)
+  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any)
   {
-	  this.curr_map = mapnb;
-	this.powerups = powerups;
-	this.curr_powerUp = new PowerUp();
-    this._canvas = <HTMLCanvasElement> canvas;
+	  this.curr_map = map.map;
+	  this.powerups = map.powerup;
+	  this.curr_powerUp = new PowerUp();
+    this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball();
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
@@ -184,7 +184,7 @@ class Offline_Pong {
       else 
       {
         if (lastTime) {
-          this.update((millis - lastTime) / 1000, difficultyBot);
+          this.update((millis - lastTime) / 1000, difficultyBot, map);
         }
         lastTime = millis;
         this.animation = requestAnimationFrame(callback);
@@ -442,9 +442,9 @@ class Offline_Pong {
 			powerUp.size.x, powerUp.size.y);
 	  }
   }
-  update(dt: number, difficulty: any) {
-    this.ball.pos.x += this.ball.vel.x * dt;
-    this.ball.pos.y += this.ball.vel.y * dt;
+  update(dt: number, difficulty: any, map: any) {
+  this.ball.pos.x += this.ball.vel.x * dt;
+  this.ball.pos.y += this.ball.vel.y * dt;
 
 	if (this.powerups === true && this.ball.vel.x !== 0 && this.curr_powerUp.type === 0 && Math.floor(Math.random() * 100) === 50)
 	{
@@ -452,31 +452,31 @@ class Offline_Pong {
 		this.curr_powerUp.pos.y = Math.random() * (this._canvas.height - this.curr_powerUp.size.y / 2);
 		this.curr_powerUp.type = Math.floor(Math.random() * 3) + 1;
 	}
-    if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
-    {
-      let playerId = this.ball.vel.x < 0 ? 1 : 0;
-	  if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
-      	this.players[playerId].score++;
-      this.reset();
-    }
-    if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
-    {
-      this.ball.vel.y = -this.ball.vel.y;
-	  if (this.ball.top < 0)
-		this.ball.pos.y = 0;
-	  else
-		this.ball.pos.y = this._canvas.height - this.ball.size.y;
-    }
+  if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
+  {
+    let playerId = this.ball.vel.x < 0 ? 1 : 0;
+    if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
+      this.players[playerId].score++;
+    this.reset();
+  }
+  if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
+  {
+    this.ball.vel.y = -this.ball.vel.y;
+    if (this.ball.top < 0)
+      this.ball.pos.y = 0;
+    else
+      this.ball.pos.y = this._canvas.height - this.ball.size.y;
+  }
 	this.touched(this.curr_powerUp, this.ball);
-    this.players.forEach(player => this.collide(player, this.ball));
-    this.obstacles.forEach(obstacles => this.collideObstacles(obstacles, this.ball));
-    this.players.forEach(player => this.poweringUp(player));
+  this.players.forEach(player => this.collide(player, this.ball));
+  this.obstacles.forEach(obstacles => this.collideObstacles(obstacles, this.ball));
+  this.players.forEach(player => this.poweringUp(player));
 	this.changedifficulty(difficulty);
 	if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
 		this.players[1].pos.y += this.players[1].botDifficulty;
 	else if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) <= -this.players[1].botDifficulty)
 		this.players[1].pos.y -= this.players[1].botDifficulty;
-    this.draw(); 
+  this.draw(); 
   }
 }
 

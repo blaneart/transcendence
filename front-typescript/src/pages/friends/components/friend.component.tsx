@@ -29,7 +29,7 @@ async function getFriendById(id2: number, authToken: string)
 
 async function addBackFriend(id1: number, id2: number, authToken: string, setBool: Function) {
   setBool(true);
-  const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+  await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -40,7 +40,7 @@ async function addBackFriend(id1: number, id2: number, authToken: string, setBoo
 
 async function removeFriend(id1: number, id2: number, authToken: string, setBool: Function) {
   setBool(false);
-    const response = await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+    await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +58,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
     getFriendById(id2, authToken).then(newFriend => {
       setFriend(newFriend);
     });
-  }, [authToken]);
+  }, [authToken, id2]);
 
   const handleUnfriend = async (id1: number, id2: number, authToken: string, setBool: Function) => {
     await removeFriend(id1, id2, authToken, setBool);

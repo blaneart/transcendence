@@ -1,5 +1,5 @@
-import { io, Socket } from 'socket.io-client';
-import { threadId } from 'worker_threads';
+import { Socket } from 'socket.io-client';
+// import { threadId } from 'worker_threads';
 
 
 // interface Vec {
@@ -92,7 +92,7 @@ class Pong {
   enemy_id: number;
   constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number)
   {
-    this._canvas = <HTMLCanvasElement> canvas;
+    this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball();
     this.ball.pos.x = this._canvas.width / 2;
@@ -123,7 +123,7 @@ class Pong {
       }
       lastTime = millis;
       this.animation = requestAnimationFrame(callback);
-
+      
   };
     this.start();
     callback(0);  
@@ -144,11 +144,11 @@ class Pong {
       this.players[1].score = message[1];
       this.draw();
     })
-    this.socket.emit('launchBall');
-    this.socket.on('getBallSpeed', (message: Vec) => {
-        console.log(message);
-        this.ball.pos = message;
-    })
+    // this.socket.emit('launchBall');
+    // this.socket.on('getBallSpeed', (message: Vec) => {
+    //     console.log(message);
+    //     this.ball.pos = message;
+    // })
     this.socket.on('endGame', () => {
       if (this._context !== null)
       {

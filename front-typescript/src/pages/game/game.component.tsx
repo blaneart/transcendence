@@ -85,29 +85,29 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       pong.end();
       setIsGameEnded('game');
     }
-    // async function  updateGameStats(result: string, authToken: string){
-    //   if (user)
-    //   {
-    //     var data = {
-    //       games: user.games + 1,
-    //       wins: result === 'won' ? user.wins + 1 : user.wins,
-    //     }
-    //     const response = await fetch('http://127.0.0.1:3000/account/setGames', {
-    //       method: 'PATCH',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': `Bearer ${authToken}`
-    //       },
-    //       body: JSON.stringify(data),
-    //     });
-    //     const jsonData = await response.json();
-    //     const userUpdate = jsonData as User;
+    async function  updateGameStats(result: string, authToken: string){
+      if (user)
+      {
+        var data = {
+          games: user.games + 1,
+          wins: result === 'won' ? user.wins + 1 : user.wins,
+        }
+        const response = await fetch('http://127.0.0.1:3000/account/setGames', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(data),
+        });
+        const jsonData = await response.json();
+        const userUpdate = jsonData as User;
       
-    //     setUser(userUpdate);
-    //   }
-    //   setIsGameEnded(result);
-    //   return null;
-    // }
+        setUser(userUpdate);
+      }
+      setIsGameEnded(result);
+      return null;
+    }
 
     setIsGameEnded('game')
     if (ready)

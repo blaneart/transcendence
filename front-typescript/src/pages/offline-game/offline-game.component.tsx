@@ -34,14 +34,16 @@ interface IGameProps {
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string,
   difficultyLvl: any,
+  map: any
 }
 
 
-const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) => {
+const OfflineGame: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl, map}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
 
+    console.log("in offlinegame", map);
     useEffect(() => {
         setIsGameEnded('game')
         let canvas = document.getElementById('forCanvas');
@@ -49,7 +51,7 @@ const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficult
           canvas.style.opacity = '1';
         if (canvas !== null)
         {
-            var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl, true, 1);
+            var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl, map);
             canvas.addEventListener('mousemove', event => {
                 pong.players[0].pos.y = event.offsetY - pong.players[0].size.y / 2;
             });
@@ -58,22 +60,9 @@ const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficult
         });
         return () => {
             pong.end();
-        }    
+        }
     }
   }, [restart]);
-
-  const changeGameState = (user: User, result: string) => {
-    return {
-      id: user.id,
-      name: user.name,
-      avatar: user.avatar,
-      games: user.games + 1 ,
-      wins: result === 'won' ? user.wins + 1 : user.wins,
-      twofa: user.twofa,
-      twofaSecret: user.twofaSecret,
-      realAvatar: user.realAvatar
-    }
-  }
 
 async function  updateGameStats(result: string, authToken: string) {
     setIsGameEnded(result);
@@ -93,4 +82,4 @@ async function  updateGameStats(result: string, authToken: string) {
     );
 }
 
-export default Offline_Game;
+export default OfflineGame;

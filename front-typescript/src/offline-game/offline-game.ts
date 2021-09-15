@@ -111,7 +111,7 @@ class Offline_Pong {
 	  this.curr_map = mapnb;
 	this.powerups = powerups;
 	this.curr_powerUp = new PowerUp();
-    this._canvas = <HTMLCanvasElement> canvas;
+    this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball();
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;

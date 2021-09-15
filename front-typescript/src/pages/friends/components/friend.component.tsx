@@ -58,7 +58,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
     getFriendById(id2, authToken).then(newFriend => {
       setFriend(newFriend);
     });
-  }, [authToken]);
+  }, [authToken, id2]);
 
   const handleUnfriend = async (id1: number, id2: number, authToken: string, setBool: Function) => {
     await removeFriend(id1, id2, authToken, setBool);

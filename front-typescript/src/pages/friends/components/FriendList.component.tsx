@@ -35,7 +35,7 @@ const FriendList: React.FC<IFriendsListProps> = ({
     getFriends(user_logged.id, authToken).then(newFriends => {
       setFriends(newFriends);
     });
-  }, [authToken]);
+  }, [authToken, user_logged.id]);
 
   useEffect(() => {
     refreshFriends();

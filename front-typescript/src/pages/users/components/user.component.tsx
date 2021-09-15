@@ -56,7 +56,7 @@ const UserComponent: React.FC<IUserProps> = ({
     getFriend(id1, user.id, authToken).then(newRelationship => {
       setFriend(newRelationship);
     });
-  }, [authToken]);
+  }, [authToken, id1, user.id]);
 
   const handleBefriend = async (id1: number, id2: number, authToken: string) => {
     await addFriend(id1, id2, authToken);

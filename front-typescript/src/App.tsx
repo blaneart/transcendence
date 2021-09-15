@@ -13,12 +13,15 @@ import Friends from "./pages/friends/friends.component";
 
 import Chats from "./pages/chats/chats.component";
 import { User } from './App.types';
-import Offline_Game from "./pages/offline-game/offline-game.component";
+import OfflineGame from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 import Map from "./components/maps-chooser/maps-chooser.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
+import Room from "./pages/watch/components/room.component";
+const ENDPOINT = "http://127.0.0.1:3003";
+
 
 
 interface IState {
@@ -56,19 +59,19 @@ async function updateStatus(
     value: newStatus,
   };
 
-  const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
-    },
-    body: JSON.stringify(data),
-  });
+  // const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     Authorization: `Bearer ${authToken}`,
+  //   },
+  //   body: JSON.stringify(data),
+  // });
 
-  const jsonData = await response.json();
-  const userUpdated = jsonData as User;
+  // const jsonData = await response.json();
+  // const userUpdated = jsonData as User;
 
-  setUser(userUpdated);
+  // setUser(userUpdated);
 }
 
 // Use a temporary grant and a 2fa code to obtain the permanent JWT
@@ -184,7 +187,7 @@ function App() {
           <Map history={history} map={map}/>
         </Route>
         <Route path="/offline-game">
-          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty} map={map}/>
+          <OfflineGame user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty} map={map}/>
           <Difficulty difficultyLvl={difficulty}/>
         </Route>
         <Route path="/cheats">
@@ -205,9 +208,14 @@ function App() {
         <Route path="/friends">
           {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
         </Route>
-        <Route path="/watch">
+        <Route exact path="/watch">
           <Watch />
         </Route>
+        <Route
+        exact
+        path="/watch/:room"
+        component={Room}/>
+
       </Switch>
       : <p></p>}
     </div>

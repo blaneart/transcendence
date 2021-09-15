@@ -4,7 +4,7 @@
 //   y: number
 // }
 
-import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
+// import { collapseTextChangeRangesAcrossMultipleVersions } from "typescript";
 
 // interface Vec {
 //   x: number,
@@ -111,7 +111,7 @@ class Offline_Pong {
 	  this.curr_map = map.map;
 	  this.powerups = map.powerup;
 	  this.curr_powerUp = new PowerUp();
-    this._canvas = <HTMLCanvasElement> canvas;
+    this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball();
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;

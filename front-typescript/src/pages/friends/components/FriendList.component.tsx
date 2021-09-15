@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
 import { User } from '../users.types';
 import Friend from './friend.component';
 
@@ -36,7 +35,7 @@ const FriendList: React.FC<IFriendsListProps> = ({
     getFriends(user_logged.id, authToken).then(newFriends => {
       setFriends(newFriends);
     });
-  }, [authToken]);
+  }, [authToken, user_logged.id]);
 
   useEffect(() => {
     refreshFriends();

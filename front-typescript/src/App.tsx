@@ -113,8 +113,7 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
   setUser(authResponse.user);
   setAuthToken(authResponse.access_token);
   updateStatus(setUser, authResponse.access_token);
-  // Save user in browser state
-  localStorage.setItem("pongUser", JSON.stringify(authResponse.user));
+  // Save token in browser state
   localStorage.setItem("pongToken", authResponse.access_token);
 }
 
@@ -135,7 +134,6 @@ async function getMe(authToken: string): Promise<User> {
 function logoutHandler()
 {
   return function () {
-    localStorage.removeItem("pongUser");
     localStorage.removeItem("pongToken");
   };
 }
@@ -149,16 +147,17 @@ function App() {
   
 
   useEffect(() => {
-    
     var searchParams: URLSearchParams = new URLSearchParams(search);
     const localStoragePongToken: string | null = localStorage.getItem(
       "pongToken"
     );
-    if (authToken === "" && localStoragePongToken !== null) {
+    if (!user && authToken === "" && localStoragePongToken !== null) {
       setAuthToken(localStoragePongToken);
-    }
-    if (!user && localStoragePongToken !== null) {
       getMe(localStoragePongToken).then((me: User) => setUser(me));
+    }
+    else if (!user && authToken && authToken !== "")
+    {
+      getMe(authToken).then((me: User) => setUser(me));
     }
 
     if (searchParams.get("code")) {
@@ -169,7 +168,7 @@ function App() {
         history.replace("/");
       }
     }
-  }, [authToken, history, user, search]);
+  }, [authToken, user, history, search]);
 
   
   let difficulty = {number: 4};

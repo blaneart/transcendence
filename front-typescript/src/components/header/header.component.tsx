@@ -36,8 +36,8 @@ async function Click(
       body: JSON.stringify(data),
     });
     logoutHandler();
-    setUser(null);
     setAuthToken(null);
+    setUser(null);
 }
 
 

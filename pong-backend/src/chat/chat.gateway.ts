@@ -369,11 +369,11 @@ export class ChatGateway {
       throw new WsException("User not found");
 
     // Find the direct conversation in our database
-    const direct = await this.chatService.findDirect(client.user.id, user.id);
+    let direct = await this.chatService.findDirect(client.user.id, user.id);
 
     // Ensure direct conversation exists
     if (!direct)
-      throw new WsException("Direct conversation not found");
+      direct = await this.chatService.createDirect(client.user.id, user.id);
     
     // Save the user data so it's easier to access
     client.data.user = client.user;

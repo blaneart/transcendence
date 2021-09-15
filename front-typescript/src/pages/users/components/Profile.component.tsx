@@ -117,7 +117,7 @@ const Profile: React.FC<IProfilePageProps> = ({
               <p className="twofa-text">Save this qr-code in your auth app: </p>
               <div className="twofa-code">
                 <img
-                  src={`https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/Transcendence:${user.name}%3Fsecret=${user.twofaSecret}%26issuer=Transcendence`}
+                  alt='twofa-img' src={`https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/Transcendence:${user.name}%3Fsecret=${user.twofaSecret}%26issuer=Transcendence`}
                 ></img>
               </div>
               <div className="twofa-secret">

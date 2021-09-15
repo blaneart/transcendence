@@ -37,7 +37,7 @@ interface IGameProps {
 }
 
 
-const Offline_Game: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) => {
+const OfflineGame: React.FC<IGameProps> = ({user, setUser, authToken, difficultyLvl}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
@@ -93,4 +93,4 @@ async function  updateGameStats(result: string, authToken: string) {
     );
 }
 
-export default Offline_Game;
+export default OfflineGame;

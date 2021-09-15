@@ -13,7 +13,7 @@ import Friends from "./pages/friends/friends.component";
 
 import Chats from "./pages/chats/chats.component";
 import { User } from './App.types';
-import Offline_Game from "./pages/offline-game/offline-game.component";
+import OfflineGame from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
@@ -180,7 +180,7 @@ function App() {
           <Menu user={user}/>
         </Route>
         <Route path="/playbots">
-          <Offline_Game user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
+          <OfflineGame user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty}/>
           <Difficulty difficultyLvl={difficulty}/>
         </Route>
         <Route path="/cheats">

@@ -59,19 +59,19 @@ async function updateStatus(
     value: newStatus,
   };
 
-  // const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     Authorization: `Bearer ${authToken}`,
-  //   },
-  //   body: JSON.stringify(data),
-  // });
+  const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(data),
+  });
 
-  // const jsonData = await response.json();
-  // const userUpdated = jsonData as User;
+  const jsonData = await response.json();
+  const userUpdated = jsonData as User;
 
-  // setUser(userUpdated);
+  setUser(userUpdated);
 }
 
 // Use a temporary grant and a 2fa code to obtain the permanent JWT

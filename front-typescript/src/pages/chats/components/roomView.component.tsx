@@ -204,6 +204,9 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
   }, [roomName, socket, authToken, history, userId]); // We only re-run setup if room name or socket change
   // (In other words, we don't.)
 
+  let amOwner = false;
+  if (room)
+    amOwner = room.ownerID === userId;
 
   return (
     <div>
@@ -213,10 +216,10 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
           {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket} /> : null}
         <div className="flex-1 flex flex-col">
           <div className="flex-1">
-            {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket} amAdmin={amAdmin} /> : null}
+            {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket} amAdmin={amAdmin} amOwner={amOwner} /> : null}
           </div>
           <div>
-            <Composer socket={socket} roomName={roomName} muted={muted} />
+            <Composer socket={socket} roomName={roomName} muted={muted} amOwner={amOwner} />
           </div>
         </div>
       </div>

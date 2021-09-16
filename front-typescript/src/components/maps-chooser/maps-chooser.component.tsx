@@ -69,15 +69,15 @@ class Board extends React.Component<{history: any}, {square: string[], powerups:
 
 	launchGame(history: any)
 	{
-		history.push("/playbots/offline");
+		history.push("/offline");
 	}
 	renderButton(history: any)
 	{
 		return (
-			<button 
+			<div className="button"
 				onClick={() => this.launchGame(history)}>
-				{"PLAY"}
-			</button>
+				<h1>{"PLAY"}</h1>
+			</div>
 		)
 	}
 
@@ -93,7 +93,7 @@ class Board extends React.Component<{history: any}, {square: string[], powerups:
 					{this.renderPowerUp(0)}
 					{this.renderPowerUp(1)}
 				</div>
-				<div className="button">
+				<div>
 					{this.renderButton(this.props.history)}
 				</div>
 			</div>

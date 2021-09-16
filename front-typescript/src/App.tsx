@@ -185,11 +185,11 @@ function App() {
         </Route>
         <Route path="/playbots">
           <Map history={history}/>
-          <Route path="/playbots/offline">
+        </Route>
+        <Route path="/offline">
             <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps}/>
             <Difficulty difficultyLvl={difficulty}/>
           </Route>
-        </Route>
         <Route path="/cheats">
           <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
         </Route>

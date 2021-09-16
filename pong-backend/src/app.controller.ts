@@ -165,6 +165,15 @@ async removeAvatar(@Request() req) {
 @Post('/fakeUser/:newName')
 async createFakeUser(@Param() param: fakeUserDto)
 {
+  // Check that the user doesn't exist
+  const nowUser = await this.profileService.getUserByName(param.newName);
+
+  // If it exists, we can't recreate it.
+  if (nowUser)
+  {
+    throw new HttpException("User already exists", HttpStatus.CONFLICT);
+  }
+
   // Create a new user
   const newUser = await this.profileService.createFakeUser(param.newName);
   // Add this user to JWT

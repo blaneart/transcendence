@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 
+import maps from './maps.component'
 import './maps-chooser.scss'
 
 function Square(props: any) {
@@ -19,7 +20,7 @@ function PowerUp(props: any) {
 }
 
 
-class Board extends React.Component<{history: any, map: any}, {square: string[], powerups: string[]}> {
+class Board extends React.Component<{history: any}, {square: string[], powerups: string[]}> {
 	constructor(props: any) {
 		super(props);
 		this.state = {
@@ -34,8 +35,7 @@ class Board extends React.Component<{history: any, map: any}, {square: string[],
 		this.setState({
 			square: squares,
 		})
-		this.props.map.map = i;
-		console.log(this.props.map);
+		maps.map = i;
 	}
 
 	handleClickPowerUp = (i: number) => {
@@ -44,8 +44,7 @@ class Board extends React.Component<{history: any, map: any}, {square: string[],
 		this.setState({
 			powerups: powerups,
 		})
-		this.props.map.powerup = (i === 1 ? true : false);
-		console.log(this.props.map);
+		maps.powerup = (i === 1 ? true : false);
 	}
 
 	renderSquare(i: number)
@@ -70,7 +69,7 @@ class Board extends React.Component<{history: any, map: any}, {square: string[],
 
 	launchGame(history: any)
 	{
-		history.push("/offline-game");
+		history.push("/playbots/offline");
 	}
 	renderButton(history: any)
 	{
@@ -102,18 +101,13 @@ class Board extends React.Component<{history: any, map: any}, {square: string[],
 	}
   }
   
-class Map extends React.Component <{history: any, map: any}, {}>{
-	constructor(props: any) {
-		super(props)
-	}
+class Map extends React.Component <{history: any}, {}>{
 
 	render() {
-		this.props.map.map = 2;
-		this.props.map.powerup = true;
 		return (
 			<div className="map-item">
 				<div className="game-board">
-					<Board history={this.props.history} map={this.props.map}/>
+					<Board history={this.props.history}/>
 				</div>
 			</div>
 		);

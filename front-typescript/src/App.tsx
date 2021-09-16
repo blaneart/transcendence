@@ -10,6 +10,7 @@ import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import Users from "./pages/users/users.component";
 import Friends from "./pages/friends/friends.component";
+import maps from './components/maps-chooser/maps.component'
 
 import Chats from "./pages/chats/chats.component";
 import { User } from './App.types';
@@ -173,7 +174,6 @@ function App() {
 
   
   let difficulty = {number: 4};
-  var map = {map: 0, powerup: false};
 
  
   return (
@@ -184,11 +184,11 @@ function App() {
           <Menu user={user}/>
         </Route>
         <Route path="/playbots">
-          <Map history={history} map={map}/>
-        </Route>
-        <Route path="/offline-game">
-          <OfflineGame user={user} setUser={setUser} authToken={authToken} difficultyLvl={difficulty} map={map}/>
-          <Difficulty difficultyLvl={difficulty}/>
+          <Map history={history}/>
+          <Route path="/playbots/offline">
+            <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps}/>
+            <Difficulty difficultyLvl={difficulty}/>
+          </Route>
         </Route>
         <Route path="/cheats">
           <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>

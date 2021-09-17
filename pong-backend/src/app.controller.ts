@@ -68,6 +68,13 @@ export class AppController {
     return users;
   }
 
+  @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
+  @Get('games')
+  async getGames(@Request() req) {
+    const games = await this.gameService.getGamesByName(req.user.name);
+    return games;
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('account/setName')
   async setName(@Request() req, @Body() body: setNameDto) {

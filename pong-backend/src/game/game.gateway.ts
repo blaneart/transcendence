@@ -165,11 +165,13 @@ export class GameGateway implements OnGatewayInit {
   getNewMmr(winner_old_mmr, loser_old_mmr)
   {
     let mmr = {winner_new_mmr: 0, loser_new_mmr: 0};
-    let win_percentage_loser = 1 / (1 + (10 ** ((winner_old_mmr - loser_old_mmr) / 400)));
+  
     let win_percentage_winner = 1 / (1 + (10 ** ((loser_old_mmr - winner_old_mmr) / 400)));
+    let win_percentage_loser = 1 / (1 + (10 ** ((winner_old_mmr - loser_old_mmr) / 400)));
 
     mmr.winner_new_mmr = Math.floor(winner_old_mmr + 20 * (1 - win_percentage_winner));
     mmr.loser_new_mmr = Math.floor(loser_old_mmr + 20 * (-win_percentage_loser));
+    
     console.log(mmr);
     return (mmr);
   }

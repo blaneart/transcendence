@@ -159,13 +159,13 @@ class Offline_Pong {
 	}
 	else
 		this.obstacles = [];
-    this.auth = authToken;
-    this.players[0].pos.x = 20;
-    this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
-    this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-    this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
+  this.auth = authToken;
+  this.players[0].pos.x = 20;
+  this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
+  this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
+  this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
 
-    let lastTime: number;
+  let lastTime: number;
 
     const callback = (millis: number) => {
       if (this.isGameEnded())
@@ -178,7 +178,6 @@ class Offline_Pong {
           if (this._context !== null)
           {
             this._canvas.style.opacity = '0.5';
-
           }
       }
       else 
@@ -197,16 +196,22 @@ class Offline_Pong {
     if (player.left < ball.right && player.right > ball.left &&
         player.top < ball.bottom && player.bottom > ball.top)
     {
-      let audio = new Audio("../../../audio_files/paddle_sound_sound.mp3");
+      let audio = new Audio("../../../audio_files/paddle_sound.mp3");
       audio.play();
       ball.vel.x = -ball.vel.x;
 		  if (player.botDifficulty < 0)
+      {
         ball.pos.x = player.pos.x + player.size.x;
+        this.ball.lastTouch = 1;
+      }
 		  else
+      {
+        this.ball.lastTouch = 2;
         ball.pos.x = player.pos.x - ball.size.x;
+      }
       ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 / player.size.y;
       ball.vel.len *= 1.05;
-		  if (player.empowered === 2 || player.empowered === 4)
+		  if (this.powerups === true && (player.empowered === 2 || player.empowered === 4))
 		  {
         ball.vel.len *= 2.5;
         if (player.empowered === 4)
@@ -214,10 +219,6 @@ class Offline_Pong {
         else
           player.empowered = 0;
 		  }
-		  if (player.pos.x < this._canvas.width / 2)
-        this.ball.lastTouch = 1;
-		  else
-        this.ball.lastTouch = 2;
     }
   }
 
@@ -345,20 +346,20 @@ class Offline_Pong {
 
   poweringUp(player: Player)
   {
-	if (player.size.y > 100)
-	{
-		player.size.y -= 0.3;
-		if (player.size.y < 100)
-			player.size.y = 100;
-	}
-	if (player.empowered === 3 || player.empowered === 5)
-	{
-		player.size.y = 300;
-		if (player.empowered === 5)
-			player.empowered = 1;
-		else
-			player.empowered = 0;
-	}
+    if (player.size.y > 100)
+    {
+      player.size.y -= 0.3;
+      if (player.size.y < 100)
+        player.size.y = 100;
+    }
+    if (player.empowered === 3 || player.empowered === 5)
+    {
+      player.size.y = 300;
+      if (player.empowered === 5)
+        player.empowered = 1;
+      else
+        player.empowered = 0;
+    }
   }
 
   start()
@@ -409,17 +410,22 @@ class Offline_Pong {
   {
     if (this._context !== null)
 	{
-		if (rect.empowered === 2 || rect.empowered === 4)
+    if (this.powerups === true)
+    {
+      if (rect.empowered === 2 || rect.empowered === 4)
 			this._context.fillStyle = "red";
-		else if (rect.empowered === 1)
-			this._context.fillStyle = "blue";
-		else if (rect.size.y > 100)
-			this._context.fillStyle = "green";
-		else
+      else if (rect.empowered === 1)
+        this._context.fillStyle = "blue";
+      else if (rect.size.y > 100)
+        this._context.fillStyle = "green";
+      else
+        this._context.fillStyle = "white";
+    }
+    else
 			this._context.fillStyle = "white";
-      this._context.fillRect(rect.pos.x, rect.pos.y, 
-                            rect.size.x, rect.size.y);
-      }
+    this._context.fillRect(rect.pos.x, rect.pos.y, 
+                          rect.size.x, rect.size.y);
+    }
   }
 
   drawObstacles(rect: Rect)
@@ -478,7 +484,8 @@ class Offline_Pong {
 	this.touched(this.curr_powerUp, this.ball);
   this.players.forEach(player => this.collide(player, this.ball));
   this.obstacles.forEach(obstacles => this.collideObstacles(obstacles, this.ball));
-  this.players.forEach(player => this.poweringUp(player));
+  if (this.powerups === true)
+    this.players.forEach(player => this.poweringUp(player));
 	this.changedifficulty(difficulty);
 	if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
 		this.players[1].pos.y += this.players[1].botDifficulty;

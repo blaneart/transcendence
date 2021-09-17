@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Room } from "../chats.types";
 import { User } from "../../../App.types";
 import { Socket } from "socket.io-client";
+import StyledSubmit from "./styledSubmit.component";
 
 interface AdminsProps {
   authToken: string,
@@ -85,11 +86,12 @@ const Admins: React.FC<AdminsProps> = ({authToken, socket, room}) => {
     {admins.map((admin)=> <p key={admin.id}>{admin.name}</p>)}
     <h5 className="text-xl mb-3 mt-3">Make admin: </h5>
     <form onSubmit={handleSubmit}>
-      <select onChange={handleChange} required>
+      <select className="px-2 py-2 bg-gray-900 text-gray-300 border-gray-600 rounded-lg" onChange={handleChange} required>
         <option label=" "></option>
         {users.map((user) => user.id !== room.ownerID && !userInAdmins(admins, user.id) ? <option key={user.id} value={user.id}>{user.name}</option> : null)}
       </select>
-      <input type="submit" value="Submit"/>
+      {/* <input type="submit" value="Submit"/> */}
+      <StyledSubmit value="Make admin" />
     </form>
   </div>);
 };

@@ -2,6 +2,7 @@ import React from "react";
 import { Room } from "../chats.types";
 import { Link } from "react-router-dom";
 import './roomLink.styles.scss';
+import StyledButton from "./styledButton.component";
 
 interface RoomLinkParams {
   authToken: string,
@@ -29,9 +30,9 @@ const RoomLink: React.FC<RoomLinkParams> = ({ authToken, room, onDelete, userId 
   }
 
   return (
-    <div>
+    <div className="flex flex-row">
       <Link to={`/chats/${room.name}`}>{room.name}, owner: {room.owner_name}</Link>
-      {room.ownerID === userId ? <button onClick={deleteHandler}>Delete</button> : null}
+      <div className="px-4 ">{room.ownerID === userId ? <StyledButton onClick={deleteHandler}>Delete</StyledButton> : null}</div>
     </div>
   );
 }

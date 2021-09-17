@@ -12,6 +12,7 @@ interface MessageListParams {
   room: Room;
   socket: Socket;
   amAdmin: boolean
+  amOwner: boolean
 }
 
 // Get the list of all blocked users
@@ -36,7 +37,7 @@ interface BlockedUserEntry {
   blockedID: number
 }
 
-const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket, amAdmin }) => {
+const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket, amAdmin, amOwner }) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
   const updateBlockList = useCallback(() => {
@@ -58,8 +59,10 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
     updateBlockList();
   }, [updateBlockList]);
 
+  const mainClasses = "px-4 py-4 border border-b-0 bg-gray-900 text-gray-300 border-gray-600 rounded-tr-lg border-solid h-full" + ( amOwner ? "" : " rounded-l-lg");
+
   return (
-    <div className=" px-4 py-4 border border-b-0 border-white border-solid h-full">
+    <div className={mainClasses}>
       <h5 className="text-xl mt-2 mb-4">Messages</h5>
       {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} room={room} socket={socket} key={msg.id} amAdmin={amAdmin} />)}
     </div>

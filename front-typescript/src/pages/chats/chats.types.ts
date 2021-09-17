@@ -7,7 +7,7 @@ export interface Room {
 }
 
 // The public information about a user
-interface UserPublic {
+export interface UserPublic {
   id: number;
   id42: number;
   name: string;

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { User } from "../../../App.types";
+import UserAvatar from "../../users/components/UserAvatar.component";
 
 import { Direct } from "../chats.types";
+import StyledSubmit from "../components/styledSubmit.component";
 import DirectLink from "./directLink.component";
+import StyledUserSelect from "./styledUserSelect.component";
 
 interface DirectListProps {
   authToken: string
@@ -87,14 +90,15 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
   }
 
   return (<div>
-    {directs.map((direct) => <DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct} />)}
+    {directs.map((direct) =><div><DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/></div>)}
     <h5 className="text-xl mb-2 mt-4">Start a direct conversation with:</h5>
     <form className="" onSubmit={handleSubmit}>
-      <select onChange={handleChange} defaultValue="DEFAULT" required>
+      {/* <select onChange={handleChange} defaultValue="DEFAULT" required>
         <option disabled value="DEFAULT" label="Select a user"></option>
         {users.map((user) => user.id === userId ? null : <option key={user.id} value={user.id}>{user.name}</option>)}
-      </select>
-      <input type="submit" value="Submit" />
+      </select> */}
+      <StyledUserSelect users={users} userId={userId} handleChange={handleChange} />
+      <StyledSubmit value="Start conversation" />
     </form>
   </div>);
 }

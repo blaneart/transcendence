@@ -2,6 +2,7 @@ import React from "react";
 import { Socket } from "socket.io-client";
 import { Room } from "../chats.types";
 import Admins from "./admins.component";
+import StyledButton from "./styledButton.component";
 
 interface RoomAdminPanelParams {
   authToken: string,
@@ -22,23 +23,28 @@ const RoomAdminPanel: React.FC<RoomAdminPanelParams> = ({ authToken, room, userI
 
     // Ask the user for the future password
     let pass = undefined;
-    while (!pass)
-    {
+    while (!pass) {
       pass = window.prompt("Please enter the password to lock the room", undefined);
     }
 
     // Emit an event for the backend
-    socket.emit('restrictRoom', {roomName: room.name, password: pass});
+    socket.emit('restrictRoom', { roomName: room.name, password: pass });
   }
 
   return (
-    <div className="border border-white border-solid md:border-r-0 px-4 py-4">
+    <div className="border bg-gray-900 text-gray-300 border-gray-600 rounded-l-lg border-solid md:border-r-0 px-4 py-4">
       <h3 className="mt-2 text-xxl">Options</h3>
       <p className="text-sm font-normal">You are the owner of this room</p>
-      <button className="ml-0" onClick={handleDelete}>Delete room</button>
-      <button onClick={handleRestrict}>{room.restricted ? "Change room password" : "Make room private"}</button>
+      <div className="flex flex-row">
+        <div className="px-2">
+          <StyledButton onClick={handleDelete}>Delete room</StyledButton>
+        </div>
+        <div>
+          <StyledButton onClick={handleRestrict}>{room.restricted ? "Change room password" : "Make room private"}</StyledButton>
+        </div>
+      </div>
 
-      <Admins authToken={authToken} room={room} socket={socket}/>
+      <Admins authToken={authToken} room={room} socket={socket} />
     </div>
   );
 }

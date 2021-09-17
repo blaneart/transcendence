@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { KeyboardEvent, useState } from 'react';
+import StyledSubmit from './styledSubmit.component';
+import StyledTextInput from './styledTextInput.component';
 
 async function createRoom(authToken: string, name: string) {
   // Perform the request to backend
@@ -36,10 +38,10 @@ const CreateRoom: React.FC<CreateRoomProps> = ({ authToken, onCreate }) => {
     <div>
       <h5 className="text-xl mb-2 mt-4">Create a new room:</h5>
       <form onSubmit={submitHandler}>
-        <input type="text" onChange={(e) => {
+        <StyledTextInput onChange={(e: any) => {
           setRoomName(e.target.value)
         }} />
-        <input type="submit" value="Submit" />
+        <StyledSubmit value="Create room"/>
       </form>
     </div>
   );

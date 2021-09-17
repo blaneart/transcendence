@@ -1,19 +1,21 @@
 import Avatar from "boring-avatars";
 import React from "react";
-import { MessageType } from "../chats.types";
+import { UserPublic } from "../chats.types";
+// import { MessageType } from "../chats.types";
 
 interface MessageAvatarProps {
-  message: MessageType
+  // message: MessageType
+  user: UserPublic
 }
 
-const MessageAvatar: React.FC<MessageAvatarProps> = ({ message }) => {
-  if (message.sender.realAvatar)
+const MessageAvatar: React.FC<MessageAvatarProps> = ({ user }) => {
+  if (user.realAvatar)
   {
-    return <img src={"http://127.0.0.1:3000/static/" + message.sender.avatar} className="message-image" alt="Avatar"></img>
+    return <img src={"http://127.0.0.1:3000/static/" + user.avatar} className="message-image" alt="Avatar"></img>
   }
   else
   {
-    return <Avatar size={35} name={"" + message.sender.id42} variant="beam" />
+    return <Avatar size={35} name={"" + user.id42} variant="beam" />
   }
 }
 

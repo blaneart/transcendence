@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { User } from "../../../App.types";
+import UserAvatar from "../../users/components/UserAvatar.component";
 import { Direct } from "../chats.types";
+import MessageAvatar from "../components/messageAvatar.component";
 
 interface DirectLinkProps {
   authToken: string,
@@ -37,21 +39,22 @@ async function directName(authToken: string, direct: Direct, userId: number) {
   const convoUserId = directId(direct, userId);
   // Get their info from the backend
   const user = await getUser(authToken, convoUserId);
-  return user.name;
+  return user as User;
 }
 
 const DirectLink: React.FC<DirectLinkProps> = ({ authToken, userId, direct }) => {
 
-  const [convoName, setConvoName] = useState<string>();
+  const [interlocutor, setInterlocutor] = useState<User>();
 
   useEffect(() => {
-    directName(authToken, direct, userId).then((name) => setConvoName(name));
+    directName(authToken, direct, userId).then((user) => setInterlocutor(user));
   }, [authToken, direct, userId]);
 
-  if (convoName) {
+  if (interlocutor) {
     return (
-      <div>
-        <a href={`/chats/dms/${convoName}`}>{convoName}</a>
+      <div className="flex flex-row items-center py-2">
+        <MessageAvatar user={interlocutor} />
+        <a className="px-2" href={`/chats/dms/${interlocutor.name}`}>{interlocutor.name}</a>
       </div>
     );
   }

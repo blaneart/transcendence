@@ -7,6 +7,7 @@ import AvatarUpload from "./avatarUpload.component";
 import UserAvatar from "./UserAvatar.component";
 import Achievements from "./achievements.component";
 import ChangeNameForm from "./changeNameForm.component";
+import GameHistory from "./gameHistory.component";
 
 import "./usersList.styles.scss";
 import { User } from "../../../App.types";
@@ -129,6 +130,7 @@ const Profile: React.FC<IProfilePageProps> = ({
           </div>)
           : (<h1>You can't modify this user</h1>)}
           <Achievements user={(profile_user as User)} authToken={authToken} setUser={setUser}/>
+          <GameHistory user={user} authToken={authToken} />
         </div>
       ) : (
         <h1>You are not connected ...</h1>

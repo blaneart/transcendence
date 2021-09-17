@@ -78,6 +78,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       pong.end();
       setIsGameEnded('game');
     }
+    
     async function  updateGameStats(result: string, authToken: string){
       if (user)
       {

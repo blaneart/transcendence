@@ -52,7 +52,7 @@ const UserComponent: React.FC<IUserProps> = ({
 
   const [friend, setFriend] = useState<boolean>(false);
 
-  const refreshUsers = useCallback(() => {
+  const refreshFriend = useCallback(() => {
     getFriend(id1, user.id, authToken).then(newRelationship => {
       setFriend(newRelationship);
     });
@@ -60,18 +60,18 @@ const UserComponent: React.FC<IUserProps> = ({
 
   const handleBefriend = async (id1: number, id2: number, authToken: string) => {
     await addFriend(id1, id2, authToken);
-    refreshUsers();
+    refreshFriend();
   };
 
   const handleUnfriend = async (id1: number, id2: number, authToken: string) => {
     await removeFriend(id1, id2, authToken);
-    refreshUsers();
+    refreshFriend();
   };
 
   useEffect(() => {
     // On setup, we update the friend
-    refreshUsers();
-  }, [friend, refreshUsers]);
+    refreshFriend();
+  }, [friend, refreshFriend]);
 
   return (
     id1 !== user.id ?

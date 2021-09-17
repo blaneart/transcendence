@@ -85,8 +85,8 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard)
   @Post('account/setElo')
-  async setElo(@Request() req, @Body() body: setEloDto) {
-    console.log('status changed');
+  async setElo(@Body() body: setEloDto) {
+    console.log('elo changed');
     await this.profileService.updateUserById(
       body.winner_id, {
       elo: body.new_winner_elo,

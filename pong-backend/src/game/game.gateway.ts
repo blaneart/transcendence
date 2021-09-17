@@ -5,6 +5,7 @@ import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 import { GameService } from './game.service';
+import { AppService } from '../app.service';
 var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 

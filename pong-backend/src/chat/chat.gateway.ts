@@ -21,6 +21,7 @@ interface User {
   id42: number;
   avatar: string;
   games: number;
+  elo: number;
   wins: number;
   twofa: boolean;
   twofaSecret: string;

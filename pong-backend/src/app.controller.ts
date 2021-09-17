@@ -21,7 +21,7 @@ import { ProfileService } from './profile/profile.service';
 import { AchievementService } from './achievement/achievement.service';
 import { GameService } from './game/game.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto, saveGameDto } from './app.dto';
+import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto, setEloDto, saveGameDto } from './app.dto';
 import path from 'path';
 
 const multer = require('multer');
@@ -83,6 +83,19 @@ export class AppController {
     return response;
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('account/setElo')
+  async setElo(@Request() req, @Body() body: setEloDto) {
+    console.log('status changed');
+    await this.profileService.updateUserById(
+      body.winner_id, {
+      elo: body.new_winner_elo,
+    });
+    await this.profileService.updateUserById(
+      body.loser_id, {
+      elo: body.new_loser_elo,
+    });
+  }
 
   @UseGuards(JwtAuthGuard)
   @Post('account/setStatus')

@@ -120,6 +120,7 @@ export class ChatService {
         id42: message.id42,
         avatar: message.avatar,
         games: message.games,
+        elo: message.elo,
         wins: message.wins,
         realAvatar: message.realAvatar
       }
@@ -402,6 +403,7 @@ export class ChatService {
         name: message.name,
         avatar: message.avatar,
         games: message.games,
+        elo: message.elo,
         wins: message.wins,
         realAvatar: message.realAvatar
       }

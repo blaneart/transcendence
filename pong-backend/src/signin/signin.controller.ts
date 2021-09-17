@@ -11,6 +11,7 @@ async function createUsers() {
       t.string('name', 100).unique();
       t.string('avatar', 100).defaultTo('TyomaRules');
       t.integer('id42').unique(); // mustn't be able to sign up twice
+      t.integer('elo').defaultTo(100);
       t.integer('games').defaultTo(0);
       t.integer('wins').defaultTo(0);
       t.boolean('twofa').defaultTo(false);

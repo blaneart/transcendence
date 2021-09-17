@@ -24,6 +24,24 @@ export class setStatusDto {
   value: number
 }
 
+export class setEloDto {
+  @IsNotEmpty()
+  @IsNumber()
+  winner_id: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  loser_id: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  new_winner_elo: number
+
+  @IsNotEmpty()
+  @IsNumber()
+  new_loser_elo: number
+}
+
 export class setGamesDto {
   @IsNotEmpty()
   @IsNumberString()

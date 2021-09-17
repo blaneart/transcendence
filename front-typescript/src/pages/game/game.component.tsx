@@ -14,13 +14,6 @@ interface IGameProps {
   authToken: string
 }
 
-function restartGame(setReady: Function, setRestart: Function, restart: boolean, socket: Socket)
-{
-  setReady(false);
-  socket.emit('leaveRoom')
-  setRestart(!restart);
-}
-
 const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     console.log('game_component');
 
@@ -56,7 +49,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     useEffect(() => {
       console.log(socket);
       if (user)
-        socket.emit('joinRoom', user.name, user.id);
+        socket.emit('joinRoom', user.name, user.id, user.elo);
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })
@@ -89,11 +82,10 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       if (user)
       {
         var data = {
-          games: user.games + 1,
-          wins: result === 'won' ? user.wins + 1 : user.wins,
+          value: user.id,
         }
-        const response = await fetch('http://127.0.0.1:3000/account/setGames', {
-          method: 'PATCH',
+        const response = await fetch('http://127.0.0.1:3000/userById', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`
@@ -117,7 +109,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          pong = new Pong(setIsGameEnded, canvas, authToken, socket, id);
+          pong = new Pong(updateGameStats, canvas, authToken, socket, id);
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {
@@ -147,23 +139,6 @@ useEffect(() => {
     socket?.disconnect();
   }
 }, [])
-
-
-/* write result to database, bugged as hell; */
-
-
-  const changeGameState = (user: User, result: string) => {
-    return {
-      id: user.id,
-      name: user.name,
-      avatar: user.avatar,
-      games: user.games + 1 ,
-      wins: result === 'won' ? user.wins + 1 : user.wins,
-      twofa: user.twofa,
-      twofaSecret: user.twofaSecret,
-      realAvatar: user.realAvatar
-    }
-  } 
 
     return(
       <div className='game'>

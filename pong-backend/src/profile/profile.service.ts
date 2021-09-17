@@ -56,6 +56,8 @@ export class ProfileService {
 
   async updateUserById(id: number, change: any)
   {
+    console.log(id);
+    console.log(change);
     const response = await db('users').returning('*').where({id: id}).update(change);
     return response[0];
   }

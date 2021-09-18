@@ -22,6 +22,8 @@ export class ChatController {
   @Put('/rooms/:name/')
   async createRoom(@Request() request, @Param('name') name: string)
   {
+    if (name.startsWith('direct'))
+      throw new HttpException('Forbidden room name', HttpStatus.BAD_REQUEST)
     // Create the room using the service
     return await this.chatService.createRoom(name, request.user.id);
   }

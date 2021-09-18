@@ -1,4 +1,4 @@
-import { ChatMessageUpdate, DirectMessageUpdate } from './chat.types';
+import { ChatMessageType, ChatMessageUpdate, DirectMessageUpdate } from './chat.types';
 import { UserPublic } from 'src/app.types';
 import { Injectable } from '@nestjs/common';
 import { db } from 'src/signin/signin.controller';
@@ -82,13 +82,15 @@ export class ChatService {
     return newMessage[0];
   }
 
-  async sendMessage(userID: number, roomName: string, text: string) {
+  async sendMessage(userID: number, roomName: string, text: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null) {
     // Add a new message entry in the database
     const roomID = await this.findRoomId(roomName);
     const newMessage = await db('message').returning('*').insert({
       userID: userID,
       roomID: roomID,
       message: text,
+      receiverId: receiverId,
+      type: type
     });
     // Return the newly created message
     return newMessage[0];
@@ -101,7 +103,7 @@ export class ChatService {
     // Return the messages populated with user names.
     const messages = await db('message').where({ roomID: roomID })
       .join('users', 'users.id', '=', 'message.userID')
-      .select('message.id', 'message.message',
+      .select('message.id', 'message.message', 'message.type', 'message.receiverId',
         'users.name', 'users.id as senderID', 'users.id42', 'users.avatar', 'users.games', 'users.wins', 'users.realAvatar');
     return messages;
   }
@@ -130,7 +132,9 @@ export class ChatService {
         name: message.name,
         message: message.message,
         senderID: message.senderID,
-        sender: senderObject
+        sender: senderObject,
+        type: message.type,
+        receiverId: message.receiverId
       }
       return messageObject;
     })
@@ -382,7 +386,7 @@ export class ChatService {
     const messages = await db('directmessages').where({directID: directId})
       .join('users', 'users.id', '=', 'directmessages.senderID')
       .select(
-        'directmessages.id', 'directmessages.message', 'directmessages.senderID',
+        'directmessages.id', 'directmessages.message', 'directmessages.senderID', 'directmessages.type', 'directmessages.receiverId',
         'users.name as name', 'users.id42', 'users.avatar', 'users.games',
         'users.wins', 'users.realAvatar');
     return messages;
@@ -413,7 +417,9 @@ export class ChatService {
         name: message.name,
         message: message.message,
         senderID: message.senderID,
-        sender: sender
+        sender: sender,
+        type: message.type,
+        receiverId: message.receiverId
       }
       return update;
     });
@@ -421,11 +427,11 @@ export class ChatService {
   }
 
   // Save a newly sent direct message to our database
-  async sendDirectMessage(directId: number, senderId: number, message: string)
+  async sendDirectMessage(directId: number, senderId: number, message: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null)
   {
     // Create the message instance
     const response = await db('directmessages').returning('*')
-      .insert({ directID: directId, senderID: senderId, message: message });
+      .insert({ directID: directId, senderID: senderId, message: message, type: type, receiverId: receiverId });
     return response[0]
   }
 }

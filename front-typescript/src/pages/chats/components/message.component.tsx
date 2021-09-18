@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { Socket } from "socket.io-client";
-import { MessageType, Room } from "../chats.types";
+import { ChatMessageType, MessageType, Room } from "../chats.types";
 import MessageText from "./messageText.component";
 
 interface MessageParams {
@@ -46,6 +47,7 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
       onBlock();
   }
 
+  let history = useHistory();
   // Ban a user
   const handleBan = async () => {
 
@@ -89,14 +91,34 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
       <p>Message blocked</p>
     );
   }
-
+ console.log(message.receiverId, userId);
   // Else, show the message
   return (
     <div className="flex flex-row py-2">
-      <MessageText message={message} />
-      {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
+      <MessageText message={message} socket={socket} userId={userId} />
+      {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
+      <> 
+      <button onClick={() => {
+        socket.emit('accept')
+      }} >accept</button>
+      <button onClick={() =>{
+        socket.emit('reject');
+      }}>reject</button> 
+      </>
+      : null}
+      
+      {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
+      <button onClick={() => {
+        history.replace(`/play/duels/${message.id}`);
+      }}>join waiting room</button>
+    }
+      
+      {userId === message.senderID ? null 
+      : <button onClick={handleBlock}>Block sender</button>}
+      
       {canIBan(userId, room, amAdmin, message) ? <div>
-        <button onClick={handleBan}>Ban sender</button><button onClick={handleMute}>Mute sender</button>
+        <button onClick={handleBan}>Ban sender</button>
+        <button onClick={handleMute}>Mute sender</button>
       </div> : null}
     </div>
   );

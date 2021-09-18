@@ -6,12 +6,13 @@ import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
 import { User } from "../../App.types";
 
-const ENDPOINT = "http://127.0.0.1:3002";
+const ENDPOINT = "ws://127.0.0.1:3002";
 
 interface IGameProps {
   user?: User | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
+  ranked: boolean
 }
 
 function restartGame(setReady: Function, setRestart: Function, restart: boolean, socket: Socket)
@@ -21,7 +22,7 @@ function restartGame(setReady: Function, setRestart: Function, restart: boolean,
   setRestart(!restart);
 }
 
-const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
+const Game: React.FC<IGameProps> = ({user, setUser, authToken, ranked}) => {
     console.log('game_component');
 
 

@@ -70,7 +70,7 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
     <div>
 
       <h2>Direct conversaton with: {target}</h2>
-        <DirectMessageList messages={messages} userId={userId} authToken={authToken} />
+        <DirectMessageList messages={messages} userId={userId} authToken={authToken} socket={socket}/>
         <DirectMessageComposer socket={socket} interlocutor={target} />
     </div>
   );

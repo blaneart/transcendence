@@ -64,7 +64,9 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
   return (
     <div className={mainClasses}>
       <h5 className="text-xl mt-2 mb-4">Messages</h5>
-      {messages?.map((msg) => <Message message={msg} blockList={blockList} onBlock={updateBlockList} authToken={authToken} userId={userId} room={room} socket={socket} key={msg.id} amAdmin={amAdmin} />)}
+      {messages?.map((msg) => <Message message={msg} blockList={blockList} 
+      onBlock={updateBlockList} authToken={authToken} userId={userId} 
+      room={room} socket={socket} key={msg.id} amAdmin={amAdmin}/>)}
     </div>
   );
 }

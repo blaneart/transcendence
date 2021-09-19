@@ -42,8 +42,8 @@ async function createGames() {
   if (!exists) {
       await db.schema.createTable('games', function(t) {
         t.increments('id').primary();
-        t.integer('winner');
-        t.integer('loser');
+        t.string('winner', 100);
+        t.string('loser', 100);
         t.integer('loserScore');
       });
     }
@@ -173,6 +173,7 @@ async function createDirects() {
         t.integer('userB');
         t.foreign('userA').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
         t.foreign('userB').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.unique(['userA', 'userB']); // two people can only have one direct conversation
       });
     }
 }

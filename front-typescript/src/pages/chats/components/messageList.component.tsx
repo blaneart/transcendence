@@ -59,7 +59,7 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
     updateBlockList();
   }, [updateBlockList]);
 
-  const mainClasses = "px-4 py-4 border border-b-0 bg-gray-900 text-gray-300 border-gray-600 rounded-tr-lg border-solid h-full" + ( amOwner ? "" : " rounded-l-lg");
+  const mainClasses = "px-4 py-4 border border-b-0 bg-gray-900 text-gray-300 border-gray-600 rounded-tr-lg border-solid h-full" + ( amOwner ? "" : " rounded-tl-lg");
 
   return (
     <div className={mainClasses}>

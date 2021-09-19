@@ -3,29 +3,11 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
-import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, ChatMessageType } from "./chat.types";
+import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSocket, ChatMessageType } from "./chat.types";
 import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
 import { LoginAttempt, DirectMessage, BanRequest, ChatMessage } from "./chat.dto";
 
-interface User {
-  id: number;
-  name: string;
-  id42: number;
-  avatar: string;
-  games: number;
-  elo: number;
-  wins: number;
-  twofa: boolean;
-  twofaSecret: string;
-  realAvatar: boolean
-  status: number;
-}
-
-// TypeScript needs to know that our auth guards append the user to the socket
-interface AuthenticatedSocket extends Socket {
-  user: User
-}
 
 @WebSocketGateway(8080, { cors: true })
 export class ChatGateway {

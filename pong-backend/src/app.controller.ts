@@ -55,6 +55,8 @@ export class AppController {
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
   @Post('userById')
   async getUserById(@Body() body: getUserByIdDto) {
+    console.log('userById');
+    console.log(body.value);
     const user = await this.profileService.getUserById(body.value);
     return user;
   }
@@ -64,6 +66,13 @@ export class AppController {
   async getUsers() {
     const users = await this.profileService.getUsers();
     return users;
+  }
+
+  @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
+  @Get('games')
+  async getGames(@Request() req) {
+    const games = await this.gameService.getGamesByName(req.user.name);
+    return games;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -85,8 +94,8 @@ export class AppController {
 
   @UseGuards(JwtAuthGuard)
   @Post('account/setElo')
-  async setElo(@Request() req, @Body() body: setEloDto) {
-    console.log('status changed');
+  async setElo(@Body() body: setEloDto) {
+    console.log('elo changed');
     await this.profileService.updateUserById(
       body.winner_id, {
       elo: body.new_winner_elo,

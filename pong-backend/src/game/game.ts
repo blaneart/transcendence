@@ -116,7 +116,6 @@ export class Pong {
       pos.dy = -pos.dy;
     }
 
-    
     let paddle = (pos.dx < 0) ? player1 : player2;
     var pt = null;
     pt = this.ballIntercept(this.ball, paddle.paddle, pos.nx, pos.ny);

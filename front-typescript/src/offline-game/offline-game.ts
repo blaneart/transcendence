@@ -196,36 +196,40 @@ class Offline_Pong {
   {
     if (player.left < ball.right && player.right > ball.left &&
         player.top < ball.bottom && player.bottom > ball.top)
-        {
-          ball.vel.x = -ball.vel.x;
+    {
+      let audio = new Audio("../../../audio_files/paddle_sound_sound.mp3");
+      audio.play();
+      ball.vel.x = -ball.vel.x;
 		  if (player.botDifficulty < 0)
-			ball.pos.x = player.pos.x + player.size.x;
+        ball.pos.x = player.pos.x + player.size.x;
 		  else
-			ball.pos.x = player.pos.x - ball.size.x;
-          ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 / player.size.y;
-          ball.vel.len *= 1.05;
+        ball.pos.x = player.pos.x - ball.size.x;
+      ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 / player.size.y;
+      ball.vel.len *= 1.05;
 		  if (player.empowered === 2 || player.empowered === 4)
 		  {
-			ball.vel.len *= 2.5;
-			if (player.empowered === 4)
-				player.empowered = 1;
-			else
-				player.empowered = 0;
+        ball.vel.len *= 2.5;
+        if (player.empowered === 4)
+          player.empowered = 1;
+        else
+          player.empowered = 0;
 		  }
 		  if (player.pos.x < this._canvas.width / 2)
-			this.ball.lastTouch = 1;
+        this.ball.lastTouch = 1;
 		  else
-			this.ball.lastTouch = 2;
-        }
+        this.ball.lastTouch = 2;
+    }
   }
 
   collideObstacles(obstacle: Rect, ball: Ball)
   {
-	let vert = 0
-	let left = ball.vel.x > 0 ? -1 : 1;
+    let vert = 0
+    let left = ball.vel.x > 0 ? -1 : 1;
     if (obstacle.left < ball.right && obstacle.right > ball.left &&
         obstacle.top < ball.bottom && obstacle.bottom > ball.top)
-        {
+    {
+      let audio = new Audio("../../../audio_files/wall_sound.mp3");
+      audio.play();
 			if (ball.vel.y < 0)
 			{
 				if (left >= 0)
@@ -291,7 +295,7 @@ class Offline_Pong {
 			}
 			ball.vel.y = (((obstacle.pos.y + obstacle.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 30 / obstacle.size.y;
 			if (vert === -1)
-        		ball.vel.x = -ball.vel.x;
+        ball.vel.x = -ball.vel.x;
 		}
   }
 
@@ -321,17 +325,17 @@ class Offline_Pong {
 
   reset()
   {
-	this.ball.lastTouch = 0;
+    this.ball.lastTouch = 0;
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
     this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
-	this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
-	this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-	this.players[1].size.y = 100;
-	this.players[0].size.y = 100;
-	this.players[0].empowered = 0;
-	this.players[1].empowered = 0;
+    this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
+    this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
+    this.players[1].size.y = 100;
+    this.players[0].size.y = 100;
+    this.players[0].empowered = 0;
+    this.players[1].empowered = 0;
   }
 
   isGameEnded() : boolean
@@ -363,7 +367,7 @@ class Offline_Pong {
       this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
       this.ball.vel.y = 100 * (Math.random() * 2 - 1);
       this.ball.vel.len = 400;
-	  this.ball.lastTouch = 0;
+	    this.ball.lastTouch = 0;
     }
   }
   draw()
@@ -381,9 +385,9 @@ class Offline_Pong {
       this._context.stroke();
       this.players.forEach(player => this.drawRect(player));
       this.players.forEach((player, index) => this.drawScore(player.score.toString(), index));
-	  this.obstacles.forEach(obstacles => this.drawObstacles(obstacles));
-	  if (this.curr_powerUp.type !== 0)
-		this.drawPowerUp(this.curr_powerUp);
+      this.obstacles.forEach(obstacles => this.drawObstacles(obstacles));
+      if (this.curr_powerUp.type !== 0)
+        this.drawPowerUp(this.curr_powerUp);
       if (!this.isGameEnded())
       {
         this._context.fillStyle = 'white';
@@ -454,6 +458,8 @@ class Offline_Pong {
 	}
   if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
   {
+    let audioscore = new Audio("../../../audio_files/score_sound.mp3");
+    audioscore.play();
     let playerId = this.ball.vel.x < 0 ? 1 : 0;
     if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
       this.players[playerId].score++;
@@ -461,6 +467,8 @@ class Offline_Pong {
   }
   if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
   {
+    let audio = new Audio("../../../audio_files/wall_sound.mp3");
+    audio.play();
     this.ball.vel.y = -this.ball.vel.y;
     if (this.ball.top < 0)
       this.ball.pos.y = 0;

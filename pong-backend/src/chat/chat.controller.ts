@@ -22,6 +22,12 @@ export class ChatController {
   @Put('/rooms/:name/')
   async createRoom(@Request() request, @Param('name') name: string)
   {
+    // Check if the room already exists
+    const room = await this.chatService.getRoom(name);
+
+    if (room)
+      throw new HttpException("Room already exists", HttpStatus.CONFLICT);
+
     // Create the room using the service
     return await this.chatService.createRoom(name, request.user.id);
   }

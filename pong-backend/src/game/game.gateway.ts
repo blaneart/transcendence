@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { time } from 'console';
 import { WSASERVICE_NOT_FOUND } from 'constants';
@@ -7,6 +7,8 @@ import { Socket, Server } from 'socket.io';
 import { GameService } from './game.service';
 var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
+import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
+import { AuthenticatedSocket } from 'src/chat/chat.types';
 
 // import Ball from './game/game';
 
@@ -62,6 +64,19 @@ export class Player {
 
 }
 
+// This is an async version of the Array find method in Javascript
+async function findAsyncSequential<T>(
+  array: T[],
+  predicate: (t: T) => Promise<boolean>,
+): Promise<T | undefined> {
+  for (const t of array) {
+    if (await predicate(t)) {
+      return t;
+    }
+  }
+  return undefined;
+}
+
 @WebSocketGateway(3002, { cors: true })
 export class GameGateway implements OnGatewayInit {
   rooms = {};
@@ -93,14 +108,37 @@ export class GameGateway implements OnGatewayInit {
     );
   }
 
-  getWaitingRoom = (socket: Socket, userName: string, userId: number) =>
+  // Return true, if the room with this name is available for joining
+  // i.e. contains only one player, and that player is not yourself.
+  // userId: our user id.
+  async roomAvailable(roomName: string, userId: number): Promise<boolean>
+  {
+    const theRoom = this.server.sockets.adapter.rooms.get(roomName);
+    if (theRoom.size < 2)
+    {
+      // If this is an empty room, something isn't right.
+      if (theRoom.size == 0)
+        return false;
+      
+      // If there is one player in the room, get their indentity
+      const lonelyPlayer = (await this.server.in([...theRoom][0]).fetchSockets())[0];
+
+      // Ensure we're not playing with ourself
+      return (lonelyPlayer.data.user.id !== userId);
+    }
+    return false;
+  }
+
+
+  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number) =>
   {
     let playerId;
     let ready = false;
     let roomName;
 
-    roomName = this.getActiveRooms().find((roomName) => 
-         this.server.sockets.adapter.rooms.get(roomName).size < 2);
+    // Check all rooms available for joining
+    roomName = await findAsyncSequential(this.getActiveRooms(), async (roomName) => await this.roomAvailable(roomName, userId));
+    console.log('foundRoomName: ', roomName);
     console.log(userId, userName);
     /* creates new room if every room is full*/
     if (!roomName)
@@ -280,10 +318,12 @@ export class GameGateway implements OnGatewayInit {
     
   }
 
-
+  @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  createRoom(socket: Socket, userInfo) {
+  createRoom(socket: AuthenticatedSocket, userInfo) {
     console.log('joinRoom');
+
+    socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo[0], userInfo[1]);
   }
   

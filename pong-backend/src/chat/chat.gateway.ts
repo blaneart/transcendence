@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import { ChatService } from "./chat.service";
 import { UseGuards } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
-import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSocket } from "./chat.types";
+import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSocket, ChatMessageType } from "./chat.types";
 import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
 import { LoginAttempt, DirectMessage, BanRequest, ChatMessage } from "./chat.dto";
@@ -159,7 +159,8 @@ export class ChatGateway {
       name: client.user.name, // The name is authenticated
       message: message.text,
       senderID: client.user.id,
-      sender: senderUser
+      sender: senderUser,
+      type: ChatMessageType.TEXT
     };
 
     // Send the update to all other clients, including the sender
@@ -392,11 +393,140 @@ export class ChatGateway {
       name: client.user.name,
       message: message.text,
       senderID: client.user.id,
-      sender: client.user as UserPublic
+      sender: client.user as UserPublic,
+      type: ChatMessageType.TEXT
     }
 
     // Send the update to other side
     this.server.to(`direct_${direct.id}`).emit("newDirectMessage", newMessage);
+  }
+
+
+  // Game invitation methods by ablanar
+
+
+  getRoomNameBySocket = (socket: Socket) => {
+    const arr = Array.from(socket.rooms);
+    const filtered = arr.filter(room => room !== socket.id)
+    return filtered[0];
+  }
+
+  async handleChatGameInvite(client: AuthenticatedSocket, roomName: string, enemyId: number)
+  {
+
+    const room = await this.chatService.findRoomByName(roomName);
+
+    // Ensure room exists
+    if (!room)
+    {
+      throw new WsException("Room not found");
+    }
+
+    // Check if the user has joined this room
+    const canMessage = await this.chatService.checkUserJoined(room, client.user.id);
+
+    // Ensure the user joined this room
+    if (canMessage !== true)
+    {
+      throw new WsException("You must log in the room to write in it");
+    }
+
+    // Ensure the user is not muted
+    if (await this.chatService.isMuted(client.user.id, room.id))
+      throw new WsException("You are muted");
+
+    // Save the new message to our database
+    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "keklol");
+
+    // Get the sender info for the update
+    const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
+    
+    // Create a new update for the clients
+    const newMessage: ChatMessageUpdate = {
+      id: savedMessage.id, // The id comes from our database
+      name: client.user.name, // The name is authenticated
+      message: "invited you for a game",
+      senderID: client.user.id,
+      sender: senderUser,
+      type: ChatMessageType.GAME_INVITE,
+      receiverId: enemyId[0]
+    };
+
+    console.log(enemyId);
+    // Send the update to all other clients, including the sender
+    this.server.to(roomName).emit("newMessage", newMessage);
+
+    this.server.to(client.id).emit('lel');
+
+  }
+
+  async handleDirectGameInvite(client: AuthenticatedSocket, roomName: string, enemyId: number)
+  {
+    const directConvo = await this.chatService.findDirect(client.user.id, enemyId[0]);
+
+    // Ensure room exists
+    if (!directConvo)
+    {
+      throw new WsException("Direct conversation not found");
+    }
+
+    // Save the new message to our database
+    // const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "keklol");
+    const savedMessage = await this.chatService.sendDirectMessage(directConvo.id, client.user.id, 'game invite', ChatMessageType.GAME_INVITE, enemyId[0]);
+
+    // Get the sender info for the update
+    const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
+    
+    const newMessage: DirectMessageUpdate = {
+      id: savedMessage.id,
+      name: client.user.name,
+      message: "Invited you for a game",
+      senderID: client.user.id,
+      sender: client.user as UserPublic,
+      type: ChatMessageType.GAME_INVITE,
+      receiverId: enemyId[0]
+    }
+
+    // Send the update to other side
+    this.server.to(`direct_${directConvo.id}`).emit("newDirectMessage", newMessage);
+
+    console.log(enemyId);
+
+    this.server.to(client.id).emit('lel');
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('acceptGame')
+  acceptGame(client: AuthenticatedSocket)
+  {
+    
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('rejectGame')
+  rejectGame(client: AuthenticatedSocket)
+  {
+    
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('sendGameInvitation')
+  async sendGameInvite(client: AuthenticatedSocket, enemyId: number)
+  {
+
+    const roomName: string = this.getRoomNameBySocket(client);
+
+    if (roomName.startsWith('direct_'))
+    {
+      // This is a direct message
+      this.handleDirectGameInvite(client, roomName, enemyId);
+    }
+    else
+    {
+      // This is a regular chat message
+      this.handleChatGameInvite(client, roomName, enemyId);
+    }
+    
   }
 
 }

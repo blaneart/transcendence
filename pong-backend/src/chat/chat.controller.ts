@@ -29,6 +29,8 @@ export class ChatController {
     if (room)
       throw new HttpException("Room already exists", HttpStatus.CONFLICT);
 
+    if (param.name.startsWith('direct'))
+      throw new HttpException('Forbidden room name', HttpStatus.BAD_REQUEST)
     // Create the room using the service
     return await this.chatService.createRoom(param.name, request.user.id);
   }

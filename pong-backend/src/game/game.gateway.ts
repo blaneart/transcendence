@@ -5,6 +5,7 @@ import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 import { GameService } from './game.service';
+import { AppService } from '../app.service';
 var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
@@ -225,13 +226,25 @@ export class GameGateway implements OnGatewayInit {
           if (this.rooms[roomName].players[0].id === 0)
             playerid = 0;
           if (this.rooms[roomName].scores[0] >= 10)
-            this.gameService.saveGame(this.rooms[roomName].players[playerid].userId, this.rooms[roomName].players[1 - playerid].userId,  this.rooms[roomName].scores[1])
+          {
+            this.gameService.saveGame(this.rooms[roomName].players[playerid].userId, 
+              this.rooms[roomName].players[1 - playerid].userId,  this.rooms[roomName].scores[1]);
+
+            this.server.to(roomName).emit('endGame', this.rooms[roomName].players[playerid].name);
+          }
           else
-            this.gameService.saveGame(this.rooms[roomName].players[1 - playerid].userId, this.rooms[roomName].players[playerid].userId,  this.rooms[roomName].scores[0])
+          {
+            this.gameService.saveGame(this.rooms[roomName].players[1 - playerid].userId,
+                this.rooms[roomName].players[playerid].userId,  this.rooms[roomName].scores[0]);
+
+            this.server.to(roomName).emit('endGame', this.rooms[roomName].players[1 - playerid].name);
+
+
+          }
 
           this.server.emit('changeScore', this.rooms[roomName].scores)
 
-          this.server.to(roomName).emit('endGame');
+
           clearInterval(interval);
         }
 
@@ -251,9 +264,12 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('watchMatch')
   watchMatch(client: Socket, roomName: string)
   {
-    console.log(roomName);
     client.join(roomName)
-    console.log(this.server.sockets.adapter.rooms.get(roomName).size)
+    let playerid = 1;
+    if (this.rooms[roomName].players[0].id === 0)
+      playerid = 0;
+    this.server.to(client.id).emit('playersNames', this.rooms[roomName].players[playerid].name,
+                            this.rooms[roomName].players[1 - playerid].name)
   }
 
   @SubscribeMessage('quitGame')

@@ -5,6 +5,7 @@ export interface UserPublic {
   name: string;
   avatar: string;
   games: number;
+  elo: number;
   wins: number;
   realAvatar: boolean;
 }

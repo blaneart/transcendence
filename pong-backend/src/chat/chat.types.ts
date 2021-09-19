@@ -21,6 +21,13 @@ export interface DirectMessageUpdate {
   name: string
   message: string
   senderID: number
+  type: ChatMessageType
+  receiverId?: number
+}
+
+export enum ChatMessageType {
+  TEXT = 0,
+  GAME_INVITE
 }
 
 // The update we send to frontend to show messages
@@ -30,6 +37,8 @@ export interface ChatMessageUpdate {
   message: string,
   senderID: number
   sender: UserPublic
+  type: ChatMessageType
+  receiverId?: number   
 }
 
 // The update we send to frontend to show messages

@@ -196,6 +196,16 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
         setAmAdmin(true);
     })
 
+    // Game invitation stuff by ablanar
+    
+    socket.on("recieveInvite", () => {
+      
+    })
+
+    socket.on('lel', () => {
+      alert('случился лел0');
+    })
+
     // On component unmount, disconnect socket
     return function cleanup() {
       socket.disconnect();

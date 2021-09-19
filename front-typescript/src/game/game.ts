@@ -159,7 +159,7 @@ class Pong {
       else if (this.players[this.id].score >= 10)
         this.fn('won');
       else
-        this.fn('lost');
+        this.fn('lost', this.auth);
       this.socket.emit('leaveRoom');
       this.end();
     })

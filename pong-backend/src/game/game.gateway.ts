@@ -5,7 +5,7 @@ import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 import { GameService } from './game.service';
-import { AppService } from '../app.service';
+import { ProfileService } from '../profile/profile.service';
 var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
@@ -17,16 +17,18 @@ export class Player {
   name: string;
   userId: number;
   id: number;
+  elo: number;
   paddle: Paddle;
   socketId: string;
   position: number;
   dp: number;
-  constructor(name: string, userId: number, id: number, socket: string, pos: number)
+  constructor(name: string, userId: number, id: number, elo: number, socket: string, pos: number)
   {
     this.paddle = new Paddle();
     this.name = name;
     this.userId = userId;
     this.id = id;
+    this.elo = elo;
     this.socketId= socket;
     this.paddle.pos.y = pos;
     this.paddle.pos.x = id === 0 ? 30 : 800 - 30;
@@ -58,23 +60,10 @@ export class Player {
     return this.id;
   }
 
-  set Poisiton(position: number)
+  set Position(position: number)
   {
     this.position = position;
   }
-
-  get_new_mmr(winner_old_mmr, loser_old_mmr)
-  {
-    let mmr = {winner_new_mmr: 0, loser_new_mmr: 0};
-    let win_percentage_loser = 1 / (1 + 10 ** ((winner_old_mmr - loser_old_mmr) / 400));
-    let win_percentage_winner = 1 / (1 + 10 ** ((loser_old_mmr - winner_old_mmr) / 400));
-
-    mmr.winner_new_mmr = winner_old_mmr + 20 * (1 - win_percentage_winner);
-    mmr.loser_new_mmr = loser_old_mmr + 20 * (-win_percentage_loser);
-    console.log(mmr);
-    return (mmr);
-  }
-
 }
 
 // This is an async version of the Array find method in Javascript
@@ -93,7 +82,7 @@ async function findAsyncSequential<T>(
 @WebSocketGateway(3002, { cors: true })
 export class GameGateway implements OnGatewayInit {
   rooms = {};
-  constructor(private readonly gameService: GameService){}
+  constructor(private readonly gameService: GameService, private readonly profileService: ProfileService){}
 
   @WebSocketServer() 
   server: Server;
@@ -164,7 +153,7 @@ export class GameGateway implements OnGatewayInit {
   }
 
 
-  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number) =>
+  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number) =>
   {
     let playerId;
     let ready = false;
@@ -185,7 +174,7 @@ export class GameGateway implements OnGatewayInit {
           scores: [0,0],
           ball: new Ball(),
         }
-        this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, socket.id, (600 - 100) / 2);
+        this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2);
     }
     
     /* or assigns player to a room with one player */
@@ -196,7 +185,8 @@ export class GameGateway implements OnGatewayInit {
         playerId = 0;
       else
         playerId = 1;
-      this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, socket.id, (600 - 100) / 2)
+
+      this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
       this.rooms[roomName].ready = true;
     }
 
@@ -265,6 +255,28 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('changeScore', this.rooms[roomName].scores)
   }
 
+  getNewMmr(winner_old_mmr, loser_old_mmr)
+  {
+    let mmr = {winner_new_mmr: 0, loser_new_mmr: 0};
+  
+    let win_percentage_winner = 1 / (1 + (10 ** ((loser_old_mmr - winner_old_mmr) / 400)));
+    let win_percentage_loser = 1 / (1 + (10 ** ((winner_old_mmr - loser_old_mmr) / 400)));
+
+    mmr.winner_new_mmr = Math.floor(winner_old_mmr + 20 * (1 - win_percentage_winner));
+    mmr.loser_new_mmr = Math.floor(loser_old_mmr + 20 * (-win_percentage_loser));
+    
+    console.log(mmr);
+    return (mmr);
+  }
+
+  saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, loser_id: number, loser_elo: number, loser_score: number)
+  {
+    let newMmrs = this.getNewMmr(winner_elo, loser_elo);
+    this.gameService.saveGame(winner_id, loser_id, loser_score);
+    this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
+    this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
+  }
+
   pushBall(roomName: string)
   {
     const callback = (dt: number, pong: Pong) => {
@@ -278,6 +290,29 @@ export class GameGateway implements OnGatewayInit {
         {
           if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
             this.endGame(roomName);
+            // todo
+          console.log('ended');
+          let playerid = 1;
+          if (this.rooms[roomName].players[0].id === 0)
+            playerid = 0;
+          if (this.rooms[roomName].scores[0] >= 10)
+            this.saveAndUpdate(roomName,
+              this.rooms[roomName].players[playerid].userId,
+              this.rooms[roomName].players[playerid].elo,
+              this.rooms[roomName].players[1 - playerid].userId,
+              this.rooms[roomName].players[1 - playerid].elo,
+              this.rooms[roomName].scores[1]);
+          else
+            this.saveAndUpdate(roomName,
+              this.rooms[roomName].players[1 - playerid].userId,
+              this.rooms[roomName].players[1 - playerid].elo,
+              this.rooms[roomName].players[playerid].userId, 
+              this.rooms[roomName].players[playerid].elo,
+              this.rooms[roomName].scores[0]);
+
+          this.server.emit('changeScore', this.rooms[roomName].scores)
+
+          this.server.to(roomName).emit('endGame');
           clearInterval(interval);
         }
 
@@ -375,8 +410,6 @@ export class GameGateway implements OnGatewayInit {
     if (this.rooms.hasOwnProperty(roomName)) // true
       delete this.rooms[roomName];
     this.server.emit('getListOfRooms', this.showRooms());
-
-    
   }
 
   @UseGuards(JwtWsAuthGuard)
@@ -385,7 +418,7 @@ export class GameGateway implements OnGatewayInit {
     console.log('joinRoom');
 
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoom(socket, userInfo[0], userInfo[1]);
+    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2]);
   }
   
   @SubscribeMessage('getListOfRooms')

@@ -170,6 +170,7 @@ async function createDirects() {
         t.integer('userB');
         t.foreign('userA').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
         t.foreign('userB').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.unique(['userA', 'userB']); // two people can only have one direct conversation
       });
     }
 }

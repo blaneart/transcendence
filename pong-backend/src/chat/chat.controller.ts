@@ -166,6 +166,8 @@ export class ChatController {
   @Put('/directs/:id/')
   async createDirect(@Request() request, @Param('id', ParseIntPipe) id: number)
   {
+    if (await this.chatService.findDirect(request.user.id, id))
+      throw new HttpException("Direct conversation with this user already exists.", HttpStatus.CONFLICT);
     return await this.chatService.createDirect(request.user.id, id);
   }
 

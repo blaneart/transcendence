@@ -221,6 +221,8 @@ export class GameGateway implements OnGatewayInit {
     }
   }
 
+
+
   // Do everything necessary to end the game
   endGame(roomName: string, abandoned: boolean = false, abandoningId: number | null = null)
   {
@@ -235,24 +237,25 @@ export class GameGateway implements OnGatewayInit {
     {
       this.rooms[roomName].scores[abandoningId] = 0
       this.rooms[roomName].scores[1 - abandoningId] = 10;
-      this.server.to(roomName).emit('endGame', 'abandoned');
     }
     else if (this.rooms[roomName].scores[0] >= 10)
-    {
-      this.gameService.saveGame(this.rooms[roomName].players[playerid].userId, 
-        this.rooms[roomName].players[1 - playerid].userId,  this.rooms[roomName].scores[1]);
-
-      this.server.to(roomName).emit('endGame', this.rooms[roomName].players[playerid].name);
-    }
+      this.saveAndUpdate(roomName,
+        this.rooms[roomName].players[playerid].userId,
+        this.rooms[roomName].players[playerid].elo,
+        this.rooms[roomName].players[1 - playerid].userId,
+        this.rooms[roomName].players[1 - playerid].elo,
+        this.rooms[roomName].scores[1]);
     else
-    {
-      this.gameService.saveGame(this.rooms[roomName].players[1 - playerid].userId,
-          this.rooms[roomName].players[playerid].userId,  this.rooms[roomName].scores[0]);
-
-      this.server.to(roomName).emit('endGame', this.rooms[roomName].players[1 - playerid].name);
-    }
+      this.saveAndUpdate(roomName,
+        this.rooms[roomName].players[1 - playerid].userId,
+        this.rooms[roomName].players[1 - playerid].elo,
+        this.rooms[roomName].players[playerid].userId, 
+        this.rooms[roomName].players[playerid].elo,
+        this.rooms[roomName].scores[0]);
 
     this.server.emit('changeScore', this.rooms[roomName].scores)
+
+    this.server.to(roomName).emit('endGame', abandoned ? "abandoned" : null);
   }
 
   getNewMmr(winner_old_mmr, loser_old_mmr)
@@ -290,29 +293,6 @@ export class GameGateway implements OnGatewayInit {
         {
           if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
             this.endGame(roomName);
-            // todo
-          console.log('ended');
-          let playerid = 1;
-          if (this.rooms[roomName].players[0].id === 0)
-            playerid = 0;
-          if (this.rooms[roomName].scores[0] >= 10)
-            this.saveAndUpdate(roomName,
-              this.rooms[roomName].players[playerid].userId,
-              this.rooms[roomName].players[playerid].elo,
-              this.rooms[roomName].players[1 - playerid].userId,
-              this.rooms[roomName].players[1 - playerid].elo,
-              this.rooms[roomName].scores[1]);
-          else
-            this.saveAndUpdate(roomName,
-              this.rooms[roomName].players[1 - playerid].userId,
-              this.rooms[roomName].players[1 - playerid].elo,
-              this.rooms[roomName].players[playerid].userId, 
-              this.rooms[roomName].players[playerid].elo,
-              this.rooms[roomName].scores[0]);
-
-          this.server.emit('changeScore', this.rooms[roomName].scores)
-
-          this.server.to(roomName).emit('endGame');
           clearInterval(interval);
         }
 

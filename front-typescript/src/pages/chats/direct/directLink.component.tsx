@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { User } from "../../../App.types";
-import UserAvatar from "../../users/components/UserAvatar.component";
 import { Direct } from "../chats.types";
 import MessageAvatar from "../components/messageAvatar.component";
 

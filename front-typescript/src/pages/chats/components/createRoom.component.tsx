@@ -1,4 +1,4 @@
-import React, { KeyboardEvent, useState } from 'react';
+import React, { useState } from 'react';
 import StyledSubmit from './styledSubmit.component';
 import StyledTextInput from './styledTextInput.component';
 

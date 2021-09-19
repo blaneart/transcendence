@@ -64,7 +64,7 @@ async function createDirect(authToken: string, userB: number) {
 // Return true if a user with a given id is already present in the directs array.
 function inDirects(directs: Direct[], id: number)
 {
-  return directs.some((direct) => direct.userA == id || direct.userB == id);
+  return directs.some((direct) => direct.userA === id || direct.userB === id);
 }
 
 const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {

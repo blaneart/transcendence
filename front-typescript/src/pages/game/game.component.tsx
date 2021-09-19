@@ -56,6 +56,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, ranked}) => {
     /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {
       console.log(socket);
+      console.log(user)
       if (user)
         socket.emit('joinRoom', user.name, user.id);
       socket.on('enemyname', (eName) => {
@@ -74,7 +75,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, ranked}) => {
       setUpdateStats(true);
       socket.emit('leaveRoom');
     })
-  }, [restart]);
+  }, [restart, user]);
 
 
 

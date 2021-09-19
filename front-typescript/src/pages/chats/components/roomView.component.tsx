@@ -198,13 +198,10 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
 
     // Game invitation stuff by ablanar
     
-    socket.on("recieveInvite", () => {
-      
+    socket.on("challengeAccepted", (gameRoomName) => {
+      history.replace(`/play/duels/${gameRoomName}`);
     })
 
-    socket.on('lel', () => {
-      alert('случился лел0');
-    })
 
     // On component unmount, disconnect socket
     return function cleanup() {

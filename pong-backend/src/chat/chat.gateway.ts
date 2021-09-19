@@ -132,6 +132,7 @@ export class ChatGateway {
     this.join_room(client, room);
   }
 
+  
   // Handle a new message
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('chatMessage')
@@ -417,7 +418,7 @@ export class ChatGateway {
   // Game invitation methods by ablanar
 
 
-  getRoomNameBySocket = (socket: Socket) => {
+  getRoomNameBySocket = (socket: AuthenticatedSocket) => {
     const arr = Array.from(socket.rooms);
     const filtered = arr.filter(room => room !== socket.id)
     return filtered[0];
@@ -448,7 +449,7 @@ export class ChatGateway {
       throw new WsException("You are muted");
 
     // Save the new message to our database
-    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "keklol");
+    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "invited you for a game",  ChatMessageType.GAME_INVITE, enemyId[0]);
 
     // Get the sender info for the update
     const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
@@ -503,15 +504,27 @@ export class ChatGateway {
     this.server.to(`direct_${directConvo.id}`).emit("newDirectMessage", newMessage);
 
     console.log(enemyId);
-
+    console.log(client.id);
     this.server.to(client.id).emit('lel');
   }
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('acceptGame')
-  acceptGame(client: AuthenticatedSocket)
+  async acceptGame(client: AuthenticatedSocket, data)
   {
-    
+    let roomName = this.getRoomNameBySocket(client);
+    const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
+    console.log('accept game : ', roomName);
+    for (let socket of socketsInTheRoom)
+    {
+      console.log(socket.data.user.id)
+
+      if (socket.data.user && socket.data.user.id === data[0] )
+      {
+        console.log(socket.id)
+        this.server.to(socket.id).emit("challengeAccepted", data[1]);
+            }
+    }
   }
 
   @UseGuards(JwtWsAuthGuard)

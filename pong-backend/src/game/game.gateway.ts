@@ -5,7 +5,6 @@ import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 import { GameService } from './game.service';
-import { AppService } from '../app.service';
 var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 
@@ -279,7 +278,6 @@ export class GameGateway implements OnGatewayInit {
     const arr = Array.from(this.server.sockets.adapter.rooms);
     const filtered = arr.filter(room => !room[1].has(room[0]))
     const res = filtered.map(i => i[0]);
-
     return res;
 }
 
@@ -308,10 +306,6 @@ export class GameGateway implements OnGatewayInit {
     
   }
 
-
-  @SubscribeMessage('')
-
-  
   @SubscribeMessage('joinRoom')
   createRoom(socket: Socket, userInfo) {
     console.log('joinRoom');

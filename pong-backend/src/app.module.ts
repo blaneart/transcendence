@@ -19,6 +19,7 @@ import { FriendDuoModule } from './friendDuo/friendDuo.module';
 import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';
 import { FriendDuoService } from './friendDuo/friendDuo.service';
+import { DuelGateway } from './duel.gateway';
 
 
 @Module({
@@ -32,6 +33,6 @@ import { FriendDuoService } from './friendDuo/friendDuo.service';
     FriendDuoModule,
   ],
   controllers: [AppController, SigninController, RegisterController, ProfileController, AuthController],
-  providers: [AppService, AppGateway, GameGateway, GameService, ProfileService, SigninService, AchievementService, ChatGateway, ChatService, FriendDuoService],
+  providers: [AppService, AppGateway, GameGateway, GameService, ProfileService, SigninService, AchievementService, ChatGateway, ChatService, FriendDuoService, DuelGateway],
 })
 export class AppModule {}

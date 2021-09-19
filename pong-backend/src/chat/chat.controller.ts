@@ -3,6 +3,7 @@ import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Room } from './chat.types';
 import { WsException } from '@nestjs/websockets';
+import { RoomNameDto } from './chat.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -20,25 +21,25 @@ export class ChatController {
   // Create a new room with a given name
   @UseGuards(JwtAuthGuard)
   @Put('/rooms/:name/')
-  async createRoom(@Request() request, @Param('name') name: string)
+  async createRoom(@Request() request, @Param() param: RoomNameDto)
   {
     // Check if the room already exists
-    const room = await this.chatService.getRoom(name);
+    const room = await this.chatService.getRoom(param.name);
 
     if (room)
       throw new HttpException("Room already exists", HttpStatus.CONFLICT);
 
     // Create the room using the service
-    return await this.chatService.createRoom(name, request.user.id);
+    return await this.chatService.createRoom(param.name, request.user.id);
   }
 
   // Get the room instance
   @UseGuards(JwtAuthGuard)
   @Get('/rooms/:name/')
-  async getRoom(@Request() request, @Param('name') name: string)
+  async getRoom(@Request() request, @Param() param: RoomNameDto)
   {
     // Find the room
-    const room = await this.chatService.getRoom(name);
+    const room = await this.chatService.getRoom(param.name);
     // Ensure the room exists
     if (!room)
     {
@@ -50,10 +51,10 @@ export class ChatController {
   // Delete a room
   @UseGuards(JwtAuthGuard)
   @Delete('/rooms/:name/')
-  async deleteRoom(@Request() request, @Param('name') name: string)
+  async deleteRoom(@Request() request, @Param() param: RoomNameDto)
   {
     // Find the room by name
-    const room: Room = await this.chatService.findRoomByName(name);
+    const room: Room = await this.chatService.findRoomByName(param.name);
 
     // Ensure the room exists (existed?)
     if (!room)
@@ -96,10 +97,10 @@ export class ChatController {
   // Find out if the requesting user is muted in a given chat
   @UseGuards(JwtAuthGuard)
   @Get('/muted/:name/')
-  async getMuted(@Request() request, @Param('name') name: string)
+  async getMuted(@Request() request, @Param() param: RoomNameDto)
   {
     // Find the room in our database
-    const room = await this.chatService.findRoomByName(name);
+    const room = await this.chatService.findRoomByName(param.name);
 
     // Ensure the room exists
     if (!room)
@@ -112,10 +113,10 @@ export class ChatController {
   // Find out util when is the requesting user is muted in a given chat
   @UseGuards(JwtAuthGuard)
   @Get('/muted/:name/until/')
-  async getMutedUntil(@Request() request, @Param('name') name: string)
+  async getMutedUntil(@Request() request, @Param() param: RoomNameDto)
   {
     // Find the room in our database
-    const room = await this.chatService.findRoomByName(name);
+    const room = await this.chatService.findRoomByName(param.name);
 
     // Ensure the room exists
     if (!room)
@@ -127,10 +128,10 @@ export class ChatController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/admins/:name')
-  async getAdmins(@Request() request, @Param('name') name: string)
+  async getAdmins(@Request() request, @Param() param: RoomNameDto)
   {
     // Find the room in our database
-    const room = await this.chatService.findRoomByName(name);
+    const room = await this.chatService.findRoomByName(param.name);
 
     // Ensure the room exists
     if (!room)
@@ -141,10 +142,10 @@ export class ChatController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/admins/:name/me')
-  async getAmAdmin(@Request() request, @Param('name') name: string)
+  async getAmAdmin(@Request() request, @Param() param: RoomNameDto)
   {
     // Find the room in our database
-    const room = await this.chatService.findRoomByName(name);
+    const room = await this.chatService.findRoomByName(param.name);
 
     // Ensure the room exists
     if (!room)

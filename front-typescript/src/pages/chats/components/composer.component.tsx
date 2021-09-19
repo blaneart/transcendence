@@ -41,7 +41,7 @@ const Composer: React.FC<ComposerProps> = ({ socket, roomName, muted, amOwner })
   if (muted)
   {
     return (
-      <div className="px-4 py-4 border border-white border-solid">
+      <div className="px-4 py-4 border bg-gray-900 text-gray-300 border-gray-600 border-solid rounded-b-lg">
         <p>You are muted :( </p>
     </div>
     )

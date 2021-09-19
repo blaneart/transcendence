@@ -15,8 +15,8 @@ const EndGameMenu: React.FC<IButtonProps> = ({result, ...changeGameState}) => {
 
         // <div className='end-game-menu'>
         <div className='game end'>
-            <h1 style={{fontSize: 72}}>{result === 'won' ? "YOU WON!" : "YOU LOST!"}</h1>
-
+            <h1 style={{fontSize: 72}}>{(result === 'won' || result === "gotAbandoned") ? "YOU WON!" : "YOU LOST!"}</h1>
+            {result === 'gotAbandoned' ? <p>Your opponent has disconnected (or abandoned the game)</p> : null}
             <button className='element' {...changeGameState}>RESTART</button>
             
 

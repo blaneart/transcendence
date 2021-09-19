@@ -109,13 +109,34 @@ export class GameGateway implements OnGatewayInit {
   }
 
   handleDisconnect(client: Socket) {
+
     this.connectedClients = this.connectedClients.filter(
       connectedClient => connectedClient !== client.id
     );
-    let roomName = this.getRoomNameBySocket(client);
-    // if (this.rooms[roomName])
-    //   this.rooms[roomName].ready = false;
-    // this.server.emit('getListOfRooms', this.showRooms());
+
+    let abandonedRoomName = null;
+    let abandoningPlayerIndex = null;
+    // Find the room where the leaving user was
+    for (let room in this.rooms)
+    {
+      if (this.rooms[room].players.length === 2 && this.rooms[room].players[1].userId === client.data.user.id)
+      {
+        abandonedRoomName = room;
+        abandoningPlayerIndex = 1;
+      }
+      else if (this.rooms[room].players[0].userId === client.data.user.id)
+      {
+        abandonedRoomName = room;
+        abandoningPlayerIndex = 0;
+      }
+    }
+    
+    // If the room the user has abandoned was actually in a game
+    if (abandonedRoomName && this.rooms[abandonedRoomName].ready)
+    {
+      // Settle this game via a 10:0 TKO
+      this.endGame(abandonedRoomName, true, abandoningPlayerIndex);
+    }
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
@@ -210,6 +231,40 @@ export class GameGateway implements OnGatewayInit {
     }
   }
 
+  // Do everything necessary to end the game
+  endGame(roomName: string, abandoned: boolean = false, abandoningId: number | null = null)
+  {
+    this.rooms[roomName].ready = false; // Prevent the timeout from settling the game
+
+    let playerid = 1;
+    if (this.rooms[roomName].players[0].id === 0)
+      playerid = 0;
+
+    // If one of the player has abandoned the game, the other one gets a 10:0 TKO
+    if (abandoned)
+    {
+      this.rooms[roomName].scores[abandoningId] = 0
+      this.rooms[roomName].scores[1 - abandoningId] = 10;
+      this.server.to(roomName).emit('endGame', 'abandoned');
+    }
+    else if (this.rooms[roomName].scores[0] >= 10)
+    {
+      this.gameService.saveGame(this.rooms[roomName].players[playerid].userId, 
+        this.rooms[roomName].players[1 - playerid].userId,  this.rooms[roomName].scores[1]);
+
+      this.server.to(roomName).emit('endGame', this.rooms[roomName].players[playerid].name);
+    }
+    else
+    {
+      this.gameService.saveGame(this.rooms[roomName].players[1 - playerid].userId,
+          this.rooms[roomName].players[playerid].userId,  this.rooms[roomName].scores[0]);
+
+      this.server.to(roomName).emit('endGame', this.rooms[roomName].players[1 - playerid].name);
+    }
+
+    this.server.emit('changeScore', this.rooms[roomName].scores)
+  }
+
   pushBall(roomName: string)
   {
     const callback = (dt: number, pong: Pong) => {
@@ -221,30 +276,8 @@ export class GameGateway implements OnGatewayInit {
         pong.update(dt /1000, this.rooms[roomName].players[1], this.rooms[roomName].players[0]);
         if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
         {
-          console.log('ended');
-          let playerid = 1;
-          if (this.rooms[roomName].players[0].id === 0)
-            playerid = 0;
-          if (this.rooms[roomName].scores[0] >= 10)
-          {
-            this.gameService.saveGame(this.rooms[roomName].players[playerid].userId, 
-              this.rooms[roomName].players[1 - playerid].userId,  this.rooms[roomName].scores[1]);
-
-            this.server.to(roomName).emit('endGame', this.rooms[roomName].players[playerid].name);
-          }
-          else
-          {
-            this.gameService.saveGame(this.rooms[roomName].players[1 - playerid].userId,
-                this.rooms[roomName].players[playerid].userId,  this.rooms[roomName].scores[0]);
-
-            this.server.to(roomName).emit('endGame', this.rooms[roomName].players[1 - playerid].name);
-
-
-          }
-
-          this.server.emit('changeScore', this.rooms[roomName].scores)
-
-
+          if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
+            this.endGame(roomName);
           clearInterval(interval);
         }
 

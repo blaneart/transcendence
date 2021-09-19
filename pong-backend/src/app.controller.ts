@@ -166,40 +166,42 @@ export class AppController {
   ))
   async uploadfile(@UploadedFile() file, @Request() req) {
   const response = await this.profileService.updateUserById(req.user.id, {
+
     avatar: file.filename,
     realAvatar: true
-  });
-  return response;
-}
+    });
 
-@UseGuards(JwtAuthGuard)
-@Post('removeAvatar')
-async removeAvatar(@Request() req) {
-  if (!req.user)
-    throw new HttpException("Bad user", HttpStatus.BAD_REQUEST);
-  const response = await this.profileService.updateUserById(req.user.id, {
-    avatar: "" + req.user.id42,
-    realAvatar: false
-  });
-  return response;
-}
-
-@Post('/fakeUser/:newName')
-async createFakeUser(@Param() param: fakeUserDto)
-{
-  // Check that the user doesn't exist
-  const nowUser = await this.profileService.getUserByName(param.newName);
-
-  // If it exists, we can't recreate it.
-  if (nowUser)
-  {
-    throw new HttpException("User already exists", HttpStatus.CONFLICT);
+    return response;
   }
 
-  // Create a new user
-  const newUser = await this.profileService.createFakeUser(param.newName);
-  // Add this user to JWT
-  return this.authService.login(newUser);
-}
+  @UseGuards(JwtAuthGuard)
+  @Post('removeAvatar')
+  async removeAvatar(@Request() req) {
+    if (!req.user)
+      throw new HttpException("Bad user", HttpStatus.BAD_REQUEST);
+    const response = await this.profileService.updateUserById(req.user.id, {
+      avatar: "" + req.user.id42,
+      realAvatar: false
+    });
+    return response;
+  }
+
+  @Post('/fakeUser/:newName')
+  async createFakeUser(@Param() param: fakeUserDto)
+  {
+    // Check that the user doesn't exist
+    const nowUser = await this.profileService.getUserByName(param.newName);
+
+    // If it exists, we can't recreate it.
+    if (nowUser)
+    {
+      throw new HttpException("User already exists", HttpStatus.CONFLICT);
+    }
+
+    // Create a new user
+    const newUser = await this.profileService.createFakeUser(param.newName);
+    // Add this user to JWT
+    return this.authService.login(newUser);
+  }
 
 }

@@ -1,4 +1,4 @@
-import React, { KeyboardEvent, useState } from 'react';
+import React, { useState } from 'react';
 import StyledSubmit from './styledSubmit.component';
 import StyledTextInput from './styledTextInput.component';
 
@@ -11,6 +11,13 @@ async function createRoom(authToken: string, name: string) {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+  {
+    if (response.status === 409)
+      alert("Room with this name already exists. Please pick another name.");
+    else
+      alert("Error creating room.")
+  }
   return response;
 }
 

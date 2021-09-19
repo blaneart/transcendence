@@ -101,6 +101,8 @@ async function createMessage() {
         t.integer('userID');
         t.integer('roomID');
         t.text('message');
+        t.integer('type').default(0);
+        t.integer('receiverId');
         t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
         t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
       });
@@ -171,6 +173,7 @@ async function createDirects() {
         t.integer('userB');
         t.foreign('userA').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
         t.foreign('userB').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.unique(['userA', 'userB']); // two people can only have one direct conversation
       });
     }
 }
@@ -183,6 +186,8 @@ async function createDirectMessages() {
         t.integer('directID');
         t.integer('senderID');
         t.text('message');
+        t.integer('type').default(0);
+        t.integer('receiverId');
         t.foreign('directID').references('directs.id').onDelete('CASCADE'); // will be destroyed with corresponding direct
         t.foreign('senderID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
       });

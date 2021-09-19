@@ -8,12 +8,6 @@ import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
 import { LoginAttempt, DirectMessage, BanRequest, ChatMessage } from "./chat.dto";
 
-// The kind of the message (to extend later)
-enum ChatMessageType {
-  TEXT,
-  GAME_INVITE,
-  GAME_SCORE
-}
 
 @WebSocketGateway(8080, { cors: true })
 export class ChatGateway {

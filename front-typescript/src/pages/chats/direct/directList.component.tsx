@@ -90,7 +90,7 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
   }
 
   return (<div>
-    {directs.map((direct) =><div><DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/></div>)}
+    {directs.map((direct) => <DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/>)}
     <h5 className="text-xl mb-2 mt-4">Start a direct conversation with:</h5>
     <form className="" onSubmit={handleSubmit}>
       {/* <select onChange={handleChange} defaultValue="DEFAULT" required>

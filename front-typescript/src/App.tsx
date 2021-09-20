@@ -211,9 +211,9 @@ function App() {
           <Watch />
         </Route>
         <Route
-        exact
-        path="/watch/:room"
-        component={Room}/>
+          exact
+          path="/watch/:room"
+          component={Room} />
 
       </Switch>
       : <p></p>}

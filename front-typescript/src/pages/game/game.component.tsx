@@ -81,7 +81,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       setIsGameEnded('game');
     }
     
-    async function  updateGameStats(result: string, authToken: string){
+    async function updateGameStats(result: string, authToken: string){
       if (user)
       {
         var data = {

@@ -104,6 +104,9 @@ export class GameGateway implements OnGatewayInit {
       connectedClient => connectedClient !== client.id
     );
 
+    if (!client.data.user)
+      return;
+
     let abandonedRoomName = null;
     let abandoningPlayerIndex = null;
     // Find the room where the leaving user was
@@ -148,11 +151,10 @@ export class GameGateway implements OnGatewayInit {
       const lonelyPlayer = (await this.server.in([...theRoom][0]).fetchSockets())[0];
 
       // Ensure we're not playing with ourself
-      return (lonelyPlayer.data.user.id !== userId);
+      return (lonelyPlayer.data.user && lonelyPlayer.data.user.id !== userId);
     }
     return false;
   }
-
 
   getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number) =>
   {
@@ -161,7 +163,7 @@ export class GameGateway implements OnGatewayInit {
     let roomName;
 
     // Check all rooms available for joining
-    roomName = await findAsyncSequential(this.getActiveRooms(), async (roomName) => await this.roomAvailable(roomName, userId));
+    roomName = await findAsyncSequential(this.getActiveRooms(/*userInfo[3]*/), async (roomName) => await this.roomAvailable(roomName, userId));
     console.log('foundRoomName: ', roomName);
     console.log(userId, userName);
     /* creates new room if every room is full*/
@@ -211,18 +213,17 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('playerPos')
   updatePlayers(client: Socket, new_pos: number[])
   {
-
     let roomName = this.getRoomNameBySocket(client)
     let id = 0;
     if (roomName && this.rooms[roomName])
     {
-    if (this.rooms[roomName].players[0].socketId == client.id)
-      id = this.rooms[roomName].players[0].id;
-    else
-      id = this.rooms[roomName].players[1].id;
-    this.rooms[roomName].players[id].paddle.pos.y = new_pos[0];
-    this.rooms[roomName].players[id].dp = new_pos[1];
-    client.broadcast.emit('getPosition', new_pos[0], id);
+      if (this.rooms[roomName].players[0].socketId == client.id)
+        id = this.rooms[roomName].players[0].id;
+      else
+        id = this.rooms[roomName].players[1].id;
+      this.rooms[roomName].players[id].paddle.pos.y = new_pos[0];
+      this.rooms[roomName].players[id].dp = new_pos[1];
+      client.to(roomName).emit('getPosition', new_pos[0], id);
     }
   }
 
@@ -261,6 +262,10 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('changeScore', this.rooms[roomName].scores)
 
     this.server.to(roomName).emit('endGame', abandoned ? "abandoned" : null);
+    this.server.to(roomName).emit('winner',
+    this.rooms[roomName].scores[0] >= 10
+    ? this.rooms[roomName].players[playerid].name
+    : this.rooms[roomName].players[1 - playerid].name);
   }
 
   getNewMmr(winner_old_mmr, loser_old_mmr)
@@ -316,8 +321,12 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('watchMatch')
   watchMatch(client: Socket, roomName: string)
   {
-    client.join(roomName)
+    client.join(roomName);
     let playerid = 1;
+    // if (!this.rooms[roomName])
+    //   console.log('room doesn\'t exist');
+    // else
+    //   console.log(this.rooms[roomName]);
     if (this.rooms[roomName].players[0].id === 0)
       playerid = 0;
     this.server.to(client.id).emit('playersNames', this.rooms[roomName].players[playerid].name,
@@ -371,7 +380,7 @@ export class GameGateway implements OnGatewayInit {
     const filtered = arr.filter(room => !room[1].has(room[0]))
     const res = filtered.map(i => i[0]);
 
-    return res;
+    return res/*.map(i => res[i].map*/;
   }
 
   getRoomNameBySocket = (socket: Socket) => {
@@ -394,12 +403,12 @@ export class GameGateway implements OnGatewayInit {
       delete this.rooms[roomName];
     this.server.emit('getListOfRooms', this.showRooms());
   }
- 
+
   getClosestPlayerIdByElo()
   {
     var getCloseToMe = this.playersIdAndElo[0][1];
     var biggest = 1000;
-    let i = 0;
+    let i = 1;
     let rtn_me = -1;
     while (i < this.playersIdAndElo.length)
     {
@@ -415,7 +424,7 @@ export class GameGateway implements OnGatewayInit {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  createRoom(socket: AuthenticatedSocket, userInfo) {
+  createRoom(socket: AuthenticatedSocket, userInfo) { // [mapNb, boolPowerUps]
     console.log('joinRoom', userInfo[0], userInfo[1]);
   
     socket.data.user = socket.user; // Save user data for future use

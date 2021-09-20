@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import Room from './components/room.component';
-const ENDPOINT = "http://127.0.0.1:3002";
+const ENDPOINT = "ws://127.0.0.1:3002";
 
 const Watch = () => {
     const [socket, setSocket] = useState<Socket>(() => {
@@ -21,17 +21,23 @@ const Watch = () => {
             socket.disconnect();
         }
     }, [])
+    console.log(listOfRooms.length)
+    if (listOfRooms.length)
+        return (
+            <div> 
+                {listOfRooms.map((room) => {
+                return(
 
-    return (
-        <div> {listOfRooms.map((room) => {
+                <Link  to={{
+                        pathname: `/watch/${room}`,
+                }}> {room} </Link>
+            )})}
+            </div>
+        )
+    else
             return(
-
-            <Link  to={{
-                    pathname: `/watch/${room}`,
-            }}> {room} </Link>
-        )})}
-        </div>
-    )
+                <div>NO ACTIVE ROOMS</div>
+            )
 }
 
 export default Watch;

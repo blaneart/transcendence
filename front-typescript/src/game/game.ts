@@ -149,13 +149,15 @@ class Pong {
     //     console.log(message);
     //     this.ball.pos = message;
     // })
-    this.socket.on('endGame', () => {
+    this.socket.on('endGame', (abandoned: string) => {
       if (this._context !== null)
       {
         this._canvas.style.opacity = '0.5';
       }
-      if (this.players[this.id].score >= 10)
-        this.fn('won', this.auth);
+      if (abandoned === "abandoned")
+        this.fn('gotAbandoned')
+      else if (this.players[this.id].score >= 10)
+        this.fn('won');
       else
         this.fn('lost', this.auth);
       this.socket.emit('leaveRoom');

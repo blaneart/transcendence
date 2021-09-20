@@ -1,0 +1,31 @@
+.game {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    text-align: center;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+   &.end {
+    z-index: 10;
+    text-align: center;
+    // margin-bottom: px;    
+      button {
+        background: none!important;
+        border: none;
+        text-align: center;
+        padding: 0!important;
+        text-align: center;
+        font-family: 'Anton';
+        font-size: medium;
+        color: white;
+        cursor: pointer;
+      }
+      .element {
+        font-size: xx-large;
+      }
+    }
+  }
+  .gameHeader {
+    display: flex;
+    justify-content: space-between;
+  }

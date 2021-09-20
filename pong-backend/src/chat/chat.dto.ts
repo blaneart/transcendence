@@ -47,3 +47,8 @@ export class ChatMessage {
   @IsString()
   room: string
 }
+
+export class RoomNameDto {
+  @IsString()
+  name: string
+}

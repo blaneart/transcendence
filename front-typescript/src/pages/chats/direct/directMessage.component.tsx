@@ -1,4 +1,5 @@
 import React from "react";
+import { Socket } from "socket.io-client";
 import { DirectMessageUpdate } from "../chats.types";
 import MessageText from "../components/messageText.component";
 
@@ -7,10 +8,11 @@ interface DirectMessageProps {
   userId: number
   blockList: Map<number, boolean>
   authToken: string
-  onBlock: Function
+  onBlock: Function,
+  socket: Socket
 }
 
-const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId, blockList, authToken, onBlock }) => {
+const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId, blockList, authToken, onBlock, socket }) => {
 
   // Block a user
   const handleBlock = async () => {
@@ -37,7 +39,7 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
 
   return (<div className="flex flex-row py-2">
     {/* <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message} */}
-    <MessageText message={message}/>
+    <MessageText message={message} socket={socket} userId={userId}/>
     {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
   </div>);
 };

@@ -18,6 +18,11 @@ export interface UserPublic {
   realAvatar: boolean;
 }
 
+export enum ChatMessageType {
+  TEXT = 0,
+  GAME_INVITE
+}
+
 // This is the front-end message: the sender, and the text.
 export interface MessageType { 
   id: number,
@@ -25,6 +30,8 @@ export interface MessageType {
   message: string,
   senderID: number
   sender: UserPublic
+  type: ChatMessageType
+  receiverId?: number
 }
 
 export interface Direct {
@@ -50,4 +57,6 @@ export interface DirectMessageUpdate {
   message: string,
   senderID: number
   sender: UserPublic
+  type: ChatMessageType
+  receiverId?: number
 }

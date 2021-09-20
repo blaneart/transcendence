@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
@@ -7,6 +7,8 @@ import { GameService } from './game.service';
 import { ProfileService } from '../profile/profile.service';
 var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
+import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
+import { AuthenticatedSocket } from 'src/chat/chat.types';
 
 // import Ball from './game/game';
 
@@ -63,6 +65,19 @@ export class Player {
   }
 }
 
+// This is an async version of the Array find method in Javascript
+async function findAsyncSequential<T>(
+  array: T[],
+  predicate: (t: T) => Promise<boolean>,
+): Promise<T | undefined> {
+  for (const t of array) {
+    if (await predicate(t)) {
+      return t;
+    }
+  }
+  return undefined;
+}
+
 @WebSocketGateway(3002, { cors: true })
 export class GameGateway implements OnGatewayInit {
   rooms = {};
@@ -84,74 +99,67 @@ export class GameGateway implements OnGatewayInit {
   }
 
   handleDisconnect(client: Socket) {
+
     this.connectedClients = this.connectedClients.filter(
       connectedClient => connectedClient !== client.id
     );
-    let roomName = this.getRoomNameBySocket(client);
-    // if (this.rooms[roomName])
-    //   this.rooms[roomName].ready = false;
-    // this.server.emit('getListOfRooms', this.showRooms());
+
+    let abandonedRoomName = null;
+    let abandoningPlayerIndex = null;
+    // Find the room where the leaving user was
+    for (let room in this.rooms)
+    {
+      if (this.rooms[room].players.length === 2 && this.rooms[room].players[1].userId === client.data.user.id)
+      {
+        abandonedRoomName = room;
+        abandoningPlayerIndex = 1;
+      }
+      else if (this.rooms[room].players[0].userId === client.data.user.id)
+      {
+        abandonedRoomName = room;
+        abandoningPlayerIndex = 0;
+      }
+    }
+    
+    // If the room the user has abandoned was actually in a game
+    if (abandonedRoomName && this.rooms[abandonedRoomName].ready)
+    {
+      // Settle this game via a 10:0 TKO
+      this.endGame(abandonedRoomName, true, abandoningPlayerIndex);
+    }
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
   }
 
-  getActiveTimelyRoom = (count: number) => {
-    const arr = Array.from(this.server.sockets.adapter.rooms);
-    console.log('arr');
-    console.log(arr);
-    const filtered = arr.filter(room => !room[1].has(room[0]))
-    const res = filtered.map(i => i[0]);
-
-    console.log('res');
-    console.log(res);
-    if (this.rooms[res[0]])
+  // Return true, if the room with this name is available for joining
+  // i.e. contains only one player, and that player is not yourself.
+  // userId: our user id.
+  async roomAvailable(roomName: string, userId: number): Promise<boolean>
+  {
+    const theRoom = this.server.sockets.adapter.rooms.get(roomName);
+    if (theRoom.size < 2)
     {
-      console.log('this.rooms[res[0]]');
-      console.log(this.rooms[res[0]]);
+      // If this is an empty room, something isn't right.
+      if (theRoom.size == 0)
+        return false;
+      
+      // If there is one player in the room, get their indentity
+      const lonelyPlayer = (await this.server.in([...theRoom][0]).fetchSockets())[0];
 
-      if (this.rooms[res[0]].players.length < 3)
-      {
-        console.log('this.rooms[res[0]].players.length < 3');
-        console.log(this.rooms[res[0]].players.length < 3);
-        if ((count - this.rooms[res[0]].start < 10))
-        {
-          console.log('(count - this.rooms[res[0]].start < 10)');
-          console.log((count - this.rooms[res[0]].start < 10));
-        }
-        else
-        {
-          console.log('(count - this.rooms[res[0]].start)');
-          console.log((count - this.rooms[res[0]].start));
-        }
-      }
-      else
-      {
-        console.log('this.rooms[res[0]].players.length');
-        console.log(this.rooms[res[0]].players.length);
-      }
+      // Ensure we're not playing with ourself
+      return (lonelyPlayer.data.user.id !== userId);
     }
-    if (res.length && this.rooms[res[0]] && this.rooms[res[0]].players.length < 3 && (count - this.rooms[res[0]].start < 10))
-      return (res[0]);
-    return null;
+    return false;
   }
 
-  getWaitingRoom = (socket: Socket, userName: string, userId: number, userElo: number, bool: Boolean = false) =>
-  {
-    let playerId = 0;
-    let ready = false;
-    let roomName;
-    let count = Math.floor((new Date()).getTime() / 1000);
 
-    roomName = this.getActiveTimelyRoom(count);
-    const a = roomName;
-    if (a)
-    {
-      console.log('roomName');
-      console.log(roomName);
-    }
-    console.log('userId, userName, userElo');
-    console.log(userId, userName, userElo);
+  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number) =>
+  {
+    // Check all rooms available for joining
+    roomName = await findAsyncSequential(this.getActiveRooms(), async (roomName) => await this.roomAvailable(roomName, userId));
+    console.log('foundRoomName: ', roomName);
+    console.log(userId, userName);
     /* creates new room if every room is full*/
     if (!roomName || bool)
     {
@@ -252,6 +260,43 @@ export class GameGateway implements OnGatewayInit {
     }
   }
 
+
+
+  // Do everything necessary to end the game
+  endGame(roomName: string, abandoned: boolean = false, abandoningId: number | null = null)
+  {
+    this.rooms[roomName].ready = false; // Prevent the timeout from settling the game
+
+    let playerid = 1;
+    if (this.rooms[roomName].players[0].id === 0)
+      playerid = 0;
+
+    // If one of the player has abandoned the game, the other one gets a 10:0 TKO
+    if (abandoned)
+    {
+      this.rooms[roomName].scores[abandoningId] = 0
+      this.rooms[roomName].scores[1 - abandoningId] = 10;
+    }
+    else if (this.rooms[roomName].scores[0] >= 10)
+      this.saveAndUpdate(roomName,
+        this.rooms[roomName].players[playerid].userId,
+        this.rooms[roomName].players[playerid].elo,
+        this.rooms[roomName].players[1 - playerid].userId,
+        this.rooms[roomName].players[1 - playerid].elo,
+        this.rooms[roomName].scores[1]);
+    else
+      this.saveAndUpdate(roomName,
+        this.rooms[roomName].players[1 - playerid].userId,
+        this.rooms[roomName].players[1 - playerid].elo,
+        this.rooms[roomName].players[playerid].userId, 
+        this.rooms[roomName].players[playerid].elo,
+        this.rooms[roomName].scores[0]);
+
+    this.server.emit('changeScore', this.rooms[roomName].scores)
+
+    this.server.to(roomName).emit('endGame', abandoned ? "abandoned" : null);
+  }
+
   getNewMmr(winner_old_mmr, loser_old_mmr)
   {
     let mmr = {winner_new_mmr: 0, loser_new_mmr: 0};
@@ -285,28 +330,8 @@ export class GameGateway implements OnGatewayInit {
         pong.update(dt /1000, this.rooms[roomName].players[1], this.rooms[roomName].players[0]);
         if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
         {
-          console.log('ended');
-          let playerid = 1;
-          if (this.rooms[roomName].players[0].id === 0)
-            playerid = 0;
-          if (this.rooms[roomName].scores[0] >= 10)
-            this.saveAndUpdate(roomName,
-              this.rooms[roomName].players[playerid].userId,
-              this.rooms[roomName].players[playerid].elo,
-              this.rooms[roomName].players[1 - playerid].userId,
-              this.rooms[roomName].players[1 - playerid].elo,
-              this.rooms[roomName].scores[1]);
-          else
-            this.saveAndUpdate(roomName,
-              this.rooms[roomName].players[1 - playerid].userId,
-              this.rooms[roomName].players[1 - playerid].elo,
-              this.rooms[roomName].players[playerid].userId, 
-              this.rooms[roomName].players[playerid].elo,
-              this.rooms[roomName].scores[0]);
-
-          this.server.emit('changeScore', this.rooms[roomName].scores)
-
-          this.server.to(roomName).emit('endGame');
+          if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
+            this.endGame(roomName);
           clearInterval(interval);
         }
 
@@ -325,9 +350,12 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('watchMatch')
   watchMatch(client: Socket, roomName: string)
   {
-    console.log(roomName);
     client.join(roomName)
-    console.log(this.server.sockets.adapter.rooms.get(roomName).size)
+    let playerid = 1;
+    if (this.rooms[roomName].players[0].id === 0)
+      playerid = 0;
+    this.server.to(client.id).emit('playersNames', this.rooms[roomName].players[playerid].name,
+                            this.rooms[roomName].players[1 - playerid].name)
   }
 
   @SubscribeMessage('quitGame')
@@ -401,6 +429,7 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('getListOfRooms', this.showRooms());
   }
 
+ 
   getClosestPlayerIdByElo()
   {
     var getCloseToMe = this.playersIdAndElo[0][1];
@@ -419,50 +448,13 @@ export class GameGateway implements OnGatewayInit {
     return (rtn_me);
   }
 
+  @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  createRoom(socket: Socket, userInfo) {
+  createRoom(socket: AuthenticatedSocket, userInfo) {
     console.log('joinRoom');
-    // this.playersIdAndElo.push([userInfo[1], userInfo[2]]);
-    // console.log('here');
+    socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2]);
-
-    // if (this.playersIdAndElo.length > 3)
-    // {
-    //   console.log('length > 2');
-    //   let meIn = (this.playersIdAndElo[0][0] == userInfo[1]) ? 1 : 2;
-    //   if (this.playersIdAndElo[0][0] == userInfo[1])
-    //   {
-    //     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2])
-    //   }
-    //   if (userInfo[1] == this.getClosestPlayerIdByElo())
-    //   {
-    //     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2])
-    //   }
-    // }
   }
-
-
-  // @SubscribeMessage('QueueMain')
-  // QueueMain() {
-  //   console.log('QueueMain');
-  //   console.log(this.playersIdAndElo);
-  // }
-
-  // @SubscribeMessage('joinQueue')
-  // joinQueue(socket: Socket, userInfo) {
-  //   console.log('joinQueue');
-  //   this.playersIdAndElo.push(userInfo[1]);
-  //   console.log(this.playersIdAndElo);
-  //   // this.server.emit(socket.id, 'QueueMain');
-  // }
-
-  // @SubscribeMessage('leaveQueue')
-  // leaveQueue(socket: Socket, userInfo) {
-  //   console.log('leaveQueue');
-  //   this.playersIdAndElo.push(userInfo[1]);
-  //   console.log(this.playersIdAndElo);
-  //   // this.server.emit(socket.id, 'QueueMain');
-  // }
   
   @SubscribeMessage('getListOfRooms')
   sendRooms(client: Socket)

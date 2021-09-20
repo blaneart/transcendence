@@ -6,12 +6,13 @@ import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
 import { User } from "../../App.types";
 
-const ENDPOINT = "http://127.0.0.1:3002";
+const ENDPOINT = "ws://127.0.0.1:3002";
 
 interface IGameProps {
   user?: User | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
+  ranked: boolean
 }
 
 const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
@@ -33,7 +34,12 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     const [gameId, setGameId] = useState<string>('no id');
 
     const [socket, setSocket] = useState<Socket>(() => {
-      const initialState = io(ENDPOINT);
+      const initialState = io(ENDPOINT,
+          {
+            auth: {
+              token: authToken
+            }
+          });
       return initialState;
     });
 

@@ -112,6 +112,13 @@ class Watcher
         this.players[1].score = message[1];
         this.draw();
       })
+      this.socket.on('endGame', () => {
+        if (this._context !== null)
+        {
+          this._canvas.style.opacity = '0.5';
+        }
+
+      })
       this.socket.on('getBallPosition', (position: Vec) => {
         this.ball.pos = position;
 

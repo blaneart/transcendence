@@ -155,9 +155,9 @@ class Pong {
         this._canvas.style.opacity = '0.5';
       }
       if (abandoned === "abandoned")
-        this.fn('gotAbandoned')
+        this.fn('gotAbandoned', this.auth)
       else if (this.players[this.id].score >= 10)
-        this.fn('won');
+        this.fn('won', this.auth);
       else
         this.fn('lost', this.auth);
       this.socket.emit('leaveRoom');

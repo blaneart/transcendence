@@ -54,7 +54,8 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
   const [friendUser, setFriend] = useState<User>();
   const [bool, setBool] = useState<Boolean>(true);
 
-  const refreshUsers = useCallback(() => {
+  const refreshFriend = useCallback(() => {
+    console.log('refresh Friend')
     getFriendById(id2, authToken).then(newFriend => {
       setFriend(newFriend);
     });
@@ -62,18 +63,18 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
 
   const handleUnfriend = async (id1: number, id2: number, authToken: string, setBool: Function) => {
     await removeFriend(id1, id2, authToken, setBool);
-    refreshUsers();
+    refreshFriend();
   };
 
   const handleAddBackFriend = async (id1: number, id2: number, authToken: string, setBool: Function) => {
     await addBackFriend(id1, id2, authToken, setBool);
-    refreshUsers();
+    refreshFriend();
   };
 
   useEffect(() => {
     // On setup, we update the friend
-    refreshUsers();
-  }, [friendUser, refreshUsers]);
+    refreshFriend();
+  }, [refreshFriend]);
   return (
     friendUser ?
     <div>

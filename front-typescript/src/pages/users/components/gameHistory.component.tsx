@@ -40,7 +40,7 @@ const GameHistory: React.FC<IGameHistoryProps> = ({
   useEffect(() => {
     // On setup, we update the games
     refreshGames();
-  }, [games, refreshGames]); // We don't really reupdate.
+  }, [refreshGames]); // We don't really reupdate.
 
   return ( games.length ?
     (<div>

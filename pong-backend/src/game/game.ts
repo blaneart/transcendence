@@ -133,14 +133,17 @@ export class Pong {
         new Rect(50, 50),
         new Rect(50, 50)
       ]
-      this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
-      this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
-      this.obstacles[1].pos.x = this._canvas.width * 2 / 3 - this.obstacles[1].size.x / 2;
-      this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
-      this.obstacles[2].pos.x = this._canvas.width / 3 - this.obstacles[2].size.x / 2;
-      this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
-      this.obstacles[3].pos.x = this._canvas.width *2 / 3 - this.obstacles[3].size.x / 2;
-      this.obstacles[3].pos.y = this._canvas.height * 2 / 3 - this.obstacles[3].size.y / 2;
+      this.obstacles[0].pos.x = this.canvasWidth / 3 - this.obstacles[0].size.x / 2;
+      this.obstacles[0].pos.y = this.canvasHeight / 3 - this.obstacles[0].size.y / 2;
+
+      this.obstacles[1].pos.x = this.canvasWidth * 2 / 3 - this.obstacles[1].size.x / 2;
+      this.obstacles[1].pos.y = this.canvasHeight / 3 - this.obstacles[1].size.y / 2;
+
+      this.obstacles[2].pos.x = this.canvasWidth / 3 - this.obstacles[2].size.x / 2;
+      this.obstacles[2].pos.y = this.canvasHeight * 2 / 3 - this.obstacles[2].size.y / 2;
+
+      this.obstacles[3].pos.x = this.canvasWidth * 2 / 3 - this.obstacles[3].size.x / 2;
+      this.obstacles[3].pos.y = this.canvasHeight * 2 / 3 - this.obstacles[3].size.y / 2;
     }
     else if (this.curr_map === 2)
     {
@@ -164,6 +167,7 @@ export class Pong {
 
     // MAPS END
   };
+  
   update(dt:number, player1: Player, player2: Player)
   {
     
@@ -187,9 +191,10 @@ export class Pong {
     if (!pt)
     {
       let i = 0;
-      while (!pt)
+      while (i < this.obstacles.length && !pt)
       {
-        
+        pt = this.ballIntercept(this.ball, this.obstacles[i], pos.nx, pos.ny);
+        i++;
       }
     }
     if (pt) {

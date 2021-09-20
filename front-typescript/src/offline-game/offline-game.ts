@@ -132,12 +132,15 @@ class Offline_Pong {
 			new Rect(50, 50)
 		]
 		this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
-		this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
+    this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
+    
 		this.obstacles[1].pos.x = this._canvas.width * 2 / 3 - this.obstacles[1].size.x / 2;
-		this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
+    this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
+    
 		this.obstacles[2].pos.x = this._canvas.width / 3 - this.obstacles[2].size.x / 2;
-		this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
-		this.obstacles[3].pos.x = this._canvas.width *2 / 3 - this.obstacles[3].size.x / 2;
+    this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
+    
+		this.obstacles[3].pos.x = this._canvas.width * 2 / 3 - this.obstacles[3].size.x / 2;
 		this.obstacles[3].pos.y = this._canvas.height * 2 / 3 - this.obstacles[3].size.y / 2;
 	}
 	else if (this.curr_map === 2)

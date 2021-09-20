@@ -19,15 +19,9 @@ export class GameService {
   }
 
   async getGamesByName(name: string) {
-    let games = await db('games')
+    return await db('games')
     .where({ winner: name })
     .orWhere({ loser: name })
     .select('*');
-
-    if (!games.length) {
-      throw 'No Games :(';
-    }
-
-    return games;
   }
 }

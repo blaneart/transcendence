@@ -37,9 +37,8 @@ export class FriendDuoService {
     .select('friend2');
 
     if (!friendsArray.length) {
-      throw 'No friends :(';
+      return friendsArray;
     }
-
     return friendsArray.map((elem) => elem.friend2);
   }
 

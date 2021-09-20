@@ -12,8 +12,6 @@ const GameComponent: React.FC<IGameProps> = ({
   user,
   authToken,
   }) => {
-  if (user)
-      console.log('here');
   let ten = 10;
   return (game ?
     <div>

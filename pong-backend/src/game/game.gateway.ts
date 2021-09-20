@@ -156,75 +156,41 @@ export class GameGateway implements OnGatewayInit {
 
   getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number) =>
   {
+    let playerId;
+    let ready = false;
+    let roomName;
+
     // Check all rooms available for joining
     roomName = await findAsyncSequential(this.getActiveRooms(), async (roomName) => await this.roomAvailable(roomName, userId));
     console.log('foundRoomName: ', roomName);
     console.log(userId, userName);
     /* creates new room if every room is full*/
-    if (!roomName || bool)
+    if (!roomName)
     {
       console.log('createRoom');
       roomName = uuid.v4();
-      playerId = 0;
+      playerId = Math.random()>=0.5? 1 : 0;;
       if (!this.rooms[roomName])
         this.rooms[roomName] = {
           players: [],
           scores: [0,0],
           ball: new Ball(),
-          start: Math.floor((new Date()).getTime() / 1000),
         }
-        console.log(roomName);
-        console.log(this.rooms[roomName].start);
+        // console.log(roomName);
+        // console.log(this.rooms[roomName].start);
         this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
     }
 
     /* or assigns player to a room with one player */
     else
     {
-      console.log('HERE');
-      console.log('this.rooms[roomName].players.length');
-      console.log(this.rooms[roomName].players.length);
-      console.log('count - this.rooms[roomName].start');
-      console.log(count - this.rooms[roomName].start);
-      if (this.rooms[roomName].players.length == 2 && count - this.rooms[roomName].start < 10)
-      {
-        console.log('first true');
-        if (Math.abs(this.rooms[roomName].players[1] - this.rooms[roomName].players[0]) > Math.abs(this.rooms[roomName].players[1] - userElo))
-        {
-          console.log('CHANGE PLAYER[1]');
-          playerId = 1;
-          delete this.rooms[roomName].players[playerId];
-          this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
-        }
-        else
-        {
-          console.log('NEW ROOM');
-          this.getWaitingRoom(socket, userName, userId, userElo, true);
-          return;
-        }
-      }
-      else
-        console.log('NO CHANGE AT ALL')
-      if (this.rooms[roomName].players.length == 1)
-      {
-        if (this.rooms[roomName].players[0])
-          playerId = 1;
-      }
-      this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
-      
-      //let timeout = setTimeout(() => {
-      //   // If the third person connects before this, they will replace
-      //   //...
-      //   startGame();
-      // }, 10*1000);
-
-      timeout.clearTimeout();
-
-      // If the room is empty
-      
-
-
       ready = true;
+      if (!this.rooms[roomName].players[0])
+        playerId = 0;
+      else
+        playerId = 1;
+
+      this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
       this.rooms[roomName].ready = true;
     }
 
@@ -428,7 +394,6 @@ export class GameGateway implements OnGatewayInit {
       delete this.rooms[roomName];
     this.server.emit('getListOfRooms', this.showRooms());
   }
-
  
   getClosestPlayerIdByElo()
   {
@@ -451,7 +416,8 @@ export class GameGateway implements OnGatewayInit {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
   createRoom(socket: AuthenticatedSocket, userInfo) {
-    console.log('joinRoom');
+    console.log('joinRoom', userInfo[0], userInfo[1]);
+  
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2]);
   }

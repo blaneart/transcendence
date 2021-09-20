@@ -21,6 +21,7 @@ export class Player {
   socketId: string;
   position: number;
   dp: number;
+  empowered: number;
   constructor(name: string, userId: number, id: number, elo: number, socket: string, pos: number)
   {
     this.paddle = new Paddle();
@@ -32,6 +33,7 @@ export class Player {
     this.paddle.pos.y = pos;
     this.paddle.pos.x = id === 0 ? 30 : 800 - 30;
     this.dp = 0;
+    this.empowered = 0;
   }
 
   get Name()
@@ -308,6 +310,8 @@ export class GameGateway implements OnGatewayInit {
 
       this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
       this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
+      this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
+      this.server.to(roomName).emit('getPaddles', pong.leftPaddle, pong.rightPaddle);
 
   };
     // let roomName = this.getRoomNameBySocket(client);
@@ -323,10 +327,6 @@ export class GameGateway implements OnGatewayInit {
   {
     client.join(roomName);
     let playerid = 1;
-    // if (!this.rooms[roomName])
-    //   console.log('room doesn\'t exist');
-    // else
-    //   console.log(this.rooms[roomName]);
     if (this.rooms[roomName].players[0].id === 0)
       playerid = 0;
     this.server.to(client.id).emit('playersNames', this.rooms[roomName].players[playerid].name,
@@ -344,27 +344,6 @@ export class GameGateway implements OnGatewayInit {
   {
       this.logger.log('Initialize');
   }
-
-
-
-  // @SubscribeMessage('msgToServer')
-  // handleMessage(client: Socket, text: number)  {
-  //       client.broadcast.emit('getPosition', text);
-  // }
-  
-
-
-  // @SubscribeMessage('launchBall')
-  // ballLaunch(socket: Socket) {
-  //   let message = {
-  //     pos_x: 400,
-  //     pos_y: Math.random() * 600,
-  //     vel_x: 500 * (Math.random() > .5 ? 1 : -1),
-  //     vel_y: 500 * (Math.random() * 2  -1)
-  //   }
-  //   this.server.emit('getBallSpeed', message)
-  // }
-
 
   @SubscribeMessage('scored')
   playerScored(socket: Socket, who: number) {

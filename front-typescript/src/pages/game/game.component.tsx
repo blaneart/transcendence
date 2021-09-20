@@ -112,7 +112,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: 1, powerup: true});
+          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: 0, powerup: true});
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {

@@ -230,6 +230,14 @@ class Pong {
       this.ball.pos = position;
     })
 
+    this.socket.on('getPowerUp', (powerUp: PowerUp) => {
+      this.curr_powerUp = powerUp;
+    })
+    this.socket.on('getPaddles', (leftPaddle: Player, rightPaddle: Player) => {
+      this.players[0] = leftPaddle;
+      this.players[1] = rightPaddle;
+    })
+
 
     // if (this.game_ended)
     // {
@@ -269,7 +277,7 @@ class Pong {
 		  else
 		  	this._context.fillStyle = "blue";
 
-		  this._context.fillRect(powerUp.pos.x, powerUp.pos.y, 
+        this._context.fillRect(powerUp.pos.x, powerUp.pos.y, 
 			powerUp.size.x, powerUp.size.y);
 	  }
   }

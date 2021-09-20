@@ -86,9 +86,9 @@ class Player extends Rect {
   constructor(difficulty: number)
   {
     super(20,100);
-	this.empowered = 0;
+	  this.empowered = 0;
     this.score = 0;
-	this.botDifficulty = difficulty;
+  	this.botDifficulty = difficulty;
   }
 }
 
@@ -123,52 +123,52 @@ class Offline_Pong {
       new Player(-1),
       new Player(difficultyBot.number + 1),
     ]
-	if (this.curr_map === 1)
-	{
-		this.obstacles = [
-			new Rect(50, 50),
-			new Rect(50, 50),
-			new Rect(50, 50),
-			new Rect(50, 50)
-		]
-		this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
-    this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
-    
-		this.obstacles[1].pos.x = this._canvas.width * 2 / 3 - this.obstacles[1].size.x / 2;
-    this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
-    
-		this.obstacles[2].pos.x = this._canvas.width / 3 - this.obstacles[2].size.x / 2;
-    this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
-    
-		this.obstacles[3].pos.x = this._canvas.width * 2 / 3 - this.obstacles[3].size.x / 2;
-		this.obstacles[3].pos.y = this._canvas.height * 2 / 3 - this.obstacles[3].size.y / 2;
-	}
-	else if (this.curr_map === 2)
-	{
-		this.obstacles = [
-			new Rect(15, 40),
-			new Rect(15, 80),
-			new Rect(15, 40),
-			new Rect(15, 80)
-		]
-		this.obstacles[0].pos.x = this._canvas.width / 2 - this.obstacles[0].size.x / 2;
-		this.obstacles[0].pos.y = 0;
-		this.obstacles[1].pos.x = this._canvas.width / 2 - this.obstacles[1].size.x / 2;
-		this.obstacles[1].pos.y = this._canvas.height / 4 - this.obstacles[1].size.y / 2;
-		this.obstacles[2].pos.x = this._canvas.width / 2  - this.obstacles[2].size.x / 2;
-		this.obstacles[2].pos.y = this._canvas.height - this.obstacles[2].size.y;
-		this.obstacles[3].pos.x = this._canvas.width / 2 - this.obstacles[3].size.x / 2;
-		this.obstacles[3].pos.y = this._canvas.height * 3 / 4 - this.obstacles[3].size.y / 2;
-	}
-	else
-		this.obstacles = [];
-  this.auth = authToken;
-  this.players[0].pos.x = 20;
-  this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
-  this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-  this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
+    if (this.curr_map === 1)
+    {
+      this.obstacles = [
+        new Rect(50, 50),
+        new Rect(50, 50),
+        new Rect(50, 50),
+        new Rect(50, 50)
+      ]
+      this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
+      this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
+      
+      this.obstacles[1].pos.x = this._canvas.width * 2 / 3 - this.obstacles[1].size.x / 2;
+      this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
+      
+      this.obstacles[2].pos.x = this._canvas.width / 3 - this.obstacles[2].size.x / 2;
+      this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
+      
+      this.obstacles[3].pos.x = this._canvas.width * 2 / 3 - this.obstacles[3].size.x / 2;
+      this.obstacles[3].pos.y = this._canvas.height * 2 / 3 - this.obstacles[3].size.y / 2;
+    }
+    else if (this.curr_map === 2)
+    {
+      this.obstacles = [
+        new Rect(15, 40),
+        new Rect(15, 80),
+        new Rect(15, 40),
+        new Rect(15, 80)
+      ]
+      this.obstacles[0].pos.x = this._canvas.width / 2 - this.obstacles[0].size.x / 2;
+      this.obstacles[0].pos.y = 0;
+      this.obstacles[1].pos.x = this._canvas.width / 2 - this.obstacles[1].size.x / 2;
+      this.obstacles[1].pos.y = this._canvas.height / 4 - this.obstacles[1].size.y / 2;
+      this.obstacles[2].pos.x = this._canvas.width / 2  - this.obstacles[2].size.x / 2;
+      this.obstacles[2].pos.y = this._canvas.height - this.obstacles[2].size.y;
+      this.obstacles[3].pos.x = this._canvas.width / 2 - this.obstacles[3].size.x / 2;
+      this.obstacles[3].pos.y = this._canvas.height * 3 / 4 - this.obstacles[3].size.y / 2;
+    }
+    else
+      this.obstacles = [];
+    this.auth = authToken;
+    this.players[0].pos.x = 20;
+    this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
+    this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
+    this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
 
-  let lastTime: number;
+    let lastTime: number;
 
     const callback = (millis: number) => {
       if (this.isGameEnded())
@@ -194,6 +194,7 @@ class Offline_Pong {
   };
     callback(0);
   }
+
   collide(player: Player, ball: Ball)
   {
     if (player.left < ball.right && player.right > ball.left &&
@@ -305,16 +306,16 @@ class Offline_Pong {
 
   touched(rect: PowerUp, ball: Ball)
   {
-	if (rect.left < ball.right && rect.right > ball.left &&
-        rect.top < ball.bottom && rect.bottom > ball.top && ball.lastTouch !== 0)
-	{
-		if (this.players[ball.lastTouch - 1].empowered === 1 && rect.type !== 1)
-			this.players[ball.lastTouch - 1].empowered += rect.type + 1;
-		else
-			this.players[ball.lastTouch - 1].empowered = rect.type;
-		rect.type = 0;
-		this.ball.lastTouch = 0;
-	}
+    if (rect.left < ball.right && rect.right > ball.left &&
+          rect.top < ball.bottom && rect.bottom > ball.top && ball.lastTouch !== 0)
+    {
+      if (this.players[ball.lastTouch - 1].empowered === 1 && rect.type !== 1)
+        this.players[ball.lastTouch - 1].empowered += rect.type + 1;
+      else
+        this.players[ball.lastTouch - 1].empowered = rect.type;
+      rect.type = 0;
+      this.ball.lastTouch = 0;
+    }
   }
 
   end()
@@ -390,8 +391,8 @@ class Offline_Pong {
       this.players.forEach(player => this.drawRect(player));
       this.players.forEach((player, index) => this.drawScore(player.score.toString(), index));
       this.obstacles.forEach(obstacles => this.drawObstacles(obstacles));
-      if (this.curr_powerUp.type !== 0)
-        this.drawPowerUp(this.curr_powerUp);
+      if (this.curr_powerUp.type !== 0) //
+        this.drawPowerUp(this.curr_powerUp); // 
       if (!this.isGameEnded())
       {
         this._context.fillStyle = 'white';
@@ -412,22 +413,22 @@ class Offline_Pong {
   drawRect(rect: Player)
   {
     if (this._context !== null)
-	{
-    if (this.powerups === true)
-    {
-      if (rect.empowered === 2 || rect.empowered === 4)
-			this._context.fillStyle = "red";
-      else if (rect.empowered === 1)
-        this._context.fillStyle = "blue";
-      else if (rect.size.y > 100)
-        this._context.fillStyle = "green";
+	  {
+      if (this.powerups === true)
+      {
+        if (rect.empowered === 2 || rect.empowered === 4)
+          this._context.fillStyle = "red";
+        else if (rect.empowered === 1)
+          this._context.fillStyle = "blue";
+        else if (rect.size.y > 100)
+          this._context.fillStyle = "green";
+        else
+          this._context.fillStyle = "white";
+      }
       else
         this._context.fillStyle = "white";
-    }
-    else
-			this._context.fillStyle = "white";
-    this._context.fillRect(rect.pos.x, rect.pos.y, 
-                          rect.size.x, rect.size.y);
+      this._context.fillRect(rect.pos.x, rect.pos.y, 
+                            rect.size.x, rect.size.y);
     }
   }
 
@@ -435,9 +436,9 @@ class Offline_Pong {
   {
 	  if (this._context !== null)
 	  {
-		this._context.fillStyle = "white";
-		this._context.fillRect(rect.pos.x, rect.pos.y, 
-			rect.size.x, rect.size.y);
+      this._context.fillStyle = "white";
+      this._context.fillRect(rect.pos.x, rect.pos.y, 
+        rect.size.x, rect.size.y);
 	  }
   }
   drawPowerUp(powerUp: PowerUp)

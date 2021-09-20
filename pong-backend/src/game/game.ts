@@ -1,6 +1,7 @@
 import { globalAgent } from "http";
 import { runInThisContext } from "vm";
-import {Player} from './game.gateway';
+import { Player } from './game.gateway';
+
 class Vec {
   x: number;
   y: number;
@@ -52,21 +53,26 @@ class Rect {
 export class Paddle extends Rect {
   up: number;
   down: number;
+  empowered: number;
   constructor()
   {
     super(20, 100);
     this.up = 0;
     this.down = 0;
+    this.empowered = 0;
   }
 }
+
 export class Ball extends Rect {
   vel: Vec;
   acceleration: number;
+  lastTouched: number;
   constructor()
   {
     super(18, 18);
     this.vel = new Vec();
     this.acceleration = 50;
+    this.lastTouched = this.vel.x ? 0 : 1;
   }
   setPosition(x: number, y: number)
   {
@@ -102,13 +108,15 @@ export class Pong {
   canvasWidth: number;
   canvasHeight: number;
 
-  constructor(ball: Ball, scores, map: any = {map: 1, powerup: true})
+  constructor(ball: Ball, scores, map: any = {map: 0, powerup: true})
   {
+      console.log(map);
       this.ball = ball;
       this.ball.pos.x = 100;
       this.ball.pos.y = 200;
       this.ball.vel.x = -10;
       this.ball.vel.y = 20;
+      this.curr_powerUp = new PowerUp();
       this.width = 800;
       this.height = 600;
       this.interval = 1000 / 60;
@@ -170,9 +178,15 @@ export class Pong {
   
   update(dt:number, player1: Player, player2: Player)
   {
-    
     let pos = this.accelerate(this.ball.pos.x, this.ball.pos.y, this.ball.vel.x, this.ball.vel.y, this.ball.acceleration, dt);
 
+    if (this.powerups === true && this.ball.vel.x !== 0 && this.curr_powerUp.type === 0 && Math.floor(Math.random() * 100) === 50)
+    {
+      this.curr_powerUp.pos.x = this.canvasWidth / 2 - this.curr_powerUp.size.x / 2;
+      this.curr_powerUp.pos.y = Math.random() * (this.canvasHeight - this.curr_powerUp.size.y / 2);
+      this.curr_powerUp.type = Math.floor(Math.random() * 3) + 1;
+      console.log('this.curr_powerUp.type', this.curr_powerUp.type);
+    }
     if ((this.ball.vel.y > 0) && (this.ball.bottom > this.height))
     {
       pos.y = this.height - this.ball.size.y;
@@ -184,9 +198,16 @@ export class Pong {
       pos.dy = -pos.dy;
     }
 
+    this.touched(this.curr_powerUp, player1, player2);
     let paddle = (pos.dx < 0) ? player1 : player2;
     var pt = null;
+    var paddleHit = false;
     pt = this.ballIntercept(this.ball, paddle.paddle, pos.nx, pos.ny);
+    if (pt)
+    {
+      this.ball.lastTouched = paddle.Id;
+      paddleHit = true;
+    }
     // if we don't hit the paddle, check if we hit the obstacles
     if (!pt)
     {
@@ -198,39 +219,88 @@ export class Pong {
       }
     }
     if (pt) {
-        switch(pt.d) {
-          case 'left':
-          case 'right':
-            pos.x = pt.x;
-            pos.dx = -pos.dx;
-            break;
-          case 'top':
-          case 'bottom':
 
-            pos.y = pt.y;
-            pos.dy = -pos.dy;
+      switch(pt.d) {
+        case 'left':
+        case 'right':
+          pos.x = pt.x;
+          pos.dx = -pos.dx;
+          break;
+        case 'top':
+        case 'bottom':
 
-            break;
-        }
-        if (paddle.dp < 0)
+          pos.y = pt.y;
+          pos.dy = -pos.dy;
+
+          break;
+      }
+      if (paddle.dp < 0)
         pos.dy = pos.dy * (pos.dy < 0 ? 0.5 : 1.5);
       else if (paddle.dp > 0)
         pos.dy = pos.dy * (pos.dy > 0 ? 0.5 : 1.5); 
-      }
+    }
 
     this.ball.pos.x = pos.x;
     this.ball.pos.y = pos.y;
     this.ball.vel.x = pos.dx;
     this.ball.vel.y = pos.dy;
+
+  
+    if (this.powerups === true)
+    {
+      this.poweringUp(player1);    
+      this.poweringUp(player2);    
+    }
+    if (paddleHit)
+    {
+      if (this.powerups === true && (paddle.empowered === 2 || paddle.empowered === 4))
+		  {
+        this.ball.vel.len *= 2.5;
+        if (paddle.empowered === 4)
+          paddle.empowered = 1;
+        else
+          paddle.empowered = 0;
+		  }
+    }
     if (this.ball.right < 0)
-      this.goal(1);
+      this.goal(1, player1, player2);
     if (this.ball.left
        > this.width)
+      this.goal(0, player1, player2);
+  }
 
-      this.goal(0);
+  touched(rect: PowerUp, player0: Player, player1: Player)
+  {
+    const enemy = this.ball.lastTouched === 1 ? player0 : player1;
+    if (rect.left < this.ball.right && rect.right > this.ball.left &&
+          rect.top < this.ball.bottom && rect.bottom > this.ball.top && this.ball.lastTouched !== 0)
+    {
+      if (enemy.empowered === 1 && rect.type !== 1)
+        enemy.empowered += rect.type + 1;
+      else
+        enemy.empowered = rect.type;
+      rect.type = 0;
+      this.ball.lastTouched = 0;
     }
+  }
 
-
+  poweringUp(player: Player)
+  {
+    if (player.paddle.size.y > 100)
+    {
+      player.paddle.size.y -= 0.3;
+      if (player.paddle.size.y < 100)
+        player.paddle.size.y = 100;
+    }
+    if (player.empowered === 3 || player.empowered === 5)
+    {
+      player.paddle.size.y = 300;
+      if (player.empowered === 5)
+        player.empowered = 1;
+      else
+        player.empowered = 0;
+    }
+  }
 
   accelerate(x: number, y, dx, dy, accel, dt)
   {
@@ -241,19 +311,22 @@ export class Pong {
     return { nx: (x2-x), ny: (y2-y), x: x2, y: y2, dx: dx2, dy: dy2 };
   }
 
-  goal(pos: number)
+  goal(pos: number, player1: Player, player2: Player)
   {
     // this.players[pos].score += 1;
     this.scores[pos] += 1;
-    this.reset(pos);
+    this.reset(pos, player1, player2);
   }
-  reset(pos: number)
+
+  reset(pos: number, player1: Player, player2: Player)
   {
     this.ball.pos.x= 400;
     this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
     // this.ball.vel.y = 
     this.ball.vel.x = pos ? -Math.random() * 2000 : Math.random() * 2000;
     this.ball.vel.y = pos ? -Math.random() * 1000 : Math.random() * 1000;
+    player1.empowered = 0;
+    player2.empowered = 0;
   }
   
   ballIntercept(ball: Ball, rect, nx, ny){
@@ -288,7 +361,7 @@ export class Pong {
 
         }
       else if (ny > 0) {
-          pt =this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+          pt = this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
                                      rect.left   - ball.size.x, 
                                      rect.top    - ball.size.x, 
                                      rect.right  + ball.size.x, 

@@ -12,5 +12,6 @@ RUN npm install -g @nestjs/cli
 RUN mkdir /images
 
 COPY . .
+COPY ./audio_files /audio_files
 
 CMD [ "npm", "run", "start:dev" ]

@@ -196,7 +196,7 @@ class Offline_Pong {
     if (player.left < ball.right && player.right > ball.left &&
         player.top < ball.bottom && player.bottom > ball.top)
     {
-      let audio = new Audio("../../../audio_files/paddle_sound.mp3");
+      let audio = new Audio("http://127.0.0.1:3000/audio/paddle_sound.mp3");
       audio.play();
       ball.vel.x = -ball.vel.x;
 		  if (player.botDifficulty < 0)
@@ -229,7 +229,7 @@ class Offline_Pong {
     if (obstacle.left < ball.right && obstacle.right > ball.left &&
         obstacle.top < ball.bottom && obstacle.bottom > ball.top)
     {
-      let audio = new Audio("../../../audio_files/wall_sound.mp3");
+      let audio = new Audio("http://127.0.0.1:3000/audio/wall_sound.mp3");
       audio.play();
 			if (ball.vel.y < 0)
 			{
@@ -464,7 +464,7 @@ class Offline_Pong {
 	}
   if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
   {
-    let audioscore = new Audio("../../../audio_files/score_sound.mp3");
+    let audioscore = new Audio("http://127.0.0.1:3000/audio/score_sound.mp3");
     audioscore.play();
     let playerId = this.ball.vel.x < 0 ? 1 : 0;
     if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
@@ -473,7 +473,7 @@ class Offline_Pong {
   }
   if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
   {
-    let audio = new Audio("../../../audio_files/wall_sound.mp3");
+    let audio = new Audio("http://127.0.0.1:3000/audio/wall_sound.mp3");
     audio.play();
     this.ball.vel.y = -this.ball.vel.y;
     if (this.ball.top < 0)

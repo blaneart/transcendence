@@ -18,11 +18,8 @@ interface IGameProps {
 const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     console.log('game_component');
 
-
     /* result of the game stored in string; can be 'win' 'lost' and 'game' */
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
-
-    const [updateStats, setUpdateStats] = useState<boolean>(false);
 
     /* boolean to manage restart of the game */
     const [restart, setRestart] = useState<Boolean>(false);
@@ -69,7 +66,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
      });
      socket.on('gameId', function(message: string) {setGameId(message)})
      socket.on('won', function(result: string, authToken: string) {
-      setUpdateStats(true);
       socket.emit('leaveRoom');
     })
   }, [restart]);

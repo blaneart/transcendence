@@ -8,7 +8,7 @@ import { User } from "../../App.types";
 
 const ENDPOINT = "ws://127.0.0.1:3002";
 
-interface IGameProps {
+export interface IGameProps {
   user?: User | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string

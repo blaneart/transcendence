@@ -202,7 +202,7 @@ function App() {
 
                 </Route>
         <Route exact path="/play/duels/:room">
-            <DuelGame />
+            <DuelGame user={user} setUser={setUser} authToken={authToken} ranked={true}/>
                 </Route>
         <Route path="/chats">
           {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p> }

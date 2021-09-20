@@ -49,17 +49,14 @@ class Rect {
   }
 }
 
-
 export class Paddle extends Rect {
   up: number;
   down: number;
-  empowered: number;
   constructor()
   {
     super(20, 100);
     this.up = 0;
     this.down = 0;
-    this.empowered = 0;
   }
 }
 
@@ -323,8 +320,8 @@ export class Pong {
     this.ball.pos.x= 400;
     this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
     // this.ball.vel.y = 
-    this.ball.vel.x = pos ? -Math.random() * 2000 : Math.random() * 2000;
-    this.ball.vel.y = pos ? -Math.random() * 1000 : Math.random() * 1000;
+    this.ball.vel.x = pos ? - Math.random() * 2000 : Math.random() * 2000;
+    this.ball.vel.y = pos ? - Math.random() * 1000 : Math.random() * 1000;
     player1.empowered = 0;
     player2.empowered = 0;
   }

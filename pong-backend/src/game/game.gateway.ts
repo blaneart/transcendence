@@ -311,7 +311,9 @@ export class GameGateway implements OnGatewayInit {
       this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
       this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
       this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
-      this.server.to(roomName).emit('getPaddles', pong.leftPaddle, pong.rightPaddle);
+      console.log('pong.leftPaddle', pong.leftPaddle);
+      console.log('pong.rightPaddle', pong.rightPaddle);
+      this.server.to(roomName).emit('getPaddles', this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
 
   };
     // let roomName = this.getRoomNameBySocket(client);

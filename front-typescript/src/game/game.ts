@@ -58,6 +58,17 @@ class Rect {
   }
 }
 
+class Paddle extends Rect {
+  up: number;
+  down: number;
+  constructor()
+  {
+    super(20, 100);
+    this.up = 0;
+    this.down = 0;
+  }
+}
+
 class Ball extends Rect {
   vel: Vec;
   constructor()
@@ -79,11 +90,13 @@ class PowerUp extends Rect {
 class Player extends Rect {
   score: number;
   empowered: number;
+  paddle: Paddle;
   constructor()
   {
     super(20,100);
     this.score = 8;
     this.empowered = 0;
+    this.paddle = new Paddle()
   }
 }
 
@@ -234,8 +247,14 @@ class Pong {
       this.curr_powerUp = powerUp;
     })
     this.socket.on('getPaddles', (leftPaddle: Player, rightPaddle: Player) => {
-      this.players[0] = leftPaddle;
-      this.players[1] = rightPaddle;
+      console.log('leftPaddle', leftPaddle);
+      console.log('rightPaddle', rightPaddle);
+      if (leftPaddle && rightPaddle && leftPaddle.paddle.size && rightPaddle.paddle.size) {
+        this.players[0].size = leftPaddle.paddle.size;
+        this.players[0].empowered = leftPaddle.empowered;
+        this.players[0].size = rightPaddle.paddle.size;
+        this.players[1].empowered = rightPaddle.empowered;
+      }
     })
 
 
@@ -320,14 +339,26 @@ class Pong {
     }
   }
 
-  drawRect(rect: Rect)
+  drawRect(rect: Player)
   {
     if (this._context !== null)
-    {
-      this._context.fillStyle = "white";
+	  {
+      if (this.powerups === true)
+      {
+        if (rect.empowered === 2 || rect.empowered === 4)
+          this._context.fillStyle = "red";
+        else if (rect.empowered === 1)
+          this._context.fillStyle = "blue";
+        else if (rect.size.y > 100)
+          this._context.fillStyle = "green";
+        else
+          this._context.fillStyle = "white";
+      }
+      else
+        this._context.fillStyle = "white";
       this._context.fillRect(rect.pos.x, rect.pos.y, 
                             rect.size.x, rect.size.y);
-      }
+    }
   }
   update(dt: number) {
     this.draw();

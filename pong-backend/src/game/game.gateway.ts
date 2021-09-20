@@ -204,7 +204,18 @@ export class GameGateway implements OnGatewayInit {
       }
       this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
       
-      setTimeout();
+      //let timeout = setTimeout(() => {
+      //   // If the third person connects before this, they will replace
+      //   //...
+      //   startGame();
+      // }, 10*1000);
+
+      timeout.clearTimeout();
+
+      // If the room is empty
+      
+
+
       ready = true;
       this.rooms[roomName].ready = true;
     }

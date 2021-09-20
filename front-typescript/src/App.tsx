@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Menu from "./components/menu/menu.component";
 import Header from "./components/header/header.component";
-import Game from "./pages/game/game.component";
+import Game, { IGameType } from "./pages/game/game.component";
 import Users from "./pages/users/users.component";
 import Friends from "./pages/friends/friends.component";
 import maps from './components/maps-chooser/maps.component'
@@ -204,12 +204,12 @@ function App() {
       </Switch>
       {authToken !== "" ?
       <Switch>
-        <Route exact path="/play/normal/">
-            <Game user={user} setUser={setUser} authToken={authToken} ranked={true}/>
+        <Route exact path="/play">
+            <Game user={user} setUser={setUser} authToken={authToken} gameType={IGameType.Classic}/>
 
                 </Route>
         <Route exact path="/play/duels/:room">
-            <DuelGame user={user} setUser={setUser} authToken={authToken} ranked={true}/>
+            <DuelGame user={user} setUser={setUser} authToken={authToken} gameType={IGameType.Classic}/>
                 </Route>
         <Route path="/chats">
           {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p> }

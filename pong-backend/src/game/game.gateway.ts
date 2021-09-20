@@ -12,6 +12,15 @@ import { AuthenticatedSocket } from 'src/chat/chat.types';
 
 // import Ball from './game/game';
 
+
+
+export enum IGameType {
+  Classic,
+  Powerups,
+  Ranked,
+  Duels
+}
+
 export class Player {
   name: string;
   userId: number;
@@ -112,12 +121,12 @@ export class GameGateway implements OnGatewayInit {
     // Find the room where the leaving user was
     for (let room in this.rooms)
     {
-      if (this.rooms[room].players.length === 2 && this.rooms[room].players[1].userId === client.data.user.id)
+      if (this.rooms[room].players.length === 2 && this.rooms[room].players[1] && this.rooms[room].players[1].userId === client.data.user.id)
       {
         abandonedRoomName = room;
         abandoningPlayerIndex = 1;
       }
-      else if (this.rooms[room].players[0].userId === client.data.user.id)
+      else if ( this.rooms[room].players[0] && this.rooms[room].players[0].userId === client.data.user.id)
       {
         abandonedRoomName = room;
         abandoningPlayerIndex = 0;
@@ -138,13 +147,14 @@ export class GameGateway implements OnGatewayInit {
   // Return true, if the room with this name is available for joining
   // i.e. contains only one player, and that player is not yourself.
   // userId: our user id.
-  async roomAvailable(roomName: string, userId: number): Promise<boolean>
+  async roomAvailable(roomName: string, userId: number, gameType: IGameType, map: number): Promise<boolean>
   {
     const theRoom = this.server.sockets.adapter.rooms.get(roomName);
     if (theRoom.size < 2)
     {
       // If this is an empty room, something isn't right.
-      if (theRoom.size == 0)
+      if (theRoom.size == 0 || this.rooms[roomName].type !== gameType
+                 || this.rooms[roomName].map !== map)
         return false;
       
       // If there is one player in the room, get their indentity
@@ -156,14 +166,15 @@ export class GameGateway implements OnGatewayInit {
     return false;
   }
 
-  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number) =>
+  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameType: IGameType, map: number) =>
   {
     let playerId;
     let ready = false;
     let roomName;
 
     // Check all rooms available for joining
-    roomName = await findAsyncSequential(this.getActiveRooms(/*userInfo[3]*/), async (roomName) => await this.roomAvailable(roomName, userId));
+    roomName = await findAsyncSequential(this.getActiveRooms(/*userInfo[3]*/), async (roomName) =>
+                   await this.roomAvailable(roomName, userId, gameType, map));
     console.log('foundRoomName: ', roomName);
     console.log(userId, userName);
     /* creates new room if every room is full*/
@@ -177,6 +188,8 @@ export class GameGateway implements OnGatewayInit {
           players: [],
           scores: [0,0],
           ball: new Ball(),
+          type: gameType,
+          map: map
         }
         // console.log(roomName);
         // console.log(this.rooms[roomName].start);
@@ -284,7 +297,9 @@ export class GameGateway implements OnGatewayInit {
 
   saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, loser_id: number, loser_elo: number, loser_score: number)
   {
-    let newMmrs = this.getNewMmr(winner_elo, loser_elo);
+    let newMmrs = {winner_new_mmr: winner_elo, loser_new_mmr: loser_elo};
+    if (this.rooms[roomName].type === IGameType.Ranked)
+      newMmrs = this.getNewMmr(winner_elo, loser_elo);
     this.gameService.saveGame(winner_id, loser_id, loser_score);
     this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
     this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
@@ -314,7 +329,7 @@ export class GameGateway implements OnGatewayInit {
     var interval = null;
     let dt  = 10;
     var myBall = this.rooms[roomName].ball;   
-    let pong = new Pong(myBall, this.rooms[roomName].scores);
+    let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].map, powerup: this.rooms[roomName].type === IGameType.Powerups});
     interval = setInterval(function() {callback(dt, pong)}, dt);
   }
 
@@ -333,12 +348,12 @@ export class GameGateway implements OnGatewayInit {
                             this.rooms[roomName].players[1 - playerid].name)
   }
 
-  @SubscribeMessage('quitGame')
-  quitGame(clinet: Socket, score1: number, score2: number) 
-  {
-    if ((score1  < 10 && score2 < 10))
-      this.server.emit('won');
-  }
+  // @SubscribeMessage('quitGame')
+  // quitGame(clinet: Socket, score1: number, score2: number) 
+  // {
+  //   if ((score1  < 10 && score2 < 10))
+  //     this.server.emit('won');
+  // }
   
   afterInit(server: any)
   {
@@ -425,10 +440,10 @@ export class GameGateway implements OnGatewayInit {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
   createRoom(socket: AuthenticatedSocket, userInfo) { // [mapNb, boolPowerUps]
-    console.log('joinRoom', userInfo[0], userInfo[1]);
+    console.log('joinRoom', userInfo[0], userInfo[1], userInfo[3]);
   
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2]);
+    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);
   }
   
   @SubscribeMessage('getListOfRooms')

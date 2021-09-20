@@ -31,7 +31,7 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
     let sections: IMenuState[] = user ? [
         {
             title: "PLAY ONLINE",
-            linkUrl: 'play/normal/',
+            linkUrl: 'play',
             id: 1
         },
         {

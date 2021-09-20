@@ -112,7 +112,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          pong = new Pong(updateGameStats, canvas, authToken, socket, id);
+          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: 1, powerup: true});
           console.log(id)
 
           canvas.addEventListener('mousemove', event => {
@@ -123,7 +123,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
           });
         //   window.addEventListener('keydown', event => {
         //     if (event.code == 'KeyW')
-        //       pong.players[id ? 0 : 1].pos.y = pong.players[0].pos.y - 25;
+        //       pong.players[id ? 0 : 1].po             ps.y = pong.players[0].pos.y - 25;
         //     else if (event.code == 'KeyS')
         //       pong.players[id ? 0 : 1].pos.y = pong.players[0].pos.y + 25;
         // });

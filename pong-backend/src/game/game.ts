@@ -75,6 +75,14 @@ export class Ball extends Rect {
   }
 }
 
+class PowerUp extends Rect {
+	type: number;
+
+	constructor () {
+		super(50, 50);
+		this.type = 0
+	}
+}
 
 
 export class Pong {
@@ -86,7 +94,15 @@ export class Pong {
   scores: number[];
   leftPaddle: Paddle;
   rightPaddle: Paddle;
-  constructor(ball: Ball, scores)
+  obstacles: Rect [];
+  curr_map: number;
+  powerups: boolean;
+  curr_powerUp: PowerUp;
+
+  canvasWidth: number;
+  canvasHeight: number;
+
+  constructor(ball: Ball, scores, map: any = {map: 1, powerup: true})
   {
       this.ball = ball;
       this.ball.pos.x = 100;
@@ -99,6 +115,54 @@ export class Pong {
       this.scores = scores;
       this.leftPaddle;
       this.rightPaddle;
+      this.canvasHeight = 600; // for now, fixed as on frontend
+      this.canvasWidth = 800;
+
+
+      // MAPS
+    this.curr_map = map.map;
+    this.powerups = map.powerup;
+    this.curr_powerUp = new PowerUp();
+    
+
+    if (this.curr_map === 1)
+    {
+      this.obstacles = [
+        new Rect(50, 50),
+        new Rect(50, 50),
+        new Rect(50, 50),
+        new Rect(50, 50)
+      ]
+      this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
+      this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
+      this.obstacles[1].pos.x = this._canvas.width * 2 / 3 - this.obstacles[1].size.x / 2;
+      this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
+      this.obstacles[2].pos.x = this._canvas.width / 3 - this.obstacles[2].size.x / 2;
+      this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
+      this.obstacles[3].pos.x = this._canvas.width *2 / 3 - this.obstacles[3].size.x / 2;
+      this.obstacles[3].pos.y = this._canvas.height * 2 / 3 - this.obstacles[3].size.y / 2;
+    }
+    else if (this.curr_map === 2)
+    {
+      this.obstacles = [
+        new Rect(15, 40),
+        new Rect(15, 80),
+        new Rect(15, 40),
+        new Rect(15, 80)
+      ]
+      this.obstacles[0].pos.x = this.canvasWidth / 2 - this.obstacles[0].size.x / 2;
+      this.obstacles[0].pos.y = 0;
+      this.obstacles[1].pos.x = this.canvasWidth / 2 - this.obstacles[1].size.x / 2;
+      this.obstacles[1].pos.y = this.canvasHeight / 4 - this.obstacles[1].size.y / 2;
+      this.obstacles[2].pos.x = this.canvasWidth / 2  - this.obstacles[2].size.x / 2;
+      this.obstacles[2].pos.y = this.canvasHeight - this.obstacles[2].size.y;
+      this.obstacles[3].pos.x = this.canvasWidth / 2 - this.obstacles[3].size.x / 2;
+      this.obstacles[3].pos.y = this.canvasHeight * 3 / 4 - this.obstacles[3].size.y / 2;
+    }
+    else
+      this.obstacles = [];
+
+    // MAPS END
   };
   update(dt:number, player1: Player, player2: Player)
   {
@@ -119,6 +183,15 @@ export class Pong {
     let paddle = (pos.dx < 0) ? player1 : player2;
     var pt = null;
     pt = this.ballIntercept(this.ball, paddle.paddle, pos.nx, pos.ny);
+    // if we don't hit the paddle, check if we hit the obstacles
+    if (!pt)
+    {
+      let i = 0;
+      while (!pt)
+      {
+        
+      }
+    }
     if (pt) {
         switch(pt.d) {
           case 'left':

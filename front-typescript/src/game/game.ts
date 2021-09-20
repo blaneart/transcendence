@@ -67,12 +67,23 @@ class Ball extends Rect {
   }
 }
 
+class PowerUp extends Rect {
+	type: number;
+
+	constructor () {
+		super(50, 50);
+		this.type = 0
+	}
+}
+
 class Player extends Rect {
   score: number;
+  empowered: number;
   constructor()
   {
     super(20,100);
     this.score = 8;
+    this.empowered = 0;
   }
 }
 
@@ -84,13 +95,17 @@ class Pong {
   ball: Ball;
   animation: number;
   players: Player [];
+  obstacles: Rect [];
+  curr_map: number;
+  powerups: boolean;
+  curr_powerUp: PowerUp;
   auth: string;
   socket: Socket;
   id: number;
   game_ended: boolean;
   fn: Function;
   enemy_id: number;
-  constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number)
+  constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number, map: any)
   {
     this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
@@ -105,6 +120,51 @@ class Pong {
       new Player(),
       new Player(),
     ]
+
+    // MAPS
+    this.curr_map = map.map;
+    this.powerups = map.powerup;
+	  this.curr_powerUp = new PowerUp();
+
+    if (this.curr_map === 1)
+    {
+      this.obstacles = [
+        new Rect(50, 50),
+        new Rect(50, 50),
+        new Rect(50, 50),
+        new Rect(50, 50)
+      ]
+      this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
+      this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
+      this.obstacles[1].pos.x = this._canvas.width * 2 / 3 - this.obstacles[1].size.x / 2;
+      this.obstacles[1].pos.y = this._canvas.height / 3 - this.obstacles[1].size.y / 2;
+      this.obstacles[2].pos.x = this._canvas.width / 3 - this.obstacles[2].size.x / 2;
+      this.obstacles[2].pos.y = this._canvas.height * 2 / 3 - this.obstacles[2].size.y / 2;
+      this.obstacles[3].pos.x = this._canvas.width *2 / 3 - this.obstacles[3].size.x / 2;
+      this.obstacles[3].pos.y = this._canvas.height * 2 / 3 - this.obstacles[3].size.y / 2;
+    }
+    else if (this.curr_map === 2)
+    {
+      this.obstacles = [
+        new Rect(15, 40),
+        new Rect(15, 80),
+        new Rect(15, 40),
+        new Rect(15, 80)
+      ]
+      this.obstacles[0].pos.x = this._canvas.width / 2 - this.obstacles[0].size.x / 2;
+      this.obstacles[0].pos.y = 0;
+      this.obstacles[1].pos.x = this._canvas.width / 2 - this.obstacles[1].size.x / 2;
+      this.obstacles[1].pos.y = this._canvas.height / 4 - this.obstacles[1].size.y / 2;
+      this.obstacles[2].pos.x = this._canvas.width / 2  - this.obstacles[2].size.x / 2;
+      this.obstacles[2].pos.y = this._canvas.height - this.obstacles[2].size.y;
+      this.obstacles[3].pos.x = this._canvas.width / 2 - this.obstacles[3].size.x / 2;
+      this.obstacles[3].pos.y = this._canvas.height * 3 / 4 - this.obstacles[3].size.y / 2;
+    }
+    else
+      this.obstacles = [];
+
+    // MAPS END
+
     this.fn = fn;
     this.auth = authToken;
     this.players[0].pos.x = 30;
@@ -187,6 +247,33 @@ class Pong {
   // }
 
   }
+
+  drawObstacles(rect: Rect)
+  {
+	  if (this._context !== null)
+	  {
+		this._context.fillStyle = "white";
+		this._context.fillRect(rect.pos.x, rect.pos.y, 
+			rect.size.x, rect.size.y);
+	  }
+  }
+  
+  drawPowerUp(powerUp: PowerUp)
+  {
+	  if (this._context !== null)
+	  {
+		  if (powerUp.type === 3)
+		  	this._context.fillStyle = "green";
+		  else if (powerUp.type === 2)
+		  	this._context.fillStyle = "red";
+		  else
+		  	this._context.fillStyle = "blue";
+
+		  this._context.fillRect(powerUp.pos.x, powerUp.pos.y, 
+			powerUp.size.x, powerUp.size.y);
+	  }
+  }
+
   draw()
   {
     if (this._context !== null)
@@ -203,6 +290,12 @@ class Pong {
       this._context.stroke();
       this.players.forEach(player => this.drawRect(player));
       this.players.forEach((player, index) => this.drawScore(player.score.toString(), index));
+      
+      // Draw obstacles
+      this.obstacles.forEach(obstacles => this.drawObstacles(obstacles));
+      if (this.curr_powerUp.type !== 0)
+        this.drawPowerUp(this.curr_powerUp);
+
       this._context.fillStyle = 'white';
       this._context.fillRect(this.ball.pos.x, this.ball.pos.y, this.ball.size.x, this.ball.size.y);
     }

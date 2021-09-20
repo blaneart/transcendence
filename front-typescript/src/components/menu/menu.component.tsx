@@ -45,8 +45,8 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
             id: 9
         },
         {
-            title: "SETTINGS",
-            linkUrl: '',
+            title: "GAME SETTINGS",
+            linkUrl: 'game-settings',
             id: 3
         },
         {
@@ -81,8 +81,8 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
             id: 1
         },
         {
-            title: "SETTINGS",
-            linkUrl: '',
+            title: "GAME SETTINGS",
+            linkUrl: 'game-settings',
             id: 2
         },
         {

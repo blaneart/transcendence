@@ -13,7 +13,8 @@ import Friends from "./pages/friends/friends.component";
 import maps from './components/maps-chooser/maps.component'
 
 import Chats from "./pages/chats/chats.component";
-import { User } from './App.types';
+import GameSettings from "./pages/game-settings/game-settings.component";
+import { User, Settings } from "./App.types";
 import OfflineGame from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
@@ -176,6 +177,9 @@ function App() {
   
   let difficulty = {number: 4};
 
+  var initSettings = {} as Settings;
+  initSettings.ranked = false ; initSettings.maps = 1; initSettings.powerUps = false;
+  const [settings, setSettings] = useState<Settings>(initSettings);
  
   return (
     <div className="App">
@@ -186,6 +190,9 @@ function App() {
         </Route>
         <Route path="/playbots">
           <Map history={history}/>
+        </Route>
+        <Route exact path="/game-settings">
+          <GameSettings settings={settings} setSettings={setSettings}/>
         </Route>
         <Route path="/offline">
             <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps}/>

@@ -29,6 +29,10 @@ import { DuelGateway } from './duel.gateway';
       rootPath: join(__dirname, '..', '..', 'images'),
       serveRoot: '/static/'
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'audio_files'),
+      serveRoot: '/audio/'
+    }),
     ChatModule,
     FriendDuoModule,
   ],

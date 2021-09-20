@@ -1,6 +1,5 @@
 import { Logger, UseGuards } from '@nestjs/common';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
-import { time } from 'console';
 import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
@@ -29,7 +28,7 @@ export class Player {
     this.userId = userId;
     this.id = id;
     this.elo = elo;
-    this.socketId= socket;
+    this.socketId = socket;
     this.paddle.pos.y = pos;
     this.paddle.pos.x = id === 0 ? 30 : 800 - 30;
     this.dp = 0;
@@ -87,8 +86,10 @@ export class GameGateway implements OnGatewayInit {
   @WebSocketServer() 
   server: Server;
   connectedClients = [];
-  playersId = {};
+  start = Math.floor((new Date).getTime() / 1000);
+  playersIdAndElo = Array<[number, number]>();
   private logger =  new Logger('GameGateway');
+
   handleConnection(client: Socket)
   {
     this.connectedClients = [...this.connectedClients, client.id]
@@ -102,6 +103,9 @@ export class GameGateway implements OnGatewayInit {
     this.connectedClients = this.connectedClients.filter(
       connectedClient => connectedClient !== client.id
     );
+
+    if (!client.data.user)
+      return;
 
     let abandonedRoomName = null;
     let abandoningPlayerIndex = null;
@@ -147,11 +151,10 @@ export class GameGateway implements OnGatewayInit {
       const lonelyPlayer = (await this.server.in([...theRoom][0]).fetchSockets())[0];
 
       // Ensure we're not playing with ourself
-      return (lonelyPlayer.data.user.id !== userId);
+      return (lonelyPlayer.data.user && lonelyPlayer.data.user.id !== userId);
     }
     return false;
   }
-
 
   getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number) =>
   {
@@ -160,23 +163,26 @@ export class GameGateway implements OnGatewayInit {
     let roomName;
 
     // Check all rooms available for joining
-    roomName = await findAsyncSequential(this.getActiveRooms(), async (roomName) => await this.roomAvailable(roomName, userId));
+    roomName = await findAsyncSequential(this.getActiveRooms(/*userInfo[3]*/), async (roomName) => await this.roomAvailable(roomName, userId));
     console.log('foundRoomName: ', roomName);
     console.log(userId, userName);
     /* creates new room if every room is full*/
     if (!roomName)
     {
+      console.log('createRoom');
       roomName = uuid.v4();
-      playerId =  Math.random()>=0.5? 1 : 0;
+      playerId = Math.random()>=0.5? 1 : 0;;
       if (!this.rooms[roomName])
         this.rooms[roomName] = {
           players: [],
           scores: [0,0],
           ball: new Ball(),
         }
-        this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2);
+        // console.log(roomName);
+        // console.log(this.rooms[roomName].start);
+        this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
     }
-    
+
     /* or assigns player to a room with one player */
     else
     {
@@ -195,6 +201,7 @@ export class GameGateway implements OnGatewayInit {
     this.server.to(socket.id).emit('getId', playerId);
     if (ready)
     {
+      console.log('ready = 1')
       this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
       this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
       this.server.to(roomName).emit('ready');
@@ -206,18 +213,17 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('playerPos')
   updatePlayers(client: Socket, new_pos: number[])
   {
-
     let roomName = this.getRoomNameBySocket(client)
     let id = 0;
     if (roomName && this.rooms[roomName])
     {
-    if (this.rooms[roomName].players[0].socketId == client.id)
-      id = this.rooms[roomName].players[0].id;
-    else
-      id = this.rooms[roomName].players[1].id;
-    this.rooms[roomName].players[id].paddle.pos.y = new_pos[0];
-    this.rooms[roomName].players[id].dp = new_pos[1];
-    client.broadcast.emit('getPosition', new_pos[0], id);
+      if (this.rooms[roomName].players[0].socketId == client.id)
+        id = this.rooms[roomName].players[0].id;
+      else
+        id = this.rooms[roomName].players[1].id;
+      this.rooms[roomName].players[id].paddle.pos.y = new_pos[0];
+      this.rooms[roomName].players[id].dp = new_pos[1];
+      client.to(roomName).emit('getPosition', new_pos[0], id);
     }
   }
 
@@ -256,6 +262,10 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('changeScore', this.rooms[roomName].scores)
 
     this.server.to(roomName).emit('endGame', abandoned ? "abandoned" : null);
+    this.server.to(roomName).emit('winner',
+    this.rooms[roomName].scores[0] >= 10
+    ? this.rooms[roomName].players[playerid].name
+    : this.rooms[roomName].players[1 - playerid].name);
   }
 
   getNewMmr(winner_old_mmr, loser_old_mmr)
@@ -308,12 +318,15 @@ export class GameGateway implements OnGatewayInit {
     interval = setInterval(function() {callback(dt, pong)}, dt);
   }
 
-
   @SubscribeMessage('watchMatch')
   watchMatch(client: Socket, roomName: string)
   {
-    client.join(roomName)
+    client.join(roomName);
     let playerid = 1;
+    // if (!this.rooms[roomName])
+    //   console.log('room doesn\'t exist');
+    // else
+    //   console.log(this.rooms[roomName]);
     if (this.rooms[roomName].players[0].id === 0)
       playerid = 0;
     this.server.to(client.id).emit('playersNames', this.rooms[roomName].players[playerid].name,
@@ -362,13 +375,13 @@ export class GameGateway implements OnGatewayInit {
 
 
   getActiveRooms = () => {
+
     const arr = Array.from(this.server.sockets.adapter.rooms);
     const filtered = arr.filter(room => !room[1].has(room[0]))
     const res = filtered.map(i => i[0]);
-    return res;
-}
 
-
+    return res/*.map(i => res[i].map*/;
+  }
 
   getRoomNameBySocket = (socket: Socket) => {
     const arr = Array.from(socket.rooms);
@@ -377,7 +390,7 @@ export class GameGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('leaveRoom')
-  leavRoom(socket: Socket)
+  leaveRoom(socket: Socket)
   {
     console.log('leaveRoom');
 
@@ -391,12 +404,29 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('getListOfRooms', this.showRooms());
   }
 
+  getClosestPlayerIdByElo()
+  {
+    var getCloseToMe = this.playersIdAndElo[0][1];
+    var biggest = 1000;
+    let i = 1;
+    let rtn_me = -1;
+    while (i < this.playersIdAndElo.length)
+    {
+      if (Math.abs(this.playersIdAndElo[i][1] - getCloseToMe) < biggest)
+      {
+        biggest = Math.abs(this.playersIdAndElo[i][1] - getCloseToMe);
+        rtn_me = i;
+      }
+      i++;
+    }
+    return (rtn_me);
+  }
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  createRoom(socket: AuthenticatedSocket, userInfo) {
-    console.log('joinRoom');
-
+  createRoom(socket: AuthenticatedSocket, userInfo) { // [mapNb, boolPowerUps]
+    console.log('joinRoom', userInfo[0], userInfo[1]);
+  
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2]);
   }

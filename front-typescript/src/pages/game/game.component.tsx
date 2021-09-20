@@ -167,7 +167,8 @@ useEffect(() => {
            setRestart(!restart)
            socket.emit('leaveRoom');
         }
-        }/> } 
+        }/> 
+        }
       </>
         :
         <h1>SIGN IN TO PLAY</h1>

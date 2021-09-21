@@ -195,8 +195,8 @@ function App() {
           <GameSettings settings={settings} setSettings={setSettings}/>
         </Route>
         <Route path="/offline">
-            <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps}/>
             <Difficulty difficultyLvl={difficulty}/>
+            <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps}/>
           </Route>
         <Route path="/cheats">
           <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>

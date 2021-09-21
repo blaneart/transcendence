@@ -226,7 +226,7 @@ class Offline_Pong {
         this.ball.lastTouch = 2;
         ball.pos.x = player.pos.x - ball.size.x;
       }
-      ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 / player.size.y;
+      ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 * this.ratio / player.size.y;
       ball.vel.len *= 1.05;
 		  if (this.powerups === true && (player.empowered === 2 || player.empowered === 4))
 		  {

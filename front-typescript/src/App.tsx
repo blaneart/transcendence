@@ -23,8 +23,6 @@ import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
 
-import ChooseGame from "./pages/game/choose-game.component";
-import DuelGame from "./pages/game/duel-game/duel-game.component";
 import AdminPanel from "./pages/adminPanel/adminPanel";
 import Watchdog from "./components/watchdog.component";
 const ENDPOINT = "http://127.0.0.1:3003";
@@ -224,15 +222,14 @@ function App() {
       {authToken !== "" ?
 
         <Switch>
-        <Route path="/play/:gameRoomName/:userId">
-          <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-            <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings}/>
-          </Watchdog>
-        </Route>
+          <Route path="/play/:gameRoomName/:userId">
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
+            </Watchdog>
           </Route>
           <Route path="/chats">
             <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p>}
+              {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} gameSettings={settings} /> : <p>Please log in</p>}
             </Watchdog>
           </Route>
           <Route path="/users">
@@ -259,15 +256,15 @@ function App() {
           <Route
             exact
             path="/watch/:room"
-             >
-              <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-                <Room/>
-              </Watchdog>
-            </Route>
+          >
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              <Room />
+            </Watchdog>
+          </Route>
 
         </Switch>
         : <p></p>
-}
+      }
     </div >
   );
 }

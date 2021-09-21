@@ -4,7 +4,6 @@ import EndGameMenu from '../../components/end-game-menu/end-game-menu.component'
 
 import '../../components/difficulty-lvl/difficulty-lvl.scss'
 import './offline-game.styles.scss';
-import { PassThrough } from 'stream';
 
 
 interface IGameProps {

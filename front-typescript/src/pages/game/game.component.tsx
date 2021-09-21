@@ -46,6 +46,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
           });
       return initialState;
     });
+    var ratio = 0.5;
 
 
     /* event listener */
@@ -122,7 +123,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       let old_pos = pong!.players[id].pos.y;
       pong!.players[id].pos.y = (event.offsetY - (pong!.players[id].size.y / 2));
       let d_pos = pong!.players[id].pos.y - old_pos;
-      socket.emit('playerPos', pong!.players[id].pos.y, d_pos);
+      socket.emit('playerPos', pong!.players[id].pos.y / pong!.ratio, d_pos / pong!.ratio);
     }
     setIsGameEnded('game')
     if (ready)
@@ -132,7 +133,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: 0, powerup: true});
+          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: 1, powerup: true}, ratio);
           console.log(id)
 
           canvas.addEventListener('mousemove', mouseTracker);
@@ -167,7 +168,7 @@ useEffect(() => {
           ready ?
         <>
           <GameHeader playerId = {id} userName={user.name} enemyName={enemyName}/>
-        <canvas id="forCanvas" width={800} height={600}></canvas>
+        <canvas id="forCanvas" width={800*ratio} height={600*ratio}></canvas>
         <h1>{gameId}</h1>
         </>
         :

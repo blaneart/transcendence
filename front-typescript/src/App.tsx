@@ -230,11 +230,6 @@ function App() {
           </Watchdog>
         </Route>
           </Route>
-          <Route exact path="/play/duels/:room">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              <DuelGame user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
-            </Watchdog>
-          </Route>
           <Route path="/chats">
             <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
               {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p>}
@@ -271,8 +266,9 @@ function App() {
             </Route>
 
         </Switch>
-        : <p></p>}
-    </div>
+        : <p></p>
+}
+    </div >
   );
 }
 

@@ -318,7 +318,10 @@ export class GameGateway implements OnGatewayInit {
 
   pushBall(roomName: string)
   {
+
     const callback = (dt: number, pong: Pong) => {
+
+
       // if (!this.rooms[roomName])
       //   clearInterval(interval)
       if (this.rooms[roomName]  && this.rooms[roomName].players[0].id === 0)
@@ -334,16 +337,18 @@ export class GameGateway implements OnGatewayInit {
 
       this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
       this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
-      this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
+      if (this.rooms[roomName].settings.powerUps)
+        this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
       // console.log('pong.leftPaddle',  this.rooms[roomName].players[0]);
       this.server.to(roomName).emit('getPaddles', this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
 
-  };
+    };
+
     // let roomName = this.getRoomNameBySocket(client);
     var interval = null;
     let dt  = 10;
     var myBall = this.rooms[roomName].ball;   
-    let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].map, powerup: this.rooms[roomName].type === IGameType.Powerups});
+    let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].settings.maps, powerup: this.rooms[roomName].settings.powerUps});
     interval = setInterval(function() {callback(dt, pong)}, dt);
   }
 

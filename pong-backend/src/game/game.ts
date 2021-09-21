@@ -23,7 +23,6 @@ class Vec {
   }
 }
 
-
 class Rect {
   pos: Vec;
   size: Vec;

@@ -16,3 +16,9 @@ export enum PowerUpType {
   GREEN = 2, // Makes the last player's paddle larger temporarily
   BLUE = 3, // The player losing this ball will win the point
 }
+
+export interface Settings {
+  ranked: Boolean;
+  maps: number;
+  powerUps: Boolean;
+}

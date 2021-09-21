@@ -6,11 +6,15 @@ import { useHistory } from 'react-router-dom';
 import RoomAdminPanel from "./roomAdminPanel.component";
 import { Room, MessageType } from "../chats.types";
 import MessageList from "./messageList.component";
+import { Settings } from "../../../App.types";
+import { settings } from "cluster";
+var uuid = require('uuid');
 
 // We require a token passed as parameter
 interface RoomParams {
   authToken: string
   userId: number
+  gameSettings: Settings,
 };
 
 // The parameters we expect in the URL.
@@ -72,7 +76,7 @@ async function getAmAdmin(authToken: string, roomName: string) {
 }
 
 
-const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
+const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
   const [socket] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
@@ -87,6 +91,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
   const [room, setRoom] = useState<Room>();
   let history = useHistory();
 
+  const [gameRoomName, setGameRoomName] = useState<string>('no room');
 
 
   useEffect(() => {
@@ -137,6 +142,25 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
           return [...oldMessages, newMessage];
         }
         // If this is the first message, we have to set the state to an array
+        return [newMessage];
+      });
+    });
+
+    socket.on("newInvite", (msg, gameRoomName) => {
+      const newMessage = msg as MessageType; // we receive a single update
+      setMessages((oldMessages) => {
+        if (userId === newMessage.receiverId || userId === newMessage.senderID)
+        {
+          console.log('gameRoomName', gameRoomName)
+          setGameRoomName(gameRoomName);
+        }
+        console.log('no new room name');
+        if (oldMessages) {
+          // Add the new one to the end
+          return [...oldMessages, newMessage];
+        }
+        // If this is the first message, we have to set the state to an array
+        
         return [newMessage];
       });
     });
@@ -196,10 +220,10 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
         setAmAdmin(true);
     })
 
-    // Game invitation stuff by ablanar
+    // Game invitation stuff by ablanar and thervieu
     
     socket.on("challengeAccepted", (gameRoomName) => {
-      history.replace(`/play/duels/${gameRoomName}`);
+      history.replace(`/play/duels/initiator/${gameRoomName}/`);
     })
 
 
@@ -215,15 +239,18 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId }) => {
   if (room)
     amOwner = room.ownerID === userId;
 
-  return (
+    return (
     <div>
 
       <h2 className="text-center">Room: {roomName}</h2>
       <div className="md:flex md:flex-row">
-          {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room} userId={userId} socket={socket} /> : null}
+          {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room}
+                                                   userId={userId} socket={socket} /> : null}
         <div className="flex-1 flex flex-col">
           <div className="flex-1">
-            {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room} socket={socket} amAdmin={amAdmin} amOwner={amOwner} /> : null}
+            {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room}
+                      socket={socket} amAdmin={amAdmin} amOwner={amOwner}
+                      gameRoomName={gameRoomName} gameSettings={gameSettings} /> : null}
           </div>
           <div>
             <Composer socket={socket} roomName={roomName} muted={muted} amOwner={amOwner} />

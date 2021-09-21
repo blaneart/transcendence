@@ -3,6 +3,7 @@ import { ChatMessageType, MessageType, Room } from "../chats.types";
 import Message from "./message.component";
 import { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
+import { Settings } from "../../../App.types";
 
 
 interface MessageListParams {
@@ -13,6 +14,8 @@ interface MessageListParams {
   socket: Socket;
   amAdmin: boolean
   amOwner: boolean
+  gameRoomName: string
+  gameSettings: Settings
 }
 
 // Get the list of all blocked users
@@ -37,7 +40,8 @@ interface BlockedUserEntry {
   blockedID: number
 }
 
-const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket, amAdmin, amOwner }) => {
+const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId, room, socket,
+                                                  amAdmin, amOwner, gameRoomName, gameSettings}) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
   const updateBlockList = useCallback(() => {
@@ -67,7 +71,7 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
       {messages?.filter((msg) => {if (msg.type !== ChatMessageType.GAME_INVITE || msg.senderID === userId  || msg.receiverId === userId) return msg})
       .map((msg) => <Message message={msg} blockList={blockList} 
       onBlock={updateBlockList} authToken={authToken} userId={userId} 
-      room={room} socket={socket} key={msg.id} amAdmin={amAdmin}/>)}
+      room={room} socket={socket} key={msg.id} amAdmin={amAdmin} gameRoomName={gameRoomName} gameSettings={gameSettings} />)}
     </div>
   );
 }

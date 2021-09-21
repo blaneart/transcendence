@@ -7,6 +7,8 @@ import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSock
 import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
 import { LoginAttempt, DirectMessage, BanRequest, ChatMessage } from "./chat.dto";
+import { Settings } from "http2";
+var uuid = require('uuid');
 
 
 @WebSocketGateway(8080, { cors: true })
@@ -393,7 +395,7 @@ export class ChatGateway {
     }
 
     // Send the update to other side
-    this.server.to(`direct_${direct.id}`).emit("newDirectMessage", newMessage);
+    this.server.to(`direct_${direct.id}`).emit("newDirectInvite", newMessage);
   }
 
 
@@ -449,10 +451,9 @@ export class ChatGateway {
 
     console.log(enemyId);
     // Send the update to all other clients, including the sender
-    this.server.to(roomName).emit("newMessage", newMessage);
+    this.server.to(roomName).emit("newInvite", newMessage, uuid.v4());
 
     this.server.to(client.id).emit('lel');
-
   }
 
   async handleDirectGameInvite(client: AuthenticatedSocket, roomName: string, enemyId: number)
@@ -483,7 +484,7 @@ export class ChatGateway {
     }
 
     // Send the update to other side
-    this.server.to(`direct_${directConvo.id}`).emit("newDirectMessage", newMessage);
+    this.server.to(`direct_${directConvo.id}`).emit("newDirectInvite", newMessage);
 
     console.log(enemyId);
     console.log(client.id);
@@ -504,8 +505,8 @@ export class ChatGateway {
       if (socket.data.user && socket.data.user.id === data[0] )
       {
         console.log(socket.id)
-        this.server.to(socket.id).emit("challengeAccepted", data[1]);
-            }
+        this.server.to(socket.id).emit("challengeAccepted", data[2]);
+      }
     }
   }
 
@@ -518,11 +519,9 @@ export class ChatGateway {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('sendGameInvitation')
-  async sendGameInvite(client: AuthenticatedSocket, enemyId: number)
+  async sendGameInvite(client: AuthenticatedSocket, enemyId: number, gameSettings: Settings)
   {
-
     const roomName: string = this.getRoomNameBySocket(client);
-
     if (roomName.startsWith('direct_'))
     {
       // This is a direct message
@@ -533,7 +532,6 @@ export class ChatGateway {
       // This is a regular chat message
       this.handleChatGameInvite(client, roomName, enemyId);
     }
-    
   }
 
 }

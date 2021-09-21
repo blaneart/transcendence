@@ -16,9 +16,6 @@ export interface IGameProps {
 }
 
 
-
-
-
 const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) => {
     console.log('game_component');
 
@@ -47,14 +44,13 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       return initialState;
     });
 
-
+    socket.emit('gameSettings', gameSettings);
     /* event listener */
     var mouse;
 
     const [enemyName, setEnemyName] = useState<string>('None');
 
     var pong: Pong | null = null;
-
 
     /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {

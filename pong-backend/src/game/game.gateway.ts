@@ -5,23 +5,13 @@ import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 import { GameService } from './game.service';
 import { ProfileService } from '../profile/profile.service';
-var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
 import { AuthenticatedSocket } from 'src/chat/chat.types';
 import { PowerUpType, Settings } from "../app.types";
+var uuid = require('uuid');
 
 // import Ball from './game/game';
-
-
-
-export enum IGameType {
-  Classic,
-  Powerups,
-  Ranked,
-  Duels
-}
-
 
 export class Player {
   name: string;
@@ -234,6 +224,66 @@ export class GameGateway implements OnGatewayInit {
       this.pushBall(roomName);
     }
   }
+  
+  getRoomByRoomName = (roomName: string) => {
+
+    const arr = Array.from(this.server.sockets.adapter.rooms);
+    const filtered = arr.filter(room => room[0] == roomName)
+    const res = filtered.map(i => i[0]);
+
+    return res[0];
+  }
+
+  // getWaitingRoomDuel = async (socket: AuthenticatedSocket, roomName: string, gameSettings: Settings) =>
+  // {
+  //   let playerId;
+  //   let ready = false;
+
+  //   // Check all rooms available for joining
+  //   let roomNameExists = await this.getRoomByRoomName(roomName);
+  //   console.log('foundRoomName: ', roomNameExists);
+  //   /* creates new room if every room is full*/
+  //   if (!roomNameExists)
+  //   {
+  //     console.log('createRoom');
+  //     playerId = Math.random()>=0.5? 1 : 0;;
+  //     if (!this.rooms[roomNameExists])
+  //       this.rooms[roomNameExists] = {
+  //         players: [],
+  //         scores: [0,0],
+  //         ball: new Ball(),
+  //         settings: gameSettings,
+  //       }
+  //       console.log('roomSettings', gameSettings);
+  //       this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
+  //   }
+
+  //   /* or assigns player to a room with one player */
+  //   else
+  //   {
+  //     ready = true;
+  //     if (!this.rooms[roomName].players[0])
+  //       playerId = 0;
+  //     else
+  //       playerId = 1;
+
+  //     this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
+  //     this.rooms[roomName].ready = true;
+  //   }
+
+  //   socket.join(roomName);
+  //   this.server.to(socket.id).emit('gameId', roomName);
+  //   this.server.to(socket.id).emit('getId', playerId);
+  //   if (ready)
+  //   {
+  //     console.log('ready = 1')
+  //     this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
+  //     this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
+  //     this.server.to(roomName).emit('ready');
+  //     this.server.emit('getListOfRooms', this.showRooms());
+  //     this.pushBall(roomName);
+  //   }
+  // }
 
   @SubscribeMessage('playerPos')
   updatePlayers(client: Socket, new_pos: number[])
@@ -411,6 +461,15 @@ export class GameGateway implements OnGatewayInit {
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
   }
+
+  // @UseGuards(JwtWsAuthGuard)
+  // @SubscribeMessage('joinRoomDuel')
+  // createRoomDuel(socket: AuthenticatedSocket, userInfo) {
+  //   console.log('joinRoomDuel');
+  
+  //   socket.data.user = socket.user; // Save user data for future use
+  //   this.getWaitingRoomDuel(socket);
+  // }
   
   @SubscribeMessage('getListOfRooms')
   sendRooms(client: Socket)

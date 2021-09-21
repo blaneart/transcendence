@@ -4,10 +4,12 @@ import './roomList.styles.scss';
 import { Room } from '../chats.types';
 import RoomLink from "./roomLink.component";
 import DirectList from "../direct/directList.component";
+import { Settings } from "../../../App.types";
 
 interface RoomListProps {
   authToken: string
   userId: number
+  gameSettings: Settings
 }
 
 // Get all open rooms from the backend

@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { ChatMessageType, MessageType, Room } from "../chats.types";
 import MessageText from "./messageText.component";
+import { Settings } from "../../../App.types";
 
 interface MessageParams {
   message: MessageType
@@ -13,6 +14,8 @@ interface MessageParams {
   room: Room
   socket: Socket
   amAdmin: boolean
+  gameRoomName: string
+  gameSettings: Settings
 }
 
 interface BanRequest {
@@ -30,7 +33,8 @@ function canIBan(userId: number, room: Room, amAdmin: boolean, message: MessageT
   return false;
 }
 
-const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId, onBlock, room, socket, amAdmin}) => {
+const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
+  userId, onBlock, room, socket, amAdmin, gameRoomName, gameSettings }) => {
 
   // Block a user
   const handleBlock = async () => {
@@ -91,18 +95,20 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
       <p>Message blocked</p>
     );
   }
- console.log(message.receiverId, userId);
+
+  console.log(message.receiverId, userId);
   // Else, show the message
   return (
     <div className="flex flex-row py-2">
-      <MessageText message={message} socket={socket} userId={userId} />
+      <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings}/>
       {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
       <> 
       <button onClick={() => {
-        socket.emit('acceptGame', message.senderID, message.id)
-        history.replace(`/play/duels/${message.id}`);
+        socket.emit('acceptGame', message.senderID, message.id);
+        history.replace(`/play/duels/accept/${gameRoomName}`);
       }} >accept</button>
       <button onClick={() =>{
+        console.log('gameRoomName', gameRoomName);
         socket.emit('rejectGame', message.senderID);
       }}>reject</button> 
       </>
@@ -110,7 +116,7 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
       
       {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
       <button onClick={() => {
-        history.replace(`/play/duels/${message.id}`);
+        history.replace(`/play/duels/sender/${gameRoomName}`);
       }}>join waiting room</button>
     }
       

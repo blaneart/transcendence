@@ -484,7 +484,7 @@ class Offline_Pong {
     let size = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
     this._canvas.width = size * 0.7;
     this._canvas.height = size * 0.7;
-    if (this.ratio != this._canvas.width / 800)
+    if (this.ratio !== this._canvas.width / 800)
     {
       let old_ratio = this.ratio
       this.ratio = this._canvas.width / 800;

@@ -5,7 +5,7 @@ import { DirectMessageUpdate } from "../chats.types";
 import DirectMessageList from "./directMessageList.component";
 import DirectMessageComposer from "./directMessageComposer.component";
 import { Settings } from "../../../App.types";
-var uuid = require('uuid');
+// var uuid = require('uuid');
 
 interface DirectViewProps {
   authToken: string,

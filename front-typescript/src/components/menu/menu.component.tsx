@@ -86,7 +86,7 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
           {
             title: 'ADMIN PANEL',
             linkUrl: 'adminPanel',
-            id: 9
+            id: 10
           }
         );
       }

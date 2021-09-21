@@ -1,8 +1,8 @@
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Watcher from './draw-watch';
 import GameHeader from '../../game/components/game-header/game-header.component';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import './end-watch-menu.styles.scss';
 
 const ENDPOINT = "http://127.0.0.1:3002";

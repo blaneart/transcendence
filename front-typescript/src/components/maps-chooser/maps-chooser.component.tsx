@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import maps from './maps.component'
 import './maps-chooser.scss'

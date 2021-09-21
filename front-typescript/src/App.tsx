@@ -4,6 +4,7 @@ import {
   Route,
   useLocation,
   useHistory,
+  Router,
 } from "react-router-dom";
 import Menu from "./components/menu/menu.component";
 import Header from "./components/header/header.component";
@@ -25,7 +26,7 @@ import Room from "./pages/watch/components/room.component";
 
 import AdminPanel from "./pages/adminPanel/adminPanel";
 import Watchdog from "./components/watchdog.component";
-const ENDPOINT = "http://127.0.0.1:3003";
+import Custom404 from "./pages/error-pages/404.component";
 
 
 interface IState {
@@ -150,6 +151,112 @@ function logoutHandler() {
   };
 }
 
+
+interface IGuest
+{
+  user: User | undefined | null,
+  settings: Settings,
+  difficulty: any,
+  authToken: string,
+  setAuthToken: React.Dispatch<React.SetStateAction<string>>,
+  setUser: React.Dispatch<React.SetStateAction<User | null| undefined>>,
+  setSettings: React.Dispatch<React.SetStateAction<Settings>>
+  bannedHandler: Function
+  history: any
+}
+
+const RouteGuest: React.FC<IGuest> = ({user, settings, difficulty, authToken,
+     setAuthToken, setUser, setSettings, history}) => {
+  return (
+  <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
+    <Route exact path="/">
+      <Menu user={user} />
+    </Route>
+    <Route exact path="/playbots">
+      <Map history={history} />
+    </Route>
+    <Route exact path="/game-settings">
+      <GameSettings settings={settings} setSettings={setSettings} />
+    </Route>
+    <Route exact path="/offline">
+      <Difficulty difficultyLvl={difficulty} />
+      <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps} />
+    </Route>
+    <Route exact path="/cheats">
+      <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
+    </Route>
+    <Route path="*"> <Custom404 /></Route>
+  </Switch>  </>);
+}
+
+
+
+const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
+  setAuthToken, setUser, setSettings, bannedHandler, history}) => {
+  return (
+  <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
+      <Route exact path="/">
+        <Menu user={user} />
+      </Route>
+      <Route path="/playbots">
+        <Map history={history} />
+      </Route>
+      <Route path="/game-settings">
+        <GameSettings settings={settings} setSettings={setSettings} />
+      </Route>
+      <Route path="/offline">
+        <Difficulty difficultyLvl={difficulty} />
+        <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps} />
+      </Route>
+      <Route path="/cheats">
+        <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
+      </Route>
+      <Route path="/play">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
+        </Watchdog>
+      </Route>
+      <Route path="/play/:gameRoomName/:userId">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
+        </Watchdog>
+      </Route>
+      <Route path="/chats">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} gameSettings={settings} /> : <p>Please log in</p>}
+        </Watchdog>
+      </Route>
+      <Route path="/users">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}
+        </Watchdog>
+      </Route>
+      <Route path="/friends">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
+        </Watchdog>
+      </Route>
+      <Route path="/adminPanel">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          {user ? <AdminPanel user={user} authToken={authToken} /> : <p>Please log in !</p>}
+        </Watchdog>
+      </Route>
+      <Route path="/watch">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          <Watch />
+        </Watchdog>
+      </Route>
+      <Route
+        path="/watch/:room"
+      >
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          <Room />
+        </Watchdog>
+      </Route>
+      <Route path="*" component={Custom404} />
+    </Switch></> );
+}
+
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
@@ -200,8 +307,20 @@ function App() {
 
   return (
     <div className="App">
-      <Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} />
-      <Switch>
+      {/* <Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /> */}
+      <Router history={history}>
+
+      {!user ? <RouteGuest authToken={authToken} 
+        user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
+      setSettings={setSettings} bannedHandler={bannedHandler} history={history}/>
+      :
+      <RouteAuth authToken={authToken} 
+        user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
+        setSettings={setSettings} bannedHandler={bannedHandler} history={history}/>
+      }
+      </Router>
+
+      {/* <Switch>
         <Route exact path="/">
           <Menu user={user} />
         </Route>
@@ -219,10 +338,15 @@ function App() {
           <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
         </Route>
       </Switch>
-      {authToken !== "" ?
-
+      {authToken !== "" ? */}
+{/* 
         <Switch>
-          <Route path="/play/:gameRoomName/:userId">
+            <Route exact path="/play">
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
+            </Watchdog>
+          </Route>
+          <Route exact path="/play/:gameRoomName/:userId">
             <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
               <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
             </Watchdog>
@@ -260,11 +384,11 @@ function App() {
             <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
               <Room />
             </Watchdog>
-          </Route>
+          </Route> */}
 
-        </Switch>
-        : <p></p>
-      }
+        {/* </Switch> */}
+        {/* : <p></p> */}
+      {/* } */}
     </div >
   );
 }

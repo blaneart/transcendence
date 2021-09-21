@@ -191,8 +191,8 @@ class Pong {
 
     this.fn = fn;
     this.auth = authToken;
-    this.players[0].pos.x = 30 * ratio;
-    this.players[1].pos.x = this._canvas.width - 30 * ratio;
+    this.players[0].pos.x = 30 * ratio ;
+    this.players[1].pos.x = this._canvas.width - 50 * ratio;
     this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.socket = socket;
@@ -365,7 +365,7 @@ class Pong {
 	  {
       if (this.powerups === true)
       {
-        if (rect.empowered == PowerUpType.RED)
+        if (rect.empowered === PowerUpType.RED)
           this._context.fillStyle = "red";
         else if (rect.empowered === PowerUpType.BLUE)
           this._context.fillStyle = "blue";
@@ -394,7 +394,7 @@ class Pong {
     this._canvas.width = size * 0.7;
     this._canvas.height = size * 0.7 * 0.75;
 
-    if (this.ratio != this._canvas.width / 800)
+    if (this.ratio !== this._canvas.width / 800)
     {
       let old_ratio = this.ratio
       this.ratio = this._canvas.width / 800;
@@ -410,12 +410,12 @@ class Pong {
   }
 }
 
-enum Empowerment {
-  blue = 1,
-  red = 2,
-  green = 3,
-  redTwo = 4,
-  greenTwo = 5,
-}
+// enum Empowerment {
+//   blue = 1,
+//   red = 2,
+//   green = 3,
+//   redTwo = 4,
+//   greenTwo = 5,
+// }
 
 export default Pong;

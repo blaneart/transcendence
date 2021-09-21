@@ -68,7 +68,11 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
   return (
     <div className={mainClasses}>
       <h5 className="text-xl mt-2 mb-4">Messages</h5>
-      {messages?.filter((msg) => {if (msg.type !== ChatMessageType.GAME_INVITE || msg.senderID === userId  || msg.receiverId === userId) return msg})
+      {messages?.filter((msg) => {
+      if (msg.type !== ChatMessageType.GAME_INVITE || msg.senderID === userId  || msg.receiverId === userId)
+        return msg
+      return null
+    })
       .map((msg) => <Message message={msg} blockList={blockList} 
       onBlock={updateBlockList} authToken={authToken} userId={userId} 
       room={room} socket={socket} key={msg.id} amAdmin={amAdmin} gameRoomName={gameRoomName} gameSettings={gameSettings} />)}

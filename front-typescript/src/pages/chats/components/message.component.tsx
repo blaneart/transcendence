@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 import { Socket } from "socket.io-client";
 import { ChatMessageType, MessageType, Room } from "../chats.types";

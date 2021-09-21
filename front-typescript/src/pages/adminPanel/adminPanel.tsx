@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { User } from '../../pages/users/users.types';
 import MessageAvatar from '../chats/components/messageAvatar.component';
-import UserAvatar from '../friends/components/UserAvatar.component';
+// import UserAvatar from '../friends/components/UserAvatar.component';
 
 interface AdminPanelProps {
   authToken: string,

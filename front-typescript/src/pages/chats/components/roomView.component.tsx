@@ -7,8 +7,8 @@ import RoomAdminPanel from "./roomAdminPanel.component";
 import { Room, MessageType } from "../chats.types";
 import MessageList from "./messageList.component";
 import { Settings } from "../../../App.types";
-import { settings } from "cluster";
-var uuid = require('uuid');
+// import { settings } from "cluster";
+// var uuid = require('uuid');
 
 // We require a token passed as parameter
 interface RoomParams {

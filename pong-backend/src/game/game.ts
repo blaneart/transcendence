@@ -182,7 +182,8 @@ export class Pong {
     {
       this.curr_powerUp.pos.x = this.canvasWidth / 2 - this.curr_powerUp.size.x / 2;
       this.curr_powerUp.pos.y = Math.random() * (this.canvasHeight - this.curr_powerUp.size.y / 2);
-      this.curr_powerUp.type = Math.floor(Math.random() * 3) + 1;
+      // this.curr_powerUp.type = Math.floor(Math.random() * 3) + 1;
+      this.curr_powerUp.type = PowerUpType.BLUE;
       console.log('this.curr_powerUp.type', this.curr_powerUp.type);
     }
     if ((this.ball.vel.y > 0) && (this.ball.bottom > this.height))
@@ -307,8 +308,12 @@ export class Pong {
 
   goal(pos: number, player1: Player, player2: Player)
   {
+    if ((pos === 0 && player2.empowered === PowerUpType.BLUE) || (pos === 1 && player1.empowered === PowerUpType.BLUE)) // If the loser is enchanted
+      this.scores[1 - pos] += 1; // Other player gets the point
+    else
+      this.scores[pos] += 1;
+    
     // this.players[pos].score += 1;
-    this.scores[pos] += 1;
     this.reset(pos, player1, player2);
   }
 

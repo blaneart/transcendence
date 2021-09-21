@@ -1,22 +1,8 @@
 import React from 'react';
 import MenuItem from '../menu-item/menu-item.component';
+import { User } from "../../App.types";
 
 import './menu.styles.scss';
-
-interface User {
-    id: number;
-    name: string;
-    id42: number;
-    avatar: string;
-    games: number;
-    elo: number;
-    wins: number;
-    twofa: boolean;
-    twofaSecret: string;
-    realAvatar: boolean
-    status: number;
-    owner: boolean;
-}
 
 interface IMenuProps {
     user?: User | null;
@@ -93,14 +79,18 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
         }
     ]
 
-    if (user && user.owner) {
-      sections.push(
-        {
-          title: 'ADMIN PANEL',
-          linkUrl: 'adminPanel',
-          id: 9
-        }
-      );
+    if (user && (user.owner || user.admin)) {
+      if (sections.length === 9)
+      {
+        sections.push(
+          {
+            title: 'ADMIN PANEL',
+            linkUrl: 'adminPanel',
+            id: 9
+          }
+        );
+      }
+      
     }
 
     const renderMenuList = (): JSX.Element[] => {

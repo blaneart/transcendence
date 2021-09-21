@@ -222,7 +222,8 @@ function App() {
           {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
         </Route>
         <Route path="/adminPanel">
-          {user ? <AdminPanel authToken={authToken}/> : <p>Please log in !</p>}
+          {user ? <AdminPanel user={user} authToken={authToken}
+          /> : <p>Please log in !</p>}
         </Route>
         <Route exact path="/watch">
           <Watch />

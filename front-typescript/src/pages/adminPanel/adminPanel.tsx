@@ -4,7 +4,8 @@ import MessageAvatar from '../chats/components/messageAvatar.component';
 import UserAvatar from '../friends/components/UserAvatar.component';
 
 interface AdminPanelProps {
-  authToken: string
+  authToken: string,
+  user: User
 }
 
 async function getUsers(authToken: string): Promise<User[]> {
@@ -78,7 +79,7 @@ async function demoteUser(authToken: string, userId: number): Promise<User[]> {
 }
 
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ authToken }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
   const [users, setUsers] = useState<User[]>([]);
 
   const updateUsers = (authToken: string) => {
@@ -106,6 +107,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken }) => {
   }
 
   return (
+    <>
+    {(user && (user.admin || user.owner)) ? 
     <div>
       <h2 className="text-center text-xxl">Banhammer 9000</h2>
 
@@ -113,13 +116,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken }) => {
       <h2 className="text-center">Parliament</h2>
 
       <div className="flex flex-col justify-items-center">
-        {users.map(user => user.owner || user.admin ? <div key={user.id} className="py-4 shadow-lg border border-gray-400 bg-green-200 bg-opacity-25 border-solid mt-3 rounded-lg">
+        {users.map(member => member.owner || member.admin ? <div key={member.id} className="py-4 shadow-lg border border-gray-400 bg-green-200 bg-opacity-25 border-solid mt-3 rounded-lg">
           <div className="px-4 flex flex-row items-center ">
             <div className="flex-1 flex flex-row items-center">
-            <MessageAvatar user={user} /><p className="px-4 text-xl">{user.name}</p>
+            <MessageAvatar user={member} /><p className="px-4 text-xl">{member.name}</p>
             </div>
             {
-              user.owner ? <p>Proud owner</p> : <button onClick={() => handleDemote(user.id)} className="py-4 px-10 text-xl bg-white rounded-lg bg-red-300 font-bold border-solid border-red-400 hover:bg-red-400 border-3 text-red-600 shadow-lg">Demote</button>
+              member.owner ? <p>Proud owner</p> : member.id === user.id ? <p>Your Honour</p> : <button onClick={() => handleDemote(user.id)} className="py-4 px-10 text-xl bg-white rounded-lg bg-red-300 font-bold border-solid border-red-400 hover:bg-red-400 border-3 text-red-600 shadow-lg">Demote</button>
             }
             
           </div>
@@ -150,7 +153,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken }) => {
           <button onClick={() => handleForgive(user.id)} className="py-4 px-10 text-xl bg-white rounded-lg bg-green-300 font-bold border-solid border-green-500 hover:bg-green-500 border-3 text-green-600 shadow-lg">Forgive</button>
         </div></div> : null)}
       </div>
-    </div>
+    </div>: <p>Restricted area.</p>}</>
   )
 };
 

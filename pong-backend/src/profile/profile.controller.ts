@@ -34,8 +34,8 @@ export class ProfileController {
   @Post('/ban/:id')
   async banUser(@Request() req, @Param() param: userIdDto) {
     // Ensure this is an owner
-    if (!req.user.owner)
-      throw new HttpException("You have to be the owner in order to do this.", HttpStatus.FORBIDDEN);
+    if (!req.user.owner && !req.user.admin)
+      throw new HttpException("You have to be the owner or an admin in order to do this.", HttpStatus.FORBIDDEN);
 
     // Find the user
     const target = await this.profileService.getUserById(param.id);
@@ -54,8 +54,8 @@ export class ProfileController {
   @Post('/forgive/:id')
   async forgiveUser(@Request() req, @Param() param: userIdDto) {
     // Ensure this is an owner
-    if (!req.user.owner)
-      throw new HttpException("You have to be the owner in order to do this.", HttpStatus.FORBIDDEN);
+    if (!req.user.owner && !req.user.admin)
+      throw new HttpException("You have to be the owner or an admin in order to do this.", HttpStatus.FORBIDDEN);
 
     // Find the user
     const target = await this.profileService.getUserById(param.id);
@@ -71,8 +71,8 @@ export class ProfileController {
   @Post('/makeAdmin/:id')
   async makeUserAdmin(@Request() req, @Param() param: userIdDto) {
     // Ensure this is an owner
-    if (!req.user.owner)
-      throw new HttpException("You have to be the owner in order to do this.", HttpStatus.FORBIDDEN);
+    if (!req.user.owner && !req.user.admin)
+      throw new HttpException("You have to be the owner or an admin in order to do this.", HttpStatus.FORBIDDEN);
 
     // Find the user
     const target = await this.profileService.getUserById(param.id);
@@ -88,8 +88,8 @@ export class ProfileController {
   @Post('/demote/:id')
   async demote(@Request() req, @Param() param: userIdDto) {
     // Ensure this is an owner
-    if (!req.user.owner)
-      throw new HttpException("You have to be the owner in order to do this.", HttpStatus.FORBIDDEN);
+    if (!req.user.owner && !req.user.admin)
+      throw new HttpException("You have to be the owner or an admin in order to do this.", HttpStatus.FORBIDDEN);
 
     // Find the user
     const target = await this.profileService.getUserById(param.id);

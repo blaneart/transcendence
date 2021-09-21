@@ -32,7 +32,7 @@ export class Player {
     this.elo = elo;
     this.socketId = socket;
     this.paddle.pos.y = pos;
-    this.paddle.pos.x = id === 0 ? 30 : 800 - 30;
+    this.paddle.pos.x = id === 0 ? 30 : 800 - 50;
     this.dp = 0;
     this.empowered = 0;
   }
@@ -409,7 +409,7 @@ export class GameGateway implements OnGatewayInit {
 
     // let roomName = this.getRoomNameBySocket(client);
     var interval = null;
-    let dt  = 10;
+    let dt  = 5;
     var myBall = this.rooms[roomName].ball;   
     let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].settings.maps, powerup: this.rooms[roomName].settings.powerUps});
     interval = setInterval(function() {callback(dt, pong)}, dt);

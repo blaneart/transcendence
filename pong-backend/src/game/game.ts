@@ -333,7 +333,7 @@ export class Pong {
     {
       pt = this.intercept(ball.pos.x , ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
         rect.right, 
-        rect.top, 
+        rect.top,
         rect.right,  
         rect.bottom,
         "right");
@@ -351,19 +351,19 @@ export class Pong {
     if (!pt) {
       if (ny < 0) {
           pt =  this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
-                                     rect.left   - ball.size.x,
-                                     rect.bottom + ball.size.x, 
-                                     rect.right  + ball.size.x, 
-                                     rect.bottom + ball.size.x,
+                                     rect.left   - ball.size.x / 2,
+                                     rect.bottom + ball.size.x / 2, 
+                                     rect.right  + ball.size.x / 2, 
+                                     rect.bottom + ball.size.x / 2,
                                      "bottom");
 
         }
       else if (ny > 0) {
           pt = this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
-                                     rect.left   - ball.size.x, 
-                                     rect.top    - ball.size.x, 
-                                     rect.right  + ball.size.x, 
-                                     rect.top    - ball.size.x,
+                                     rect.left   - ball.size.x  / 2, 
+                                     rect.top    - ball.size.x  / 2, 
+                                     rect.right  + ball.size.x  / 2, 
+                                     rect.top    - ball.size.x  / 2,
                                      "top");
 
     }

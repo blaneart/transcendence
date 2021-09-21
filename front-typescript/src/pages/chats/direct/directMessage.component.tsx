@@ -2,6 +2,7 @@ import React from "react";
 import { Socket } from "socket.io-client";
 import { DirectMessageUpdate } from "../chats.types";
 import MessageText from "../components/messageText.component";
+import { Settings } from "../../../App.types";
 
 interface DirectMessageProps {
   message: DirectMessageUpdate
@@ -10,9 +11,11 @@ interface DirectMessageProps {
   authToken: string
   onBlock: Function,
   socket: Socket
+  gameRoomName: string
+  gameSettings: Settings
 }
 
-const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId, blockList, authToken, onBlock, socket }) => {
+const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId, blockList, authToken, onBlock, socket, gameSettings }) => {
 
   // Block a user
   const handleBlock = async () => {
@@ -39,7 +42,7 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
 
   return (<div className="flex flex-row py-2">
     {/* <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message} */}
-    <MessageText message={message} socket={socket} userId={userId}/>
+    <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} />
     {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
   </div>);
 };

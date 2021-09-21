@@ -22,11 +22,6 @@ import Map from "./components/maps-chooser/maps-chooser.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
-import ChooseGame from "./pages/game/choose-game.component";
-import DuelGame from "./pages/game/duel-game/duel-game.component";
-const ENDPOINT = "http://127.0.0.1:3003";
-
-
 
 interface IState {
   user: User | null;
@@ -204,15 +199,11 @@ function App() {
       </Switch>
       {authToken !== "" ?
       <Switch>
-        <Route exact path="/play">
-            <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings}/>
-
-                </Route>
-        <Route exact path="/play/duels/:room">
-            <DuelGame user={user} setUser={setUser} authToken={authToken} gameSettings={settings}/>
-                </Route>
+        <Route path="/play/:gameRoomName/:userId">
+          <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings}/>
+        </Route>
         <Route path="/chats">
-          {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p> }
+          {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} gameSettings={settings} /> : <p>Please log in</p> }
         </Route>
         <Route path="/users">
           {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}

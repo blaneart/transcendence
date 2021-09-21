@@ -3,22 +3,21 @@ import { Socket } from "socket.io-client";
 import { MessageType } from "../chats.types";
 import MessageAvatar from "./messageAvatar.component";
 import UserTooltip from "./userTooltip.component";
+import { Settings } from "../../../App.types";
 
 interface MessageTextProps {
   message: MessageType,
   socket: Socket
   userId: number
+  gameSettings: Settings,
 }
 
 
 
-const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId }) => {
+const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, gameSettings }) => {
 
 
   return (
-
-
-
     <div className="message flex-1 flex flex-row items-center message-text">
 
       <div className="md:px-2 items-center flex flex-column">
@@ -27,7 +26,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId }) =>
         </div>
         <div className="tooltip">
         <div className="tooltiptext shadow-lg">
-            <UserTooltip message={message} socket={socket} userId={userId}/>
+            <UserTooltip message={message} socket={socket} userId={userId} gameSettings={gameSettings}/>
         </div>
         <a href={`/users/${message.name}/`} className="px-2">{message.name}: </a>
         </div>

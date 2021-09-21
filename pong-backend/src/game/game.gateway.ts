@@ -154,13 +154,14 @@ export class GameGateway implements OnGatewayInit {
   async roomAvailable(roomName: string, userId: number, gameSettings: Settings): Promise<boolean>
   {
     const theRoom = this.server.sockets.adapter.rooms.get(roomName);
-    console.log('roomSetings', );
     if (theRoom.size < 2)
     {
       // If this is an empty room, something isn't right.
-      if (theRoom.size == 0 || this.rooms[roomName].settings !== gameSettings)
+      if (theRoom.size == 0
+        || this.rooms[roomName].settings.ranked !== gameSettings.ranked
+        || this.rooms[roomName].settings.maps !== gameSettings.maps
+        || this.rooms[roomName].settings.powerUps !== gameSettings.powerUps )
         return false;
-      
       // If there is one player in the room, get their indentity
       const lonelyPlayer = (await this.server.in([...theRoom][0]).fetchSockets())[0];
 
@@ -168,6 +169,15 @@ export class GameGateway implements OnGatewayInit {
       return (lonelyPlayer.data.user && lonelyPlayer.data.user.id !== userId);
     }
     return false;
+  }
+
+  getActiveRooms = () => {
+
+    const arr = Array.from(this.server.sockets.adapter.rooms);
+    const filtered = arr.filter(room => !room[1].has(room[0]))
+    const res = filtered.map(i => i[0]);
+
+    return res/*.map(i => res[i].map*/;
   }
 
   getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameSettings: Settings) =>
@@ -194,8 +204,7 @@ export class GameGateway implements OnGatewayInit {
           ball: new Ball(),
           settings: gameSettings,
         }
-        // console.log(roomName);
-        // console.log(this.rooms[roomName].start);
+        console.log('roomSettings', gameSettings);
         this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
     }
 
@@ -243,8 +252,6 @@ export class GameGateway implements OnGatewayInit {
     }
   }
 
-
-
   // Do everything necessary to end the game
   endGame(roomName: string, abandoned: boolean = false, abandoningId: number | null = null)
   {
@@ -260,7 +267,7 @@ export class GameGateway implements OnGatewayInit {
       this.rooms[roomName].scores[abandoningId] = 0
       this.rooms[roomName].scores[1 - abandoningId] = 10;
     }
-    else if (this.rooms[roomName].scores[0] >= 10)
+    if (this.rooms[roomName].scores[0] >= 10)
       this.saveAndUpdate(roomName,
         this.rooms[roomName].players[playerid].userId,
         this.rooms[roomName].players[playerid].elo,
@@ -300,12 +307,13 @@ export class GameGateway implements OnGatewayInit {
 
   saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, loser_id: number, loser_elo: number, loser_score: number)
   {
-    let newMmrs = {winner_new_mmr: winner_elo, loser_new_mmr: loser_elo};
-    if (this.rooms[roomName].type === IGameType.Ranked)
-      newMmrs = this.getNewMmr(winner_elo, loser_elo);
     this.gameService.saveGame(winner_id, loser_id, loser_score);
-    this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
-    this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
+    if (this.rooms[roomName].settings.ranked === true)
+    {
+      let newMmrs = this.getNewMmr(winner_elo, loser_elo);
+      this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
+      this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
+    }
   }
 
   pushBall(roomName: string)
@@ -317,12 +325,12 @@ export class GameGateway implements OnGatewayInit {
         pong.update(dt /1000, this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
       else 
         pong.update(dt /1000, this.rooms[roomName].players[1], this.rooms[roomName].players[0]);
-        if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
-        {
-          if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
-            this.endGame(roomName);
-          clearInterval(interval);
-        }
+      if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
+      {
+        if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
+          this.endGame(roomName);
+        clearInterval(interval);
+      }
 
       this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
       this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
@@ -367,16 +375,6 @@ export class GameGateway implements OnGatewayInit {
     if (socket.id != this.rooms[this.getRoomNameBySocket(socket)].players[who].socketId)
       this.rooms[this.getRoomNameBySocket(socket)].scores[who] =  this.rooms[this.getRoomNameBySocket(socket)].scores[who] + 1;
     this.server.emit('changeScore', this.rooms[this.getRoomNameBySocket(socket)].scores)
-  }
-
-
-  getActiveRooms = () => {
-
-    const arr = Array.from(this.server.sockets.adapter.rooms);
-    const filtered = arr.filter(room => !room[1].has(room[0]))
-    const res = filtered.map(i => i[0]);
-
-    return res/*.map(i => res[i].map*/;
   }
 
   getRoomNameBySocket = (socket: Socket) => {

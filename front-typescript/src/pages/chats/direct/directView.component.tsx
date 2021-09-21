@@ -4,10 +4,13 @@ import { io, Socket } from "socket.io-client";
 import { DirectMessageUpdate } from "../chats.types";
 import DirectMessageList from "./directMessageList.component";
 import DirectMessageComposer from "./directMessageComposer.component";
+import { Settings } from "../../../App.types";
+var uuid = require('uuid');
 
 interface DirectViewProps {
   authToken: string,
   userId: number
+  gameSettings: Settings
 }
 
 // The parameters we expect in the URL.
@@ -15,7 +18,7 @@ interface DirectRouteParams {
   target: string
 }
 
-const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
+const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings }) => {
 
   const { target } = useParams<DirectRouteParams>();
   const [socket] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
@@ -24,6 +27,7 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
     }
   }));
   const [messages, setMessages] = useState<DirectMessageUpdate[]>([]);
+  const [gameRoomName, setGameRoomName] = useState<string>('no game room');
 
   useEffect(() => {
 
@@ -41,6 +45,20 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
     socket.on("newDirectMessage", (msg) => {
       const newMessage = msg as DirectMessageUpdate; // we receive a single update
       setMessages((oldMessages) => {
+        if (oldMessages) {
+          // Add the new one to the end
+          return [...oldMessages, newMessage];
+        }
+        // If this is the first message, we have to set the state to an array
+        return [newMessage];
+      });
+    });
+
+    // Once someone sends a message, we receive this event
+    socket.on("newDirectInvite", (msg, gameRoomName) => {
+      const newMessage = msg as DirectMessageUpdate; // we receive a single update
+      setMessages((oldMessages) => {
+        setGameRoomName(gameRoomName);
         if (oldMessages) {
           // Add the new one to the end
           return [...oldMessages, newMessage];
@@ -70,7 +88,8 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId }) => {
     <div>
 
       <h2>Direct conversaton with: {target}</h2>
-        <DirectMessageList messages={messages} userId={userId} authToken={authToken} socket={socket}/>
+        <DirectMessageList messages={messages} userId={userId} authToken={authToken}
+                            socket={socket} gameRoomName={gameRoomName} gameSettings={gameSettings} />
         <DirectMessageComposer socket={socket} interlocutor={target} />
     </div>
   );

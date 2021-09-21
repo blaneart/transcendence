@@ -5,23 +5,13 @@ import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
 import { GameService } from './game.service';
 import { ProfileService } from '../profile/profile.service';
-var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
 import { AuthenticatedSocket } from 'src/chat/chat.types';
 import { PowerUpType, Settings } from "../app.types";
+var uuid = require('uuid');
 
 // import Ball from './game/game';
-
-
-
-export enum IGameType {
-  Classic,
-  Powerups,
-  Ranked,
-  Duels
-}
-
 
 export class Player {
   name: string;
@@ -234,6 +224,77 @@ export class GameGateway implements OnGatewayInit {
       this.pushBall(roomName);
     }
   }
+  
+  getRoomByRoomName = (roomName: string) => {
+
+    const arr = Array.from(this.server.sockets.adapter.rooms);
+    console.log('arr', arr);
+    const filtered = arr.filter(room => room[0] === roomName)
+    console.log('filtered', filtered);
+    const res = filtered.map(i => i[0]);
+    console.log('res', res);
+    return res[0];
+  }
+
+  // user.name, user.id, user.elo, gameSettings, roomName
+  getWaitingRoomDuel = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameSettings: Settings, roomName: string) =>
+  {
+    let playerId;
+    let ready = false;
+
+    // Check all rooms available for joining
+    let roomNameExists = await this.getRoomByRoomName(roomName);
+    console.log('foundRoomName Duel: ', roomNameExists);
+    /* creates new room if every room is full*/
+    if (!roomNameExists)
+    {
+      console.log('createRoomDuel');
+      playerId = Math.random()>=0.5? 1 : 0;;
+      if (!this.rooms[roomName])
+      {
+        this.rooms[roomName] = {
+          players: [],
+          scores: [0,0],
+          ball: new Ball(),
+          settings: gameSettings,
+        }
+        console.log('this.rooms[roomName] CREATE', this.rooms[roomName]);
+        this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
+      }
+    }
+
+    /* or assigns player to a room with one player */
+    else
+    {
+      console.log('this.rooms[roomName]', this.rooms[roomName]);
+      ready = true;
+      if (!this.rooms[roomName].players[0])
+        playerId = 0;
+      else
+        playerId = 1;
+
+      this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
+      if (gameSettings)
+      {
+        console.log('changing settings !');
+        this.rooms[roomName].settings = gameSettings;
+      }
+      this.rooms[roomName].ready = true;
+    }
+
+    socket.join(roomName);
+    this.server.to(socket.id).emit('gameId', roomName);
+    this.server.to(socket.id).emit('getId', playerId);
+    if (ready)
+    {
+      console.log('ready = 1')
+      this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
+      this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
+      this.server.to(roomName).emit('ready');
+      this.server.emit('getListOfRooms', this.showRooms());
+      this.pushBall(roomName);
+    }
+  }
 
   @SubscribeMessage('playerPos')
   updatePlayers(client: Socket, new_pos: number[])
@@ -308,6 +369,8 @@ export class GameGateway implements OnGatewayInit {
   saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, loser_id: number, loser_elo: number, loser_score: number)
   {
     this.gameService.saveGame(winner_id, loser_id, loser_score);
+    this.profileService.updateUserById(winner_id, {status: 1});
+    this.profileService.updateUserById(loser_id, {status: 1});
     if (this.rooms[roomName].settings.ranked === true)
     {
       let newMmrs = this.getNewMmr(winner_elo, loser_elo);
@@ -406,12 +469,23 @@ export class GameGateway implements OnGatewayInit {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
   createRoom(socket: AuthenticatedSocket, userInfo) {
+    this.profileService.updateUserById(userInfo[1], {status: 2});
     console.log('joinRoom', userInfo[0], userInfo[1], userInfo[3]);
   
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
   }
-  
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('joinRoomInvite')
+  createRoomDuel(socket: AuthenticatedSocket, userInfo) {
+    this.profileService.updateUserById(userInfo[1], {status: 2});
+    console.log('joinRoomDuel');
+    socket.data.user = socket.user; // Save user data for future use
+    this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);
+  }
+
+
   @SubscribeMessage('getListOfRooms')
   sendRooms(client: Socket)
   {

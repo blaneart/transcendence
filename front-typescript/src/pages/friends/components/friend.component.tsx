@@ -91,7 +91,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
       {bool ? <button onClick={(e) => handleUnfriend(id1, friendUser.id, authToken, setBool)}>Unfriend</button> 
       : <button onClick={(e) => handleAddBackFriend(id1, friendUser.id, authToken, setBool)}>Add Back</button>}
       <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
-      {friendUser.status === 0 ? <p>Offline</p> : <p>Online</p>}
+      {friendUser.status === 0 ? <p>Offline</p> : friendUser.status === 1 ? <p>Online</p> : <p>In a game</p>}
     </div>
       : <p>Not Found</p>
   );

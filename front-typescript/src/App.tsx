@@ -22,12 +22,12 @@ import Map from "./components/maps-chooser/maps-chooser.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
+
 import ChooseGame from "./pages/game/choose-game.component";
 import DuelGame from "./pages/game/duel-game/duel-game.component";
 import AdminPanel from "./pages/adminPanel/adminPanel";
 import Watchdog from "./components/watchdog.component";
 const ENDPOINT = "http://127.0.0.1:3003";
-
 
 
 interface IState {
@@ -222,12 +222,13 @@ function App() {
         </Route>
       </Switch>
       {authToken !== "" ?
-        <Switch>
-          <Route exact path="/play">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
-            </Watchdog>
 
+        <Switch>
+        <Route path="/play/:gameRoomName/:userId">
+          <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+            <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings}/>
+          </Watchdog>
+        </Route>
           </Route>
           <Route exact path="/play/duels/:room">
             <Watchdog authToken={authToken} bannedHandler={bannedHandler}>

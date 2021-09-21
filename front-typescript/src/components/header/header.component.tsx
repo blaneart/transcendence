@@ -22,7 +22,7 @@ async function Click(
   logoutHandler: Function
   )
 {
-    let newStatus = user.status === 1 ? 0 : 1;
+    let newStatus = user.status > 0 ? 0 : 1;
     const data = {
       value: newStatus,
     };

@@ -479,7 +479,7 @@ export class GameGateway implements OnGatewayInit {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoomInvite')
   createRoomDuel(socket: AuthenticatedSocket, userInfo) {
-    this.profileService.updateUserById(userInfo[1], {status: 3});
+    this.profileService.updateUserById(userInfo[1], {status: 2});
     console.log('joinRoomDuel');
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);

@@ -335,7 +335,8 @@ export class GameGateway implements OnGatewayInit {
     var interval = null;
     let dt  = 10;
     var myBall = this.rooms[roomName].ball;   
-    let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].map, powerup: this.rooms[roomName].type === IGameType.Powerups});
+    // let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].map, powerup: this.rooms[roomName].type === IGameType.Powerups});
+    let pong = new Pong(myBall, this.rooms[roomName].scores, {map: 1, powerup: true });
     interval = setInterval(function() {callback(dt, pong)}, dt);
   }
 

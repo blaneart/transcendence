@@ -78,9 +78,9 @@ class Paddle extends Rect {
 
 class Ball extends Rect {
   vel: Vec;
-  constructor()
+  constructor(ratio: number)
   {
-    super(18,18);
+    super(18 * ratio, 18 * ratio);
     this.vel = new Vec();
   }
 }
@@ -88,8 +88,8 @@ class Ball extends Rect {
 class PowerUp extends Rect {
 	type: PowerUpType;
 
-	constructor () {
-		super(100, 100);
+	constructor (ratio: number) {
+		super(100 * ratio, 100 * ratio);
 		this.type = 0
 	}
 }
@@ -98,10 +98,10 @@ class Player extends Rect {
   score: number;
   empowered: PowerUpType;
   paddle: Paddle;
-  constructor()
+  constructor(ratio: number)
   {
-    super(20,100);
-    this.score = 8;
+    super(20 * ratio, 100 * ratio);
+    this.score = 0;
     this.empowered = PowerUpType.NONE;
     this.paddle = new Paddle()
   }
@@ -125,11 +125,13 @@ class Pong {
   game_ended: boolean;
   fn: Function;
   enemy_id: number;
-  constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number, map: any)
+  ratio: number;
+
+  constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number, map: any, ratio: number)
   {
     this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
-    this.ball = new Ball();
+    this.ball = new Ball(ratio);
     this.ball.pos.x = this._canvas.width / 2;
     this.ball.pos.y = this._canvas.height / 2;
     this.ball.vel.x = 0;
@@ -137,22 +139,24 @@ class Pong {
     this.animation = 0;
     this.game_ended = false;
     this.players = [
-      new Player(),
-      new Player(),
+      new Player(ratio),
+      new Player(ratio),
     ]
+
+    this.ratio = ratio;
 
     // MAPS
     this.curr_map = map.map;
     this.powerups = map.powerup;
-	  this.curr_powerUp = new PowerUp();
+	  this.curr_powerUp = new PowerUp(ratio);
 
     if (this.curr_map === 1)
     {
       this.obstacles = [
-        new Rect(50, 50),
-        new Rect(50, 50),
-        new Rect(50, 50),
-        new Rect(50, 50)
+        new Rect(50 * ratio, 50 * ratio),
+        new Rect(50 * ratio, 50 * ratio),
+        new Rect(50 * ratio, 50 * ratio),
+        new Rect(50 * ratio, 50 * ratio)
       ]
       this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
       this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
@@ -166,10 +170,10 @@ class Pong {
     else if (this.curr_map === 2)
     {
       this.obstacles = [
-        new Rect(15, 40),
-        new Rect(15, 80),
-        new Rect(15, 40),
-        new Rect(15, 80)
+        new Rect(15 * ratio, 40 * ratio),
+        new Rect(15 * ratio, 80 * ratio),
+        new Rect(15 * ratio, 40 * ratio),
+        new Rect(15 * ratio, 80 * ratio)
       ]
       this.obstacles[0].pos.x = this._canvas.width / 2 - this.obstacles[0].size.x / 2;
       this.obstacles[0].pos.y = 0;
@@ -187,8 +191,8 @@ class Pong {
 
     this.fn = fn;
     this.auth = authToken;
-    this.players[0].pos.x = 30;
-    this.players[1].pos.x = this._canvas.width - 30;
+    this.players[0].pos.x = 30 * ratio;
+    this.players[1].pos.x = this._canvas.width - 30 * ratio;
     this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
     this.socket = socket;
@@ -244,21 +248,30 @@ class Pong {
       this.end();
     })
     this.socket.on('getPosition', (position: number) => {
-      this.players[this.enemy_id].pos.y = position;
+      this.players[this.enemy_id].pos.y = position * this.ratio;
     })
     this.socket.on('getBallPosition', (position: Vec) => {
-      this.ball.pos = position;
+      this.ball.pos.x = position.x * this.ratio;
+      this.ball.pos.y = position.y * this.ratio;
     })
 
     this.socket.on('getPowerUp', (powerUp: PowerUp) => {
-      this.curr_powerUp = powerUp;
+      this.curr_powerUp.size.x = powerUp.size.x * this.ratio;
+      this.curr_powerUp.size.y = powerUp.size.y * this.ratio;
+      
+      this.curr_powerUp.pos.x = powerUp.pos.x * this.ratio;
+      this.curr_powerUp.pos.y = powerUp.pos.y * this.ratio;
+      
+      this.curr_powerUp.type = powerUp.type;
     })
     this.socket.on('getPaddles', (leftPaddle: Player, rightPaddle: Player) => {
 
       if (leftPaddle && rightPaddle && leftPaddle.paddle.size && rightPaddle.paddle.size) {
-        this.players[0].size = leftPaddle.paddle.size;
+        this.players[0].size.x = leftPaddle.paddle.size.x * this.ratio;
+        this.players[0].size.y = leftPaddle.paddle.size.y * this.ratio;
         this.players[0].empowered = leftPaddle.empowered;
-        this.players[1].size = rightPaddle.paddle.size;
+        this.players[1].size.x = rightPaddle.paddle.size.x * this.ratio;
+        this.players[1].size.y = rightPaddle.paddle.size.y * this.ratio;
         this.players[1].empowered = rightPaddle.empowered;
       }
     })
@@ -339,9 +352,10 @@ class Pong {
     const align = this._canvas.width / 3;
     if (this._context !== null)
     {
-      this._context.fillStyle = "white"; 
-      this._context.font = '50px Anton';
-      this._context.fillText(scores, align * (index + 1), 100);
+      this._context.fillStyle = "white";
+      const size = 50 * this.ratio;
+      this._context.font = `${size}px Anton`;
+      this._context.fillText(scores, align * (index + 1), 100 * this.ratio);
     }
   }
 
@@ -355,7 +369,7 @@ class Pong {
           this._context.fillStyle = "red";
         else if (rect.empowered === PowerUpType.BLUE)
           this._context.fillStyle = "blue";
-        else if (rect.size.y > 100)
+        else if (rect.size.y > 100 * this.ratio)
           this._context.fillStyle = "green";
         else
           this._context.fillStyle = "white";
@@ -366,7 +380,32 @@ class Pong {
                             rect.size.x, rect.size.y);
     }
   }
+
+  changeplace(object: Rect, ratio: number)
+  {
+    object.size.x *= ratio;
+    object.size.y *= ratio;
+    object.pos.x *= ratio;
+    object.pos.y *= ratio;
+  }
+
   update(dt: number) {
+    let size = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
+    this._canvas.width = size * 0.7;
+    this._canvas.height = size * 0.7 * 0.75;
+
+    if (this.ratio != this._canvas.width / 800)
+    {
+      let old_ratio = this.ratio
+      this.ratio = this._canvas.width / 800;
+      old_ratio = this.ratio / old_ratio;
+      this.changeplace(this.ball, old_ratio);
+      this.ball.vel.x *= old_ratio;
+      this.ball.vel.y *= old_ratio;
+      this.changeplace(this.curr_powerUp, old_ratio);
+      this.players.forEach(player => this.changeplace(player, old_ratio));
+      this.obstacles.forEach(obstacle => this.changeplace(obstacle, old_ratio));
+    }
     this.draw();
   }
 }

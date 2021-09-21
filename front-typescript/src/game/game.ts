@@ -247,12 +247,11 @@ class Pong {
       this.curr_powerUp = powerUp;
     })
     this.socket.on('getPaddles', (leftPaddle: Player, rightPaddle: Player) => {
-      console.log('leftPaddle', leftPaddle);
-      console.log('rightPaddle', rightPaddle);
+
       if (leftPaddle && rightPaddle && leftPaddle.paddle.size && rightPaddle.paddle.size) {
         this.players[0].size = leftPaddle.paddle.size;
         this.players[0].empowered = leftPaddle.empowered;
-        this.players[0].size = rightPaddle.paddle.size;
+        this.players[1].size = rightPaddle.paddle.size;
         this.players[1].empowered = rightPaddle.empowered;
       }
     })
@@ -363,6 +362,14 @@ class Pong {
   update(dt: number) {
     this.draw();
   }
+}
+
+enum Empowerment {
+  blue = 1,
+  red = 2,
+  green = 3,
+  redTwo = 4,
+  greenTwo = 5,
 }
 
 export default Pong;

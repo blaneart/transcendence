@@ -245,8 +245,8 @@ export class Pong {
   
     if (this.powerups === true)
     {
-      this.poweringUp(player1);    
-      this.poweringUp(player2);    
+      this.poweringUp(player1);
+      this.poweringUp(player2);
     }
     if (paddleHit)
     {
@@ -268,7 +268,7 @@ export class Pong {
 
   touched(rect: PowerUp, player0: Player, player1: Player)
   {
-    const enemy = this.ball.lastTouched === 1 ? player0 : player1;
+    const enemy = this.ball.lastTouched === 1 ? player1 : player0;
     if (rect.left < this.ball.right && rect.right > this.ball.left &&
           rect.top < this.ball.bottom && rect.bottom > this.ball.top && this.ball.lastTouched !== 0)
     {
@@ -291,6 +291,7 @@ export class Pong {
     }
     if (player.empowered === 3 || player.empowered === 5)
     {
+      console.log("Player ", player, "got his thing big");
       player.paddle.size.y = 300;
       if (player.empowered === 5)
         player.empowered = 1;
@@ -320,8 +321,8 @@ export class Pong {
     this.ball.pos.x= 400;
     this.ball.pos.y = (Math.random() * (this.height - this.ball.size.y));
     // this.ball.vel.y = 
-    this.ball.vel.x = pos ? - Math.random() * 2000 : Math.random() * 2000;
-    this.ball.vel.y = pos ? - Math.random() * 1000 : Math.random() * 1000;
+    this.ball.vel.x = pos ? - Math.random() * 200 : Math.random() * 200;
+    this.ball.vel.y = pos ? - Math.random() * 100 : Math.random() * 100;
     player1.empowered = 0;
     player2.empowered = 0;
   }

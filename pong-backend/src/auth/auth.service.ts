@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ProfileService } from '../profile/profile.service';
 import { JwtService } from '@nestjs/jwt';
 
@@ -57,6 +57,8 @@ export class AuthService {
   async login(user: any) {
     console.log('USER');
     console.log(user);
+    if (user.banned)
+      throw new HttpException("You're banned", HttpStatus.FORBIDDEN);
 
     if (user.twofa)
     {

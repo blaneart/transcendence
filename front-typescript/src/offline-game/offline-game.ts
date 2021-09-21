@@ -105,9 +105,11 @@ class Offline_Pong {
   curr_powerUp: PowerUp;
   powerups: boolean;
   curr_map: number;
+  last_score: number;
 
   constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any)
   {
+    this.last_score = -1;
 	  this.curr_map = map.map;
 	  this.powerups = map.powerup;
 	  this.curr_powerUp = new PowerUp();
@@ -368,7 +370,10 @@ class Offline_Pong {
   start()
   {
     if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
-      this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
+      if (this.last_score === -1)
+        this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
+      else
+        this.ball.vel.x = 300 * (this.last_score === 0 ? 1 : -1);
       this.ball.vel.y = 100 * (Math.random() * 2 - 1);
       this.ball.vel.len = 400;
 	    this.ball.lastTouch = 0;
@@ -471,7 +476,10 @@ class Offline_Pong {
     audioscore.play();
     let playerId = this.ball.vel.x < 0 ? 1 : 0;
     if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
+    {
       this.players[playerId].score++;
+      this.last_score = playerId;
+    }
     this.reset();
   }
   if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)

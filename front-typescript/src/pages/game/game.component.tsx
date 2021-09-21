@@ -26,7 +26,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
 
     /* boolean to manage restart of the game */
-    const [restart, setRestart] = useState<Boolean>(false);
+    const [restart, setRestart] = useState<Boolean>(true);
 
     /* boolean state when set true both players connected to server and game can be started */
     const [ready, setReady] = useState<Boolean>(false);
@@ -60,8 +60,11 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     useEffect(() => {
       console.log(socket);
       console.log(user)
-      if (user)
+      if (user && restart)
+      {
         socket.emit('joinRoom', user.name, user.id, user.elo, gameSettings);
+        setRestart(false);
+      }
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })
@@ -176,7 +179,7 @@ useEffect(() => {
         {            isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={() =>
          {
            setReady(false);
-           setRestart(!restart)
+           setRestart(true)
            socket.emit('leaveRoom');
         }
         }/> 

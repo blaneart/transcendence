@@ -1,6 +1,7 @@
 import { globalAgent } from "http";
 import { runInThisContext } from "vm";
 import { Player } from './game.gateway';
+import { PowerUpType } from "../app.types";
 
 class Vec {
   x: number;
@@ -79,7 +80,7 @@ export class Ball extends Rect {
 }
 
 class PowerUp extends Rect {
-	type: number;
+	type: PowerUpType;
 
 	constructor () {
 		super(50, 50);
@@ -177,7 +178,7 @@ export class Pong {
   {
     let pos = this.accelerate(this.ball.pos.x, this.ball.pos.y, this.ball.vel.x, this.ball.vel.y, this.ball.acceleration, dt);
 
-    if (this.powerups === true && this.ball.vel.x !== 0 && this.curr_powerUp.type === 0 && Math.floor(Math.random() * 100) === 50)
+    if (this.powerups === true && this.ball.vel.x !== 0 && this.curr_powerUp.type === PowerUpType.NONE && Math.floor(Math.random() * 100) === 50)
     {
       this.curr_powerUp.pos.x = this.canvasWidth / 2 - this.curr_powerUp.size.x / 2;
       this.curr_powerUp.pos.y = Math.random() * (this.canvasHeight - this.curr_powerUp.size.y / 2);
@@ -250,13 +251,10 @@ export class Pong {
     }
     if (paddleHit)
     {
-      if (this.powerups === true && (paddle.empowered === 2 || paddle.empowered === 4))
+      if (this.powerups === true && paddle.empowered === PowerUpType.RED)
 		  {
         this.ball.vel.len *= 2.5;
-        if (paddle.empowered === 4)
-          paddle.empowered = 1;
-        else
-          paddle.empowered = 0;
+        paddle.empowered = 0;
 		  }
     }
     if (this.ball.right < 0)
@@ -272,10 +270,11 @@ export class Pong {
     if (rect.left < this.ball.right && rect.right > this.ball.left &&
           rect.top < this.ball.bottom && rect.bottom > this.ball.top && this.ball.lastTouched !== 0)
     {
-      if (enemy.empowered === 1 && rect.type !== 1)
-        enemy.empowered += rect.type + 1;
-      else
-        enemy.empowered = rect.type;
+      // if (enemy.empowered === 1 && rect.type !== 1)
+      //   enemy.empowered += rect.type + 1;
+      // else
+      //   enemy.empowered = rect.type;
+      enemy.empowered = rect.type;
       rect.type = 0;
       this.ball.lastTouched = 0;
     }
@@ -289,14 +288,11 @@ export class Pong {
       if (player.paddle.size.y < 100)
         player.paddle.size.y = 100;
     }
-    if (player.empowered === 3 || player.empowered === 5)
+    if (player.empowered === PowerUpType.GREEN)
     {
       console.log("Player ", player, "got his thing big");
       player.paddle.size.y = 300;
-      if (player.empowered === 5)
-        player.empowered = 1;
-      else
-        player.empowered = 0;
+      player.empowered = PowerUpType.NONE;
     }
   }
 

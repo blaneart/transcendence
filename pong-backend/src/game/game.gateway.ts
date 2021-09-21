@@ -9,6 +9,7 @@ var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
 import { AuthenticatedSocket } from 'src/chat/chat.types';
+import { PowerUpType } from "../app.types";
 
 // import Ball from './game/game';
 
@@ -21,7 +22,7 @@ export class Player {
   socketId: string;
   position: number;
   dp: number;
-  empowered: number;
+  empowered: PowerUpType;
   constructor(name: string, userId: number, id: number, elo: number, socket: string, pos: number)
   {
     this.paddle = new Paddle();

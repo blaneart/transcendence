@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { MessageType, Room } from "../chats.types";
+import { ChatMessageType, MessageType, Room } from "../chats.types";
 import Message from "./message.component";
 import { useState, useEffect } from "react";
 import { Socket } from "socket.io-client";
@@ -64,7 +64,8 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
   return (
     <div className={mainClasses}>
       <h5 className="text-xl mt-2 mb-4">Messages</h5>
-      {messages?.map((msg) => <Message message={msg} blockList={blockList} 
+      {messages?.filter((msg) => {if (msg.type !== ChatMessageType.GAME_INVITE || msg.senderID === userId  || msg.receiverId === userId) return msg})
+      .map((msg) => <Message message={msg} blockList={blockList} 
       onBlock={updateBlockList} authToken={authToken} userId={userId} 
       room={room} socket={socket} key={msg.id} amAdmin={amAdmin}/>)}
     </div>

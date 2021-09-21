@@ -7,24 +7,19 @@ import Game from './game.component';
 interface IGameProps {
     user?: User | null,
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
-    authToken: string
+    authToken: string,
+    ranked: boolean
   }
 
   
-const ChooseGame: React.FC<IGameProps> = ({user, setUser, authToken}) => {
+const ChooseGame: React.FC<IGameProps> = ({user, setUser, authToken, ranked}) => {
     return (
         <div>
-        <Switch>
-        <Route exact path="/play">
-            <Game user={user} setUser={setUser} authToken={authToken} ranked={true}/>
 
-                </Route>
-        <Route exact path="/play/duels/:room">
-            <DuelGame />
-                </Route>
-    </Switch>
         
         </div>
         
     );
 }
+
+export default ChooseGame;

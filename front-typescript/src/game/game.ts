@@ -89,7 +89,7 @@ class PowerUp extends Rect {
 	type: PowerUpType;
 
 	constructor () {
-		super(50, 50);
+		super(100, 100);
 		this.type = 0
 	}
 }

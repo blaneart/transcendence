@@ -83,7 +83,7 @@ class PowerUp extends Rect {
 	type: PowerUpType;
 
 	constructor () {
-		super(50, 50);
+		super(100, 100);
 		this.type = 0
 	}
 }
@@ -196,7 +196,7 @@ export class Pong {
       pos.dy = -pos.dy;
     }
 
-    this.touched(this.curr_powerUp, player1, player2);
+    this.touched(this.curr_powerUp, player1, player2, pos);
     let paddle = (pos.dx < 0) ? player1 : player2;
     var pt = null;
     var paddleHit = false;
@@ -264,18 +264,18 @@ export class Pong {
       this.goal(0, player1, player2);
   }
 
-  touched(rect: PowerUp, player0: Player, player1: Player)
+  touched(powerUp: PowerUp, player0: Player, player1: Player, pos: any)
   {
+    let pt = this.ballIntercept(this.ball, powerUp, pos.nx, pos.ny);
     const enemy = this.ball.lastTouched === 1 ? player1 : player0;
-    if (rect.left < this.ball.right && rect.right > this.ball.left &&
-          rect.top < this.ball.bottom && rect.bottom > this.ball.top && this.ball.lastTouched !== 0)
+    if (pt)
     {
-      // if (enemy.empowered === 1 && rect.type !== 1)
-      //   enemy.empowered += rect.type + 1;
+      // if (enemy.empowered === 1 && powerUp.type !== 1)
+      //   enemy.empowered += powerUp.type + 1;
       // else
-      //   enemy.empowered = rect.type;
-      enemy.empowered = rect.type;
-      rect.type = 0;
+      //   enemy.empowered = powerUp.type;
+      enemy.empowered = powerUp.type;
+      powerUp.type = 0;
       this.ball.lastTouched = 0;
     }
   }

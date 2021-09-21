@@ -95,7 +95,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
       <p>Message blocked</p>
     );
   }
-
+  let meIn = -1;
   console.log(message.receiverId, userId);
   // Else, show the message
   return (
@@ -104,8 +104,8 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
       {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
       <> 
       <button onClick={() => {
-        socket.emit('acceptGame', message.senderID, message.id);
-        history.replace(`/play/duels/accept/${gameRoomName}`);
+        socket.emit('acceptGame', message.senderID, message.id, gameRoomName);
+        history.replace(`/play/${gameRoomName}/${meIn}`);
       }} >accept</button>
       <button onClick={() =>{
         console.log('gameRoomName', gameRoomName);
@@ -116,7 +116,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
       
       {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
       <button onClick={() => {
-        history.replace(`/play/duels/sender/${gameRoomName}`);
+        history.replace(`/play/${gameRoomName}/${userId}`);
       }}>join waiting room</button>
     }
       

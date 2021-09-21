@@ -228,62 +228,73 @@ export class GameGateway implements OnGatewayInit {
   getRoomByRoomName = (roomName: string) => {
 
     const arr = Array.from(this.server.sockets.adapter.rooms);
-    const filtered = arr.filter(room => room[0] == roomName)
+    console.log('arr', arr);
+    const filtered = arr.filter(room => room[0] === roomName)
+    console.log('filtered', filtered);
     const res = filtered.map(i => i[0]);
-
+    console.log('res', res);
     return res[0];
   }
 
-  // getWaitingRoomDuel = async (socket: AuthenticatedSocket, roomName: string, gameSettings: Settings) =>
-  // {
-  //   let playerId;
-  //   let ready = false;
+  // user.name, user.id, user.elo, gameSettings, roomName
+  getWaitingRoomDuel = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameSettings: Settings, roomName: string) =>
+  {
+    let playerId;
+    let ready = false;
 
-  //   // Check all rooms available for joining
-  //   let roomNameExists = await this.getRoomByRoomName(roomName);
-  //   console.log('foundRoomName: ', roomNameExists);
-  //   /* creates new room if every room is full*/
-  //   if (!roomNameExists)
-  //   {
-  //     console.log('createRoom');
-  //     playerId = Math.random()>=0.5? 1 : 0;;
-  //     if (!this.rooms[roomNameExists])
-  //       this.rooms[roomNameExists] = {
-  //         players: [],
-  //         scores: [0,0],
-  //         ball: new Ball(),
-  //         settings: gameSettings,
-  //       }
-  //       console.log('roomSettings', gameSettings);
-  //       this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
-  //   }
+    // Check all rooms available for joining
+    let roomNameExists = await this.getRoomByRoomName(roomName);
+    console.log('foundRoomName Duel: ', roomNameExists);
+    /* creates new room if every room is full*/
+    if (!roomNameExists)
+    {
+      console.log('createRoomDuel');
+      playerId = Math.random()>=0.5? 1 : 0;;
+      if (!this.rooms[roomName])
+      {
+        this.rooms[roomName] = {
+          players: [],
+          scores: [0,0],
+          ball: new Ball(),
+          settings: gameSettings,
+        }
+        console.log('this.rooms[roomName] CREATE', this.rooms[roomName]);
+        this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
+      }
+    }
 
-  //   /* or assigns player to a room with one player */
-  //   else
-  //   {
-  //     ready = true;
-  //     if (!this.rooms[roomName].players[0])
-  //       playerId = 0;
-  //     else
-  //       playerId = 1;
+    /* or assigns player to a room with one player */
+    else
+    {
+      console.log('this.rooms[roomName]', this.rooms[roomName]);
+      ready = true;
+      if (!this.rooms[roomName].players[0])
+        playerId = 0;
+      else
+        playerId = 1;
 
-  //     this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
-  //     this.rooms[roomName].ready = true;
-  //   }
+      this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
+      if (gameSettings)
+      {
+        console.log('changing settings !');
+        this.rooms[roomName].settings = gameSettings;
+      }
+      this.rooms[roomName].ready = true;
+    }
 
-  //   socket.join(roomName);
-  //   this.server.to(socket.id).emit('gameId', roomName);
-  //   this.server.to(socket.id).emit('getId', playerId);
-  //   if (ready)
-  //   {
-  //     console.log('ready = 1')
-  //     this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
-  //     this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
-  //     this.server.to(roomName).emit('ready');
-  //     this.server.emit('getListOfRooms', this.showRooms());
-  //     this.pushBall(roomName);
-  //   }
-  // }
+    socket.join(roomName);
+    this.server.to(socket.id).emit('gameId', roomName);
+    this.server.to(socket.id).emit('getId', playerId);
+    if (ready)
+    {
+      console.log('ready = 1')
+      this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
+      this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
+      this.server.to(roomName).emit('ready');
+      this.server.emit('getListOfRooms', this.showRooms());
+      this.pushBall(roomName);
+    }
+  }
 
   @SubscribeMessage('playerPos')
   updatePlayers(client: Socket, new_pos: number[])
@@ -462,15 +473,15 @@ export class GameGateway implements OnGatewayInit {
     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
   }
 
-  // @UseGuards(JwtWsAuthGuard)
-  // @SubscribeMessage('joinRoomDuel')
-  // createRoomDuel(socket: AuthenticatedSocket, userInfo) {
-  //   console.log('joinRoomDuel');
-  
-  //   socket.data.user = socket.user; // Save user data for future use
-  //   this.getWaitingRoomDuel(socket);
-  // }
-  
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('joinRoomInvite')
+  createRoomDuel(socket: AuthenticatedSocket, userInfo) {
+    console.log('joinRoomDuel');
+    socket.data.user = socket.user; // Save user data for future use
+    this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);
+  }
+
+
   @SubscribeMessage('getListOfRooms')
   sendRooms(client: Socket)
   {

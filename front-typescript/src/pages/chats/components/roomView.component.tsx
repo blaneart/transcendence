@@ -223,7 +223,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
     // Game invitation stuff by ablanar and thervieu
     
     socket.on("challengeAccepted", (gameRoomName) => {
-      history.replace(`/play/duels/initiator/${gameRoomName}/`);
+      history.replace(`/play/${gameRoomName}/${userId}`);
     })
 
 

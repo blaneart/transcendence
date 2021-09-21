@@ -17,9 +17,9 @@ const GameInvite: React.FC<gameInviteProps> = ({ socket, enemy, ranked, gameSett
     let history = useHistory();
     
     socket.emit('gameInvite', enemy.id);
-
+    let meIn = -1;
     socket.on('acceptedInvitation', (roomName)=>{
-        history.replace(`/play/duels/${roomName}`)
+        history.replace(`/play/${roomName}/${meIn}`)
     });
     const InvitePlayer = () => {
         socket.emit('sendGameInvitation', enemy.id, ranked, gameSettings);

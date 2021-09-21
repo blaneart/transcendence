@@ -5,6 +5,9 @@ import './game.styles.scss';
 import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
 import { User, Settings } from "../../App.types";
+import { useParams } from 'react-router-dom';
+
+
 
 const ENDPOINT = "ws://127.0.0.1:3002";
 
@@ -15,10 +18,11 @@ export interface IGameProps {
   gameSettings: Settings
 }
 
-
 const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) => {
     console.log('game_component');
-
+    const {gameRoomName, userId} = useParams<{ gameRoomName: string, userId: string }>();
+    console.log('userId', userId);
+    console.log('gameRoomName', gameRoomName);
     /* result of the game stored in string; can be 'win' 'lost' and 'game' */
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
 
@@ -56,10 +60,25 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     useEffect(() => {
       console.log(socket);
       console.log(user)
-      if (user && restart)
+      if (!gameRoomName && user && restart)
       {
+        console.log('gameRoomName doesnt exist, NOT an invite game');
         socket.emit('joinRoom', user.name, user.id, user.elo, gameSettings);
         setRestart(false);
+      }
+      else if (gameRoomName && user && restart)
+      {
+        console.log('gameRoomName exist, INVITE game');
+        if (userId === '-1')
+        {
+          console.log('userID no, creating room and sending it basic options');
+          socket.emit('joinRoomInvite', user.name, user.id, user.elo, null, gameRoomName);
+        }
+        else
+        {
+          console.log('useID yes, creating room w/ my settings');
+          socket.emit('joinRoomInvite', user.name, user.id, user.elo, gameSettings, gameRoomName);
+        }
       }
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);

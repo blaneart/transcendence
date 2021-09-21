@@ -136,6 +136,7 @@ class Offline_Pong {
       new Player(-1, ratio),
       new Player(difficultyBot.number + 1, ratio),
     ]
+
 	if (this.curr_map === 1)
 	{
 		this.obstacles = [
@@ -181,7 +182,8 @@ class Offline_Pong {
   this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
   this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
 
-  let lastTime: number;
+
+    let lastTime: number;
 
     const callback = (millis: number) => {
       if (this.isGameEnded())
@@ -207,6 +209,7 @@ class Offline_Pong {
   };
     callback(0);
   }
+
   collide(player: Player, ball: Ball)
   {
     if (player.left < ball.right && player.right > ball.left &&
@@ -316,16 +319,16 @@ class Offline_Pong {
 
   touched(rect: PowerUp, ball: Ball)
   {
-	if (rect.left < ball.right && rect.right > ball.left &&
-        rect.top < ball.bottom && rect.bottom > ball.top && ball.lastTouch !== 0)
-	{
-		if (this.players[ball.lastTouch - 1].empowered === 1 && rect.type !== 1)
-			this.players[ball.lastTouch - 1].empowered += rect.type + 1;
-		else
-			this.players[ball.lastTouch - 1].empowered = rect.type;
-		rect.type = 0;
-		this.ball.lastTouch = 0;
-	}
+    if (rect.left < ball.right && rect.right > ball.left &&
+          rect.top < ball.bottom && rect.bottom > ball.top && ball.lastTouch !== 0)
+    {
+      if (this.players[ball.lastTouch - 1].empowered === 1 && rect.type !== 1)
+        this.players[ball.lastTouch - 1].empowered += rect.type + 1;
+      else
+        this.players[ball.lastTouch - 1].empowered = rect.type;
+      rect.type = 0;
+      this.ball.lastTouch = 0;
+    }
   }
 
   end()
@@ -404,8 +407,8 @@ class Offline_Pong {
       this.players.forEach(player => this.drawRect(player));
       this.players.forEach((player, index) => this.drawScore(player.score.toString(), index));
       this.obstacles.forEach(obstacles => this.drawObstacles(obstacles));
-      if (this.curr_powerUp.type !== 0)
-        this.drawPowerUp(this.curr_powerUp);
+      if (this.curr_powerUp.type !== 0) //
+        this.drawPowerUp(this.curr_powerUp); // 
       if (!this.isGameEnded())
       {
         this._context.fillStyle = 'white';
@@ -427,6 +430,7 @@ class Offline_Pong {
   drawRect(rect: Player)
   {
     if (this._context !== null)
+
 	{
     if (this.powerups === true)
     {
@@ -438,11 +442,8 @@ class Offline_Pong {
         this._context.fillStyle = "green";
       else
         this._context.fillStyle = "white";
-    }
-    else
-			this._context.fillStyle = "white";
-    this._context.fillRect(rect.pos.x, rect.pos.y, 
-                          rect.size.x, rect.size.y);
+      this._context.fillRect(rect.pos.x, rect.pos.y, 
+                            rect.size.x, rect.size.y);
     }
   }
 
@@ -450,9 +451,9 @@ class Offline_Pong {
   {
 	  if (this._context !== null)
 	  {
-		this._context.fillStyle = "white";
-		this._context.fillRect(rect.pos.x, rect.pos.y, 
-			rect.size.x, rect.size.y);
+      this._context.fillStyle = "white";
+      this._context.fillRect(rect.pos.x, rect.pos.y, 
+        rect.size.x, rect.size.y);
 	  }
   }
   drawPowerUp(powerUp: PowerUp)

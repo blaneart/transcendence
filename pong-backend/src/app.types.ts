@@ -9,3 +9,10 @@ export interface UserPublic {
   wins: number;
   realAvatar: boolean;
 }
+
+export enum PowerUpType {
+  NONE = 0,
+  RED = 1, // Speeds up the ball temporarily
+  GREEN = 2, // Makes the last player's paddle larger temporarily
+  BLUE = 3, // The player losing this ball will win the point
+}

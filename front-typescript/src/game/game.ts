@@ -12,6 +12,13 @@ import { Socket } from 'socket.io-client';
 //   y: number
 // }
 
+enum PowerUpType {
+  NONE = 0,
+  RED = 1, // Speeds up the ball temporarily
+  GREEN = 2, // Makes the last player's paddle larger temporarily
+  BLUE = 3, // The player losing this ball will win the point
+}
+
 class Vec {
   x: number;
   y: number;
@@ -58,6 +65,17 @@ class Rect {
   }
 }
 
+class Paddle extends Rect {
+  up: number;
+  down: number;
+  constructor()
+  {
+    super(20, 100);
+    this.up = 0;
+    this.down = 0;
+  }
+}
+
 class Ball extends Rect {
   vel: Vec;
   constructor()
@@ -68,22 +86,24 @@ class Ball extends Rect {
 }
 
 class PowerUp extends Rect {
-	type: number;
+	type: PowerUpType;
 
 	constructor () {
-		super(50, 50);
+		super(100, 100);
 		this.type = 0
 	}
 }
 
 class Player extends Rect {
   score: number;
-  empowered: number;
+  empowered: PowerUpType;
+  paddle: Paddle;
   constructor()
   {
     super(20,100);
     this.score = 8;
-    this.empowered = 0;
+    this.empowered = PowerUpType.NONE;
+    this.paddle = new Paddle()
   }
 }
 
@@ -230,6 +250,19 @@ class Pong {
       this.ball.pos = position;
     })
 
+    this.socket.on('getPowerUp', (powerUp: PowerUp) => {
+      this.curr_powerUp = powerUp;
+    })
+    this.socket.on('getPaddles', (leftPaddle: Player, rightPaddle: Player) => {
+
+      if (leftPaddle && rightPaddle && leftPaddle.paddle.size && rightPaddle.paddle.size) {
+        this.players[0].size = leftPaddle.paddle.size;
+        this.players[0].empowered = leftPaddle.empowered;
+        this.players[1].size = rightPaddle.paddle.size;
+        this.players[1].empowered = rightPaddle.empowered;
+      }
+    })
+
 
     // if (this.game_ended)
     // {
@@ -262,14 +295,14 @@ class Pong {
   {
 	  if (this._context !== null)
 	  {
-		  if (powerUp.type === 3)
+		  if (powerUp.type === PowerUpType.GREEN)
 		  	this._context.fillStyle = "green";
-		  else if (powerUp.type === 2)
+		  else if (powerUp.type === PowerUpType.RED)
 		  	this._context.fillStyle = "red";
 		  else
 		  	this._context.fillStyle = "blue";
 
-		  this._context.fillRect(powerUp.pos.x, powerUp.pos.y, 
+        this._context.fillRect(powerUp.pos.x, powerUp.pos.y, 
 			powerUp.size.x, powerUp.size.y);
 	  }
   }
@@ -312,18 +345,38 @@ class Pong {
     }
   }
 
-  drawRect(rect: Rect)
+  drawRect(rect: Player)
   {
     if (this._context !== null)
-    {
-      this._context.fillStyle = "white";
+	  {
+      if (this.powerups === true)
+      {
+        if (rect.empowered == PowerUpType.RED)
+          this._context.fillStyle = "red";
+        else if (rect.empowered === PowerUpType.BLUE)
+          this._context.fillStyle = "blue";
+        else if (rect.size.y > 100)
+          this._context.fillStyle = "green";
+        else
+          this._context.fillStyle = "white";
+      }
+      else
+        this._context.fillStyle = "white";
       this._context.fillRect(rect.pos.x, rect.pos.y, 
                             rect.size.x, rect.size.y);
-      }
+    }
   }
   update(dt: number) {
     this.draw();
   }
+}
+
+enum Empowerment {
+  blue = 1,
+  red = 2,
+  green = 3,
+  redTwo = 4,
+  greenTwo = 5,
 }
 
 export default Pong;

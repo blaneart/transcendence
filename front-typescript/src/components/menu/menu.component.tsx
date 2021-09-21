@@ -15,6 +15,7 @@ interface User {
     twofaSecret: string;
     realAvatar: boolean
     status: number;
+    owner: boolean;
 }
 
 interface IMenuProps {
@@ -91,6 +92,16 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
             id: 3
         }
     ]
+
+    if (user && user.owner) {
+      sections.push(
+        {
+          title: 'ADMIN PANEL',
+          linkUrl: 'adminPanel',
+          id: 9
+        }
+      );
+    }
 
     const renderMenuList = (): JSX.Element[] => {
         return sections.map(({id, ...otherSectionsProps}) => {

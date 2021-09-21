@@ -10,6 +10,7 @@ export interface User {
   twofaSecret: string;
   realAvatar: boolean;
   status: number;
+  owner: boolean;
 }
 
 export interface Game {

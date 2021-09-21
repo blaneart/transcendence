@@ -8,6 +8,7 @@ export interface UserPublic {
   elo: number;
   wins: number;
   realAvatar: boolean;
+  owner: boolean;
 }
 
 export enum PowerUpType {

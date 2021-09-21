@@ -18,6 +18,7 @@ async function createUsers() {
       t.string('twofaSecret', 32);
       t.boolean('realAvatar').defaultTo(false);
       t.integer('status').defaultTo(0);
+      t.boolean('owner').defaultTo(false);
     });
   }
 }

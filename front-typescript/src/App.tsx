@@ -24,6 +24,7 @@ import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
 import ChooseGame from "./pages/game/choose-game.component";
 import DuelGame from "./pages/game/duel-game/duel-game.component";
+import AdminPanel from "./pages/adminPanel/adminPanel";
 const ENDPOINT = "http://127.0.0.1:3003";
 
 
@@ -219,6 +220,9 @@ function App() {
         </Route>
         <Route path="/friends">
           {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
+        </Route>
+        <Route path="/adminPanel">
+          {user ? <AdminPanel authToken={authToken}/> : <p>Please log in !</p>}
         </Route>
         <Route exact path="/watch">
           <Watch />

@@ -33,7 +33,7 @@ const GameSettings: React.FC<ISettingsProps> = ({
                 <div>Power-ups</div>
                 <div>
                     <ChangeSettingsButton name={'On'} ranked={settings.ranked}  maps={settings.maps} powerUps={true}  setSettings={setSettings} />
-                    <ChangeSettingsButton name={'On'} ranked={settings.ranked}  maps={settings.maps} powerUps={false}  setSettings={setSettings} />
+                    <ChangeSettingsButton name={'Off'} ranked={settings.ranked}  maps={settings.maps} powerUps={false}  setSettings={setSettings} />
                 </div>
             </div>
         </div>

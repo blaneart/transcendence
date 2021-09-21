@@ -9,7 +9,7 @@ var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
 import { AuthenticatedSocket } from 'src/chat/chat.types';
-import { PowerUpType } from "../app.types";
+import { PowerUpType, Settings } from "../app.types";
 
 // import Ball from './game/game';
 
@@ -21,6 +21,7 @@ export enum IGameType {
   Ranked,
   Duels
 }
+
 
 export class Player {
   name: string;
@@ -150,14 +151,14 @@ export class GameGateway implements OnGatewayInit {
   // Return true, if the room with this name is available for joining
   // i.e. contains only one player, and that player is not yourself.
   // userId: our user id.
-  async roomAvailable(roomName: string, userId: number, gameType: IGameType, map: number): Promise<boolean>
+  async roomAvailable(roomName: string, userId: number, gameSettings: Settings): Promise<boolean>
   {
     const theRoom = this.server.sockets.adapter.rooms.get(roomName);
+    console.log('roomSetings', );
     if (theRoom.size < 2)
     {
       // If this is an empty room, something isn't right.
-      if (theRoom.size == 0 || this.rooms[roomName].type !== gameType
-                 || this.rooms[roomName].map !== map)
+      if (theRoom.size == 0 || this.rooms[roomName].settings !== gameSettings)
         return false;
       
       // If there is one player in the room, get their indentity
@@ -169,7 +170,7 @@ export class GameGateway implements OnGatewayInit {
     return false;
   }
 
-  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameType: IGameType, map: number) =>
+  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameSettings: Settings) =>
   {
     let playerId;
     let ready = false;
@@ -177,7 +178,7 @@ export class GameGateway implements OnGatewayInit {
 
     // Check all rooms available for joining
     roomName = await findAsyncSequential(this.getActiveRooms(/*userInfo[3]*/), async (roomName) =>
-                   await this.roomAvailable(roomName, userId, gameType, map));
+                   await this.roomAvailable(roomName, userId, gameSettings));
     console.log('foundRoomName: ', roomName);
     console.log(userId, userName);
     /* creates new room if every room is full*/
@@ -191,8 +192,7 @@ export class GameGateway implements OnGatewayInit {
           players: [],
           scores: [0,0],
           ball: new Ball(),
-          type: gameType,
-          map: map
+          settings: gameSettings,
         }
         // console.log(roomName);
         // console.log(this.rooms[roomName].start);
@@ -400,31 +400,13 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('getListOfRooms', this.showRooms());
   }
 
-  getClosestPlayerIdByElo()
-  {
-    var getCloseToMe = this.playersIdAndElo[0][1];
-    var biggest = 1000;
-    let i = 1;
-    let rtn_me = -1;
-    while (i < this.playersIdAndElo.length)
-    {
-      if (Math.abs(this.playersIdAndElo[i][1] - getCloseToMe) < biggest)
-      {
-        biggest = Math.abs(this.playersIdAndElo[i][1] - getCloseToMe);
-        rtn_me = i;
-      }
-      i++;
-    }
-    return (rtn_me);
-  }
-
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  createRoom(socket: AuthenticatedSocket, userInfo) { // [mapNb, boolPowerUps]
+  createRoom(socket: AuthenticatedSocket, userInfo) {
     console.log('joinRoom', userInfo[0], userInfo[1], userInfo[3]);
   
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);
+    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
   }
   
   @SubscribeMessage('getListOfRooms')

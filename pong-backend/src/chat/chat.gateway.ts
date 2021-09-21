@@ -395,7 +395,7 @@ export class ChatGateway {
     }
 
     // Send the update to other side
-    this.server.to(`direct_${direct.id}`).emit("newDirectInvite", newMessage);
+    this.server.to(`direct_${direct.id}`).emit("newDirectInvite", newMessage, uuid.v4());
   }
 
 
@@ -484,7 +484,7 @@ export class ChatGateway {
     }
 
     // Send the update to other side
-    this.server.to(`direct_${directConvo.id}`).emit("newDirectInvite", newMessage);
+    this.server.to(`direct_${directConvo.id}`).emit("newDirectInvite", newMessage, uuid.v4());
 
     console.log(enemyId);
     console.log(client.id);

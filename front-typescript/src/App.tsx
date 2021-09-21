@@ -178,7 +178,7 @@ function App() {
   let difficulty = {number: 4};
 
   var initSettings = {} as Settings;
-  initSettings.ranked = false ; initSettings.maps = 1; initSettings.powerUps = false;
+  initSettings.ranked = false ; initSettings.maps = 0; initSettings.powerUps = false;
   const [settings, setSettings] = useState<Settings>(initSettings);
  
   return (

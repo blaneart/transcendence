@@ -101,6 +101,24 @@ export class ProfileService {
     return response
   }
 
+  async forgiveUser(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ banned: false });
+    return response
+  }
+
+  async makeUserAdmin(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ admin: true });
+    return response
+  }
+
+  async demote(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ admin: false });
+    return response
+  }
+
   async createFakeUser(newName: string)
   {
     // Insert a new fake user

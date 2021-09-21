@@ -10,6 +10,7 @@ export interface UserPublic {
   realAvatar: boolean;
   owner: boolean;
   banned: boolean;
+  admin: boolean;
 }
 
 export enum PowerUpType {

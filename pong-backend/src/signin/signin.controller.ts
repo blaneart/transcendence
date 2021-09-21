@@ -20,6 +20,7 @@ async function createUsers() {
       t.integer('status').defaultTo(0);
       t.boolean('owner').defaultTo(false);
       t.boolean('banned').defaultTo(false);
+      t.boolean('admin').defaultTo(false);
     });
   }
 }

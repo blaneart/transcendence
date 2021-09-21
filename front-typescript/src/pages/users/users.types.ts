@@ -12,6 +12,7 @@ export interface User {
   status: number;
   owner: boolean;
   banned: boolean;
+  admin: boolean;
 }
 
 export interface Game {

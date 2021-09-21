@@ -58,11 +58,11 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings
     socket.on("newDirectInvite", (msg, gameRoomName) => {
       const newMessage = msg as DirectMessageUpdate; // we receive a single update
       setMessages((oldMessages) => {
+        setGameRoomName(gameRoomName);
         if (oldMessages) {
           // Add the new one to the end
           return [...oldMessages, newMessage];
         }
-        setGameRoomName(gameRoomName);
         // If this is the first message, we have to set the state to an array
         return [newMessage];
       });

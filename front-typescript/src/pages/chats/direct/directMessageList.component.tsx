@@ -62,7 +62,8 @@ const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId,
     <div className="border bg-gray-900 text-gray-300 border-gray-600 rounded-t-lg border-solid px-4 py-4">
       <h5 className="text-xl mt-0 mb-4">Messages</h5>
       {messages.map((msg) => <DirectMessageComponent key={msg.id} message={msg} socket={socket}
-      userId={userId} blockList={blockList} authToken={authToken} onBlock={updateBlockList} gameRoomName={gameRoomName} gameSettings={gameSettings} />)}
+        userId={userId} blockList={blockList} authToken={authToken} onBlock={updateBlockList}
+        gameRoomName={gameRoomName} gameSettings={gameSettings} />)}
     </div>
   );
 };

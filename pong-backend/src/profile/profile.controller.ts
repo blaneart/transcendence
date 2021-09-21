@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Res, HttpStatus, Param, Req, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Res, HttpStatus, Param, Req, UseGuards, Request, ParseIntPipe, HttpException } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { AchievementService } from '../achievement/achievement.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -31,6 +31,16 @@ export class ProfileController {
     async show(@Param() param: userIdDto)
     {
       return await this.profileService.getUserById(param.id);
+    }
+
+    @UseGuards(JwtAuthGuard) // only for logged in
+    @Post('/ban/:id')
+    async banUser(@Request() req, @Param() param: userIdDto)
+    {
+      // Ensure this is an owner
+      if (!req.user.owner)
+        throw new HttpException("You have to be the owner in order to do this.", HttpStatus.FORBIDDEN);
+      return await this.profileService.banUser(param.id);
     }
 
     

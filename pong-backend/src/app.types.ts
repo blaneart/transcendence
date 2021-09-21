@@ -9,6 +9,7 @@ export interface UserPublic {
   wins: number;
   realAvatar: boolean;
   owner: boolean;
+  banned: boolean;
 }
 
 export enum PowerUpType {

@@ -95,6 +95,12 @@ export class ProfileService {
     return response;
   }
 
+  async banUser(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ banned: true });
+    return response
+  }
+
   async createFakeUser(newName: string)
   {
     // Insert a new fake user

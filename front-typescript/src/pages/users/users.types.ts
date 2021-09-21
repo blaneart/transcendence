@@ -11,6 +11,7 @@ export interface User {
   realAvatar: boolean;
   status: number;
   owner: boolean;
+  banned: boolean;
 }
 
 export interface Game {

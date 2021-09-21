@@ -129,6 +129,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
         </div> : null)}
       </div>
 
+      <h2 className="text-center">Players</h2>
       <p className="text-center">Select a user to ban or promote</p>
 
       <div className="flex flex-col justify-items-center">

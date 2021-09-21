@@ -11,3 +11,9 @@ export interface User {
   realAvatar: boolean;
   status: number;
 }
+
+export interface Settings {
+  ranked: Boolean;
+  maps: number;
+  powerUps: Boolean;
+}

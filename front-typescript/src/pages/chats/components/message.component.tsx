@@ -99,10 +99,11 @@ const Message: React.FC<MessageParams> = ({message, authToken, blockList, userId
       {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
       <> 
       <button onClick={() => {
-        socket.emit('accept')
+        socket.emit('acceptGame', message.senderID, message.id)
+        history.replace(`/play/duels/${message.id}`);
       }} >accept</button>
       <button onClick={() =>{
-        socket.emit('reject');
+        socket.emit('rejectGame', message.senderID);
       }}>reject</button> 
       </>
       : null}

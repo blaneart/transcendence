@@ -8,14 +8,24 @@ import { User } from "../../App.types";
 
 const ENDPOINT = "ws://127.0.0.1:3002";
 
-interface IGameProps {
+export interface IGameProps {
   user?: User | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
-  ranked: boolean
+  gameType: IGameType
 }
 
-const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
+export enum IGameType {
+  Classic,
+  Powerups,
+  Ranked
+}
+
+
+
+
+
+const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameType}) => {
     console.log('game_component');
 
     /* result of the game stored in string; can be 'win' 'lost' and 'game' */
@@ -43,6 +53,10 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
       return initialState;
     });
 
+
+    /* event listener */
+    var mouse;
+
     const [enemyName, setEnemyName] = useState<string>('None');
 
     var pong: Pong | null = null;
@@ -51,8 +65,9 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
     /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {
       console.log(socket);
+      console.log(user)
       if (user)
-        socket.emit('joinRoom', user.name, user.id, user.elo);
+        socket.emit('joinRoom', user.name, user.id, user.elo, gameType);
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })
@@ -68,7 +83,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
      socket.on('won', function(result: string, authToken: string) {
       socket.emit('leaveRoom');
     })
-  }, [restart]);
+  }, [restart, user]);
 
 
 
@@ -97,13 +112,21 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
         });
         const jsonData = await response.json();
         const userUpdate = jsonData as User;
-      
+        document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
         setUser(userUpdate);
       }
+
       setIsGameEnded(result);
       return null;
     }
 
+    function mouseTracker(event: MouseEvent) 
+    {
+      let old_pos = pong!.players[id].pos.y;
+      pong!.players[id].pos.y = (event.offsetY - (pong!.players[id].size.y / 2));
+      let d_pos = pong!.players[id].pos.y - old_pos;
+      socket.emit('playerPos', pong!.players[id].pos.y, d_pos);
+    }
     setIsGameEnded('game')
     if (ready)
     {
@@ -115,12 +138,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken}) => {
           pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: 0, powerup: true});
           console.log(id)
 
-          canvas.addEventListener('mousemove', event => {
-              let old_pos = pong!.players[id].pos.y;
-              pong!.players[id].pos.y = (event.offsetY - (pong!.players[id].size.y / 2));
-              let d_pos = pong!.players[id].pos.y - old_pos;
-              socket.emit('playerPos', pong!.players[id].pos.y, d_pos);
-          });
+          canvas.addEventListener('mousemove', mouseTracker);
         //   window.addEventListener('keydown', event => {
         //     if (event.code == 'KeyW')
         //       pong.players[id ? 0 : 1].po             ps.y = pong.players[0].pos.y - 25;
@@ -167,7 +185,8 @@ useEffect(() => {
            setRestart(!restart)
            socket.emit('leaveRoom');
         }
-        }/> } 
+        }/> 
+        }
       </>
         :
         <h1>SIGN IN TO PLAY</h1>

@@ -19,6 +19,7 @@ const OfflineGame: React.FC<IGameProps> = ({authToken, difficultyLvl, map}) => {
 
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
     const [restart, setRestart] = useState<Boolean>(false)
+    var ratio = 0.5;
 
     useEffect(() => {
       setIsGameEnded('game')
@@ -27,7 +28,7 @@ const OfflineGame: React.FC<IGameProps> = ({authToken, difficultyLvl, map}) => {
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-        var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl, map);
+        var pong = new Offline_Pong(updateGameStats, canvas, authToken, difficultyLvl, map, ratio);
         canvas.addEventListener('mousemove', event => {
             pong.players[0].pos.y = event.offsetY - pong.players[0].size.y / 2;
         });
@@ -51,7 +52,7 @@ async function  updateGameStats(result: string, authToken: string) {
 
     return (
       <div className='game'>
-        <canvas id="forCanvas" width={800} height={600}></canvas>
+        <canvas id="forCanvas" width={800 * ratio} height={600 * ratio}></canvas>
         { isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
         }
       </div>

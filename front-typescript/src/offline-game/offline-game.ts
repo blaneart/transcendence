@@ -61,9 +61,9 @@ class Rect {
 class Ball extends Rect {
   vel: Vec;
   lastTouch: number
-  constructor()
+  constructor(ratio: number)
   {
-    super(18,18);
+    super(18 * ratio, 18 * ratio);
     this.vel = new Vec();
 	this.lastTouch = 0;
   }
@@ -72,8 +72,8 @@ class Ball extends Rect {
 class PowerUp extends Rect {
 	type: number;
 
-	constructor () {
-		super(50, 50);
+	constructor (ratio: number) {
+		super(50 * ratio, 50 * ratio);
 		this.type = 0
 	}
 }
@@ -83,12 +83,12 @@ class Player extends Rect {
   botDifficulty: number;
   empowered: number;
 
-  constructor(difficulty: number)
+  constructor(difficulty: number, ratio: number)
   {
-    super(20,100);
-	this.empowered = 0;
+    super(20 * ratio, 100 * ratio);
+	  this.empowered = 0;
     this.score = 0;
-	this.botDifficulty = difficulty;
+	  this.botDifficulty = difficulty;
   }
 }
 
@@ -106,32 +106,43 @@ class Offline_Pong {
   powerups: boolean;
   curr_map: number;
   last_score: number;
+  audios: any [];
+  ratio: number;
 
-  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any)
+  constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any, ratio: number)
   {
+    this.ratio = ratio;
     this.last_score = -1;
 	  this.curr_map = map.map;
 	  this.powerups = map.powerup;
-	  this.curr_powerUp = new PowerUp();
+	  this.curr_powerUp = new PowerUp(ratio);
     this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
-    this.ball = new Ball();
+    this.ball = new Ball(ratio);
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
     this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
     this.animation = 0;
+    this.audios = [
+      new Audio("http://127.0.0.1:3000/audio/paddle_sound.mp3"),
+      new Audio("http://127.0.0.1:3000/audio/wall_sound.mp3"),
+      new Audio("http://127.0.0.1:3000/audio/score_sound.mp3")
+    ]
+    this.audios[0].load();
+    this.audios[1].load();
+    this.audios[2].load();
     this.players = [
-      new Player(-1),
-      new Player(difficultyBot.number + 1),
+      new Player(-1, ratio),
+      new Player(difficultyBot.number + 1, ratio),
     ]
 	if (this.curr_map === 1)
 	{
 		this.obstacles = [
-			new Rect(50, 50),
-			new Rect(50, 50),
-			new Rect(50, 50),
-			new Rect(50, 50)
+			new Rect(50 * ratio, 50 * ratio),
+			new Rect(50 * ratio, 50 * ratio),
+			new Rect(50 * ratio, 50 * ratio),
+			new Rect(50 * ratio, 50 * ratio)
 		]
 		this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
     this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
@@ -148,10 +159,10 @@ class Offline_Pong {
 	else if (this.curr_map === 2)
 	{
 		this.obstacles = [
-			new Rect(15, 40),
-			new Rect(15, 80),
-			new Rect(15, 40),
-			new Rect(15, 80)
+			new Rect(15 * ratio, 40 * ratio),
+			new Rect(15 * ratio, 80 * ratio),
+			new Rect(15 * ratio, 40 * ratio),
+			new Rect(15 * ratio, 80 * ratio)
 		]
 		this.obstacles[0].pos.x = this._canvas.width / 2 - this.obstacles[0].size.x / 2;
 		this.obstacles[0].pos.y = 0;
@@ -165,8 +176,8 @@ class Offline_Pong {
 	else
 		this.obstacles = [];
   this.auth = authToken;
-  this.players[0].pos.x = 20;
-  this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
+  this.players[0].pos.x = 20 * ratio;
+  this.players[1].pos.x = this._canvas.width - 20 * ratio - this.players[1].size.x;
   this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
   this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
 
@@ -201,8 +212,7 @@ class Offline_Pong {
     if (player.left < ball.right && player.right > ball.left &&
         player.top < ball.bottom && player.bottom > ball.top)
     {
-      let audio = new Audio("http://127.0.0.1:3000/audio/paddle_sound.mp3");
-      audio.play();
+      this.audios[0].play();
       ball.vel.x = -ball.vel.x;
 		  if (player.botDifficulty < 0)
       {
@@ -234,8 +244,7 @@ class Offline_Pong {
     if (obstacle.left < ball.right && obstacle.right > ball.left &&
         obstacle.top < ball.bottom && obstacle.bottom > ball.top)
     {
-      let audio = new Audio("http://127.0.0.1:3000/audio/wall_sound.mp3");
-      audio.play();
+      this.audios[1].play();
 			if (ball.vel.y < 0)
 			{
 				if (left >= 0)
@@ -336,10 +345,10 @@ class Offline_Pong {
     this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
-    this.players[1].pos.x = this._canvas.width - 20 - this.players[1].size.x;
+    this.players[1].pos.x = this._canvas.width - 20 * this.ratio - this.players[1].size.x;
     this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
-    this.players[1].size.y = 100;
-    this.players[0].size.y = 100;
+    this.players[1].size.y = 100 * this.ratio;
+    this.players[0].size.y = 100 * this.ratio;
     this.players[0].empowered = 0;
     this.players[1].empowered = 0;
   }
@@ -351,15 +360,15 @@ class Offline_Pong {
 
   poweringUp(player: Player)
   {
-    if (player.size.y > 100)
+    if (player.size.y > 100 * this.ratio)
     {
-      player.size.y -= 0.3;
-      if (player.size.y < 100)
-        player.size.y = 100;
+      player.size.y -= 0.3 * this.ratio;
+      if (player.size.y < 100 * this.ratio)
+        player.size.y = 100 * this.ratio;
     }
     if (player.empowered === 3 || player.empowered === 5)
     {
-      player.size.y = 300;
+      player.size.y = 300 * this.ratio;
       if (player.empowered === 5)
         player.empowered = 1;
       else
@@ -371,11 +380,11 @@ class Offline_Pong {
   {
     if (this.ball.vel.x === 0 && this.ball.vel.y === 0) {
       if (this.last_score === -1)
-        this.ball.vel.x = 300 * (Math.random() > .5 ? 1 : -1);
+        this.ball.vel.x = 300 * this.ratio * (Math.random() > .5 ? 1 : -1);
       else
-        this.ball.vel.x = 300 * (this.last_score === 0 ? 1 : -1);
-      this.ball.vel.y = 100 * (Math.random() * 2 - 1);
-      this.ball.vel.len = 400;
+        this.ball.vel.x = 300 * this.ratio * (this.last_score === 0 ? 1 : -1);
+      this.ball.vel.y = 100 * this.ratio * (Math.random() * 2 - 1);
+      this.ball.vel.len = 400 * this.ratio;
 	    this.ball.lastTouch = 0;
     }
   }
@@ -406,12 +415,13 @@ class Offline_Pong {
   }
   drawScore(scores: string, index: number)
   {
+    const size = 50 * this.ratio;
     const align = this._canvas.width / 3;
     if (this._context !== null)
     {
       this._context.fillStyle = "white"; 
-      this._context.font = '50px Anton';
-      this._context.fillText(scores, align * (index + 1), 100);
+      this._context.font = `${size}px Anton`;
+      this._context.fillText(scores, align * (index + 1), 100 * this.ratio);
     }
   }
   drawRect(rect: Player)
@@ -424,7 +434,7 @@ class Offline_Pong {
 			this._context.fillStyle = "red";
       else if (rect.empowered === 1)
         this._context.fillStyle = "blue";
-      else if (rect.size.y > 100)
+      else if (rect.size.y > 100 * this.ratio)
         this._context.fillStyle = "green";
       else
         this._context.fillStyle = "white";
@@ -460,49 +470,68 @@ class Offline_Pong {
 			powerUp.size.x, powerUp.size.y);
 	  }
   }
+  changeplace(object: Rect, ratio: number)
+  {
+    object.size.x *= ratio;
+    object.size.y *= ratio;
+    object.pos.x *= ratio;
+    object.pos.y *= ratio;
+  }
   update(dt: number, difficulty: any, map: any) {
-  this.ball.pos.x += this.ball.vel.x * dt;
-  this.ball.pos.y += this.ball.vel.y * dt;
-
-	if (this.powerups === true && this.ball.vel.x !== 0 && this.curr_powerUp.type === 0 && Math.floor(Math.random() * 100) === 50)
-	{
-		this.curr_powerUp.pos.x = this._canvas.width / 2 - this.curr_powerUp.size.x / 2;
-		this.curr_powerUp.pos.y = Math.random() * (this._canvas.height - this.curr_powerUp.size.y / 2);
-		this.curr_powerUp.type = Math.floor(Math.random() * 3) + 1;
-	}
-  if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
-  {
-    let audioscore = new Audio("http://127.0.0.1:3000/audio/score_sound.mp3");
-    audioscore.play();
-    let playerId = this.ball.vel.x < 0 ? 1 : 0;
-    if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
+    this.ball.pos.x += this.ball.vel.x * dt;
+    this.ball.pos.y += this.ball.vel.y * dt;
+    let size = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
+    this._canvas.width = size * 0.7;
+    this._canvas.height = size * 0.7;
+    if (this.ratio != this._canvas.width / 800)
     {
-      this.players[playerId].score++;
-      this.last_score = playerId;
+      let old_ratio = this.ratio
+      this.ratio = this._canvas.width / 800;
+      old_ratio = this.ratio / old_ratio;
+      this.changeplace(this.ball, old_ratio);
+      this.ball.vel.x *= old_ratio;
+      this.ball.vel.y *= old_ratio;
+      this.changeplace(this.curr_powerUp, old_ratio);
+      this.players.forEach(player => this.changeplace(player, old_ratio));
+      this.obstacles.forEach(obstacle => this.changeplace(obstacle, old_ratio));
     }
-    this.reset();
-  }
-  if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
-  {
-    let audio = new Audio("http://127.0.0.1:3000/audio/wall_sound.mp3");
-    audio.play();
-    this.ball.vel.y = -this.ball.vel.y;
-    if (this.ball.top < 0)
-      this.ball.pos.y = 0;
-    else
-      this.ball.pos.y = this._canvas.height - this.ball.size.y;
-  }
-	this.touched(this.curr_powerUp, this.ball);
-  this.players.forEach(player => this.collide(player, this.ball));
-  this.obstacles.forEach(obstacles => this.collideObstacles(obstacles, this.ball));
-  if (this.powerups === true)
-    this.players.forEach(player => this.poweringUp(player));
-	this.changedifficulty(difficulty);
-	if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
-		this.players[1].pos.y += this.players[1].botDifficulty;
-	else if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) <= -this.players[1].botDifficulty)
-		this.players[1].pos.y -= this.players[1].botDifficulty;
-  this.draw(); 
+    if (this.powerups === true && this.ball.vel.x !== 0 && this.curr_powerUp.type === 0 && Math.floor(Math.random() * 100) === 50)
+    {
+      this.curr_powerUp.pos.x = this._canvas.width / 2 - this.curr_powerUp.size.x / 2;
+      this.curr_powerUp.pos.y = Math.random() * (this._canvas.height - this.curr_powerUp.size.y / 2);
+      this.curr_powerUp.type = Math.floor(Math.random() * 3) + 1;
+    }
+    if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
+    {
+      this.audios[2].play();
+      let playerId = this.ball.vel.x < 0 ? 1 : 0;
+      if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
+      {
+        this.players[playerId].score++;
+        this.last_score = playerId;
+      }
+      this.reset();
+    }
+    if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
+    {
+      this.audios[1].play();
+      this.ball.vel.y = -this.ball.vel.y;
+      if (this.ball.top < 0)
+        this.ball.pos.y = 0;
+      else
+        this.ball.pos.y = this._canvas.height - this.ball.size.y;
+    }
+    this.touched(this.curr_powerUp, this.ball);
+    this.players.forEach(player => this.collide(player, this.ball));
+    this.obstacles.forEach(obstacles => this.collideObstacles(obstacles, this.ball));
+    if (this.powerups === true)
+      this.players.forEach(player => this.poweringUp(player));
+    this.changedifficulty(difficulty);
+    if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) >= this.players[1].botDifficulty)
+      this.players[1].pos.y += this.players[1].botDifficulty * this.ratio;
+    else if (this.ball.pos.y - (this.players[1].pos.y + this.players[1].size.y / 2) <= -this.players[1].botDifficulty)
+      this.players[1].pos.y -= this.players[1].botDifficulty * this.ratio;
+    this.draw(); 
   }
 }
 

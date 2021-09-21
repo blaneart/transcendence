@@ -431,7 +431,6 @@ class Offline_Pong {
   {
     if (this._context !== null)
 
-	{
     if (this.powerups === true)
     {
       if (rect.empowered === 2 || rect.empowered === 4)

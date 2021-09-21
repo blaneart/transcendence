@@ -27,14 +27,23 @@ export class ProfileService {
             }
     }
 
+  // Returns true, if website doesn't have an owner yet.
+  async needOwner(): Promise<boolean> {
+    const response = await db('users').where({owner: true}).select('id');
+    if (!response.length)
+      return false;
+    return true;
+  }
+
   // Either find an existing user from a given User42, or create a new one.
   async getOrCreateUser(user: User42): Promise<any> {
     const response = await db('users').where({ id42: user.id }).select('*');
     if (!response.length) {
       // Create a new user
+      const ownerPresent = await this.needOwner();
       const new_user = await db('users')
         .returning('*')
-        .insert({ name: user.login, id42: user.id, avatar: "" + user.id });
+        .insert({ name: user.login, id42: user.id, avatar: "" + user.id, owner: ownerPresent ? false : true });
       // Add the register achievement
       this.achievementService.addAchievement(new_user[0].id, 0);
       // Add the 42 integration achievement
@@ -84,6 +93,30 @@ export class ProfileService {
   {
     const response = await db('users').select('*');
     return response;
+  }
+
+  async banUser(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ banned: true });
+    return response
+  }
+
+  async forgiveUser(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ banned: false });
+    return response
+  }
+
+  async makeUserAdmin(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ admin: true });
+    return response
+  }
+
+  async demote(id: number)
+  {
+    const response = await db('users').where({id: id}).update({ admin: false });
+    return response
   }
 
   async createFakeUser(newName: string)

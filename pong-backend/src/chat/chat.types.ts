@@ -62,6 +62,9 @@ interface User {
   realAvatar: boolean
   status: number;
   elo: number;
+  owner: boolean;
+  banned: boolean;
+  admin: boolean;
 }
 
 // TypeScript needs to know that our auth guards append the user to the socket

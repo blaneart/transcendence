@@ -23,6 +23,13 @@ import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
 
+import ChooseGame from "./pages/game/choose-game.component";
+import DuelGame from "./pages/game/duel-game/duel-game.component";
+import AdminPanel from "./pages/adminPanel/adminPanel";
+import Watchdog from "./components/watchdog.component";
+const ENDPOINT = "http://127.0.0.1:3003";
+
+
 interface IState {
   user: User | null;
 }
@@ -116,7 +123,7 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
   localStorage.setItem("pongToken", authResponse.access_token);
 }
 
-async function getMe(authToken: string): Promise<User> {
+async function getMe(authToken: string): Promise<User | null> {
 
   const response = await fetch('http://127.0.0.1:3000/profile/me', {
     method: 'GET',
@@ -125,13 +132,21 @@ async function getMe(authToken: string): Promise<User> {
       'Authorization': `Bearer ${authToken}`
     },
   });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      alert("You're banned.");
+      return null;
+    }
+    alert("Couldn't authenticate");
+    return null;
+  }
   //   console.log(data);
   const jsonData = await response.json();
   return jsonData as User;
 }
 
-function logoutHandler()
-{
+function logoutHandler() {
   return function () {
     localStorage.removeItem("pongToken");
   };
@@ -143,7 +158,17 @@ function App() {
 
   let history = useHistory();
   const { search } = useLocation();
-  
+
+  const completeLogOut = () => {
+    localStorage.removeItem("pongToken");
+    setUser(null);
+    setAuthToken("");
+  }
+
+  const bannedHandler = () => {
+    completeLogOut();
+    history.replace("/");
+  }
 
   useEffect(() => {
     var searchParams: URLSearchParams = new URLSearchParams(search);
@@ -152,11 +177,10 @@ function App() {
     );
     if (!user && authToken === "" && localStoragePongToken !== null) {
       setAuthToken(localStoragePongToken);
-      getMe(localStoragePongToken).then((me: User) => setUser(me));
+      getMe(localStoragePongToken).then((me: User | null) => me ? setUser(me) : completeLogOut());
     }
-    else if (!user && authToken && authToken !== "")
-    {
-      getMe(authToken).then((me: User) => setUser(me));
+    else if (!user && authToken && authToken !== "") {
+      getMe(authToken).then((me: User | null) => me ? setUser(me) : completeLogOut());
     }
 
     if (searchParams.get("code")) {
@@ -169,59 +193,82 @@ function App() {
     }
   }, [authToken, user, history, search]);
 
-  
-  let difficulty = {number: 4};
+
+  let difficulty = { number: 4 };
 
   var initSettings = {} as Settings;
-  initSettings.ranked = false ; initSettings.maps = 0; initSettings.powerUps = false;
+  initSettings.ranked = false; initSettings.maps = 0; initSettings.powerUps = false;
   const [settings, setSettings] = useState<Settings>(initSettings);
- 
+
   return (
     <div className="App">
       <Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} />
       <Switch>
         <Route exact path="/">
-          <Menu user={user}/>
+          <Menu user={user} />
         </Route>
         <Route path="/playbots">
-          <Map history={history}/>
+          <Map history={history} />
         </Route>
         <Route exact path="/game-settings">
-          <GameSettings settings={settings} setSettings={setSettings}/>
+          <GameSettings settings={settings} setSettings={setSettings} />
         </Route>
         <Route path="/offline">
-            <Difficulty difficultyLvl={difficulty}/>
-            <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps}/>
-          </Route>
+          <Difficulty difficultyLvl={difficulty} />
+          <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps} />
+        </Route>
         <Route path="/cheats">
-          <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser}/>
+          <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
         </Route>
       </Switch>
       {authToken !== "" ?
-      <Switch>
-        <Route path="/play/:gameRoomName/:userId">
-          <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings}/>
-        </Route>
-        <Route path="/chats">
-          {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} gameSettings={settings} /> : <p>Please log in</p> }
-        </Route>
-        <Route path="/users">
-          {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}
-        </Route>
-        <Route path="/friends">
-          {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
-        </Route>
-        <Route exact path="/watch">
-          <Watch />
-        </Route>
-        <Route
-          exact
-          path="/watch/:room"
-          component={Room} />
 
-      </Switch>
-      : <p></p>}
-    </div>
+        <Switch>
+        <Route path="/play/:gameRoomName/:userId">
+          <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+            <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings}/>
+          </Watchdog>
+        </Route>
+          </Route>
+          <Route path="/chats">
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} /> : <p>Please log in</p>}
+            </Watchdog>
+          </Route>
+          <Route path="/users">
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}
+            </Watchdog>
+          </Route>
+          <Route path="/friends">
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
+            </Watchdog>
+          </Route>
+          <Route path="/adminPanel">
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              {user ? <AdminPanel user={user} authToken={authToken}
+              /> : <p>Please log in !</p>}
+            </Watchdog>
+          </Route>
+          <Route exact path="/watch">
+            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+              <Watch />
+            </Watchdog>
+          </Route>
+          <Route
+            exact
+            path="/watch/:room"
+             >
+              <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+                <Room/>
+              </Watchdog>
+            </Route>
+
+        </Switch>
+        : <p></p>
+}
+    </div >
   );
 }
 

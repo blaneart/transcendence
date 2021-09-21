@@ -18,6 +18,9 @@ async function createUsers() {
       t.string('twofaSecret', 32);
       t.boolean('realAvatar').defaultTo(false);
       t.integer('status').defaultTo(0);
+      t.boolean('owner').defaultTo(false);
+      t.boolean('banned').defaultTo(false);
+      t.boolean('admin').defaultTo(false);
     });
   }
 }
@@ -168,7 +171,7 @@ async function createDirects() {
   const exists = await db.schema.hasTable('directs');
     if (!exists) {
       await db.schema.createTable('directs', function(t) {
-        t.increments('id').primary();;
+        t.increments('id').primary();
         t.integer('userA');
         t.integer('userB');
         t.foreign('userA').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
@@ -182,7 +185,7 @@ async function createDirectMessages() {
   const exists = await db.schema.hasTable('directmessages');
     if (!exists) {
       await db.schema.createTable('directmessages', function(t) {
-        t.increments('id').primary();;
+        t.increments('id').primary();
         t.integer('directID');
         t.integer('senderID');
         t.text('message');
@@ -221,7 +224,7 @@ export const db = knex({
     .then(() => createMuteList())
     .then(() => createAdmins())
     .then(() => createDirects())
-    .then(() => createDirectMessages());
+    .then(() => createDirectMessages())
 
 
 @Controller('signin')

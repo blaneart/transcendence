@@ -23,6 +23,8 @@ export class JwtWsStrategy extends PassportStrategy(Strategy, "jwt-ws") {
 
   async validate(payload: any) {
     const thisUser = await this.profileService.getUserById(payload.id);
+    if (thisUser.banned)
+      return null
     if (!thisUser)
       return null;
     if (thisUser.twofa) // we check the actual 2fa state, not jwt

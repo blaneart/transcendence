@@ -104,7 +104,7 @@ export class ChatService {
     const messages = await db('message').where({ roomID: roomID })
       .join('users', 'users.id', '=', 'message.userID')
       .select('message.id', 'message.message', 'message.type', 'message.receiverId',
-        'users.name', 'users.id as senderID', 'users.id42', 'users.avatar', 'users.games', 'users.wins', 'users.realAvatar');
+        'users.name', 'users.id as senderID', 'users.id42', 'users.avatar', 'users.games', 'users.wins', 'users.realAvatar', 'users.owner', 'users.banned', 'users.banned');
     return messages;
   }
 
@@ -124,7 +124,10 @@ export class ChatService {
         games: message.games,
         elo: message.elo,
         wins: message.wins,
-        realAvatar: message.realAvatar
+        realAvatar: message.realAvatar,
+        owner: message.owner,
+        banned: message.banned,
+        admin: message.admin,
       }
       // Construct the final object
       const messageObject: ChatMessageUpdate = {
@@ -387,7 +390,7 @@ export class ChatService {
       .join('users', 'users.id', '=', 'directmessages.senderID')
       .select(
         'directmessages.id', 'directmessages.message', 'directmessages.senderID', 'directmessages.type', 'directmessages.receiverId',
-        'users.name as name', 'users.id42', 'users.avatar', 'users.games',
+        'users.name as name', 'users.id42', 'users.avatar', 'users.games', 'users.owner', 'users.banned', 'users.admin',
         'users.wins', 'users.realAvatar');
     return messages;
   }
@@ -409,7 +412,10 @@ export class ChatService {
         games: message.games,
         elo: message.elo,
         wins: message.wins,
-        realAvatar: message.realAvatar
+        realAvatar: message.realAvatar,
+        owner: message.owner,
+        banned: message.banned,
+        admin: message.admin
       }
       // Then, construct the update object
       const update: DirectMessageUpdate = {

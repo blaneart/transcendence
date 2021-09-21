@@ -11,7 +11,6 @@
 //   y: number
 // }
 
-
 class Vec {
   x: number;
   y: number;
@@ -227,7 +226,7 @@ class Offline_Pong {
         this.ball.lastTouch = 2;
         ball.pos.x = player.pos.x - ball.size.x;
       }
-      ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 / player.size.y;
+      ball.vel.y = (((player.pos.y + player.size.y / 2) - (ball.pos.y + ball.size.y / 2)) * -15) * 100 * this.ratio / player.size.y;
       ball.vel.len *= 1.05;
 		  if (this.powerups === true && (player.empowered === 2 || player.empowered === 4))
 		  {
@@ -430,19 +429,20 @@ class Offline_Pong {
   drawRect(rect: Player)
   {
     if (this._context !== null)
-
-    if (this.powerups === true)
     {
-      if (rect.empowered === 2 || rect.empowered === 4)
-			this._context.fillStyle = "red";
-      else if (rect.empowered === 1)
-        this._context.fillStyle = "blue";
-      else if (rect.size.y > 100 * this.ratio)
-        this._context.fillStyle = "green";
-      else
-        this._context.fillStyle = "white";
-      this._context.fillRect(rect.pos.x, rect.pos.y, 
-                            rect.size.x, rect.size.y);
+      if (this.powerups === true)
+      {
+        if (rect.empowered === 2 || rect.empowered === 4)
+        this._context.fillStyle = "red";
+        else if (rect.empowered === 1)
+          this._context.fillStyle = "blue";
+        else if (rect.size.y > 100 * this.ratio)
+          this._context.fillStyle = "green";
+        else
+          this._context.fillStyle = "white";
+        this._context.fillRect(rect.pos.x, rect.pos.y, 
+                              rect.size.x, rect.size.y);
+      }
     }
   }
 
@@ -477,6 +477,7 @@ class Offline_Pong {
     object.pos.x *= ratio;
     object.pos.y *= ratio;
   }
+
   update(dt: number, difficulty: any, map: any) {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;

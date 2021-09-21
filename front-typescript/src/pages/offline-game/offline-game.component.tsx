@@ -50,7 +50,7 @@ async function  updateGameStats(result: string, authToken: string) {
   }
 
     return (
-      <div className='game'>
+      <div className='gameoffline'>
         <canvas id="forCanvas" width={800 * ratio} height={600 * ratio}></canvas>
         { isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
         }

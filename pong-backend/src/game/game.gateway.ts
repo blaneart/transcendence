@@ -9,7 +9,7 @@ var uuid = require('uuid');
 import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
 import { AuthenticatedSocket } from 'src/chat/chat.types';
-import { PowerUpType } from "../app.types";
+import { PowerUpType, Settings } from "../app.types";
 
 // import Ball from './game/game';
 
@@ -21,6 +21,7 @@ export enum IGameType {
   Ranked,
   Duels
 }
+
 
 export class Player {
   name: string;
@@ -150,16 +151,17 @@ export class GameGateway implements OnGatewayInit {
   // Return true, if the room with this name is available for joining
   // i.e. contains only one player, and that player is not yourself.
   // userId: our user id.
-  async roomAvailable(roomName: string, userId: number, gameType: IGameType, map: number): Promise<boolean>
+  async roomAvailable(roomName: string, userId: number, gameSettings: Settings): Promise<boolean>
   {
     const theRoom = this.server.sockets.adapter.rooms.get(roomName);
     if (theRoom.size < 2)
     {
       // If this is an empty room, something isn't right.
-      if (theRoom.size == 0 || this.rooms[roomName].type !== gameType
-                 || this.rooms[roomName].map !== map)
+      if (theRoom.size == 0
+        || this.rooms[roomName].settings.ranked !== gameSettings.ranked
+        || this.rooms[roomName].settings.maps !== gameSettings.maps
+        || this.rooms[roomName].settings.powerUps !== gameSettings.powerUps )
         return false;
-      
       // If there is one player in the room, get their indentity
       const lonelyPlayer = (await this.server.in([...theRoom][0]).fetchSockets())[0];
 
@@ -169,7 +171,16 @@ export class GameGateway implements OnGatewayInit {
     return false;
   }
 
-  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameType: IGameType, map: number) =>
+  getActiveRooms = () => {
+
+    const arr = Array.from(this.server.sockets.adapter.rooms);
+    const filtered = arr.filter(room => !room[1].has(room[0]))
+    const res = filtered.map(i => i[0]);
+
+    return res/*.map(i => res[i].map*/;
+  }
+
+  getWaitingRoom = async (socket: AuthenticatedSocket, userName: string, userId: number, userElo: number, gameSettings: Settings) =>
   {
     let playerId;
     let ready = false;
@@ -177,7 +188,7 @@ export class GameGateway implements OnGatewayInit {
 
     // Check all rooms available for joining
     roomName = await findAsyncSequential(this.getActiveRooms(/*userInfo[3]*/), async (roomName) =>
-                   await this.roomAvailable(roomName, userId, gameType, map));
+                   await this.roomAvailable(roomName, userId, gameSettings));
     console.log('foundRoomName: ', roomName);
     console.log(userId, userName);
     /* creates new room if every room is full*/
@@ -191,11 +202,9 @@ export class GameGateway implements OnGatewayInit {
           players: [],
           scores: [0,0],
           ball: new Ball(),
-          type: gameType,
-          map: map
+          settings: gameSettings,
         }
-        // console.log(roomName);
-        // console.log(this.rooms[roomName].start);
+        console.log('roomSettings', gameSettings);
         this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
     }
 
@@ -243,8 +252,6 @@ export class GameGateway implements OnGatewayInit {
     }
   }
 
-
-
   // Do everything necessary to end the game
   endGame(roomName: string, abandoned: boolean = false, abandoningId: number | null = null)
   {
@@ -260,7 +267,7 @@ export class GameGateway implements OnGatewayInit {
       this.rooms[roomName].scores[abandoningId] = 0
       this.rooms[roomName].scores[1 - abandoningId] = 10;
     }
-    else if (this.rooms[roomName].scores[0] >= 10)
+    if (this.rooms[roomName].scores[0] >= 10)
       this.saveAndUpdate(roomName,
         this.rooms[roomName].players[playerid].userId,
         this.rooms[roomName].players[playerid].elo,
@@ -300,43 +307,48 @@ export class GameGateway implements OnGatewayInit {
 
   saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, loser_id: number, loser_elo: number, loser_score: number)
   {
-    let newMmrs = {winner_new_mmr: winner_elo, loser_new_mmr: loser_elo};
-    if (this.rooms[roomName].type === IGameType.Ranked)
-      newMmrs = this.getNewMmr(winner_elo, loser_elo);
     this.gameService.saveGame(winner_id, loser_id, loser_score);
-    this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
-    this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
+    if (this.rooms[roomName].settings.ranked === true)
+    {
+      let newMmrs = this.getNewMmr(winner_elo, loser_elo);
+      this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
+      this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
+    }
   }
 
   pushBall(roomName: string)
   {
+
     const callback = (dt: number, pong: Pong) => {
+
+
       // if (!this.rooms[roomName])
       //   clearInterval(interval)
       if (this.rooms[roomName]  && this.rooms[roomName].players[0].id === 0)
         pong.update(dt /1000, this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
       else 
         pong.update(dt /1000, this.rooms[roomName].players[1], this.rooms[roomName].players[0]);
-        if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
-        {
-          if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
-            this.endGame(roomName);
-          clearInterval(interval);
-        }
+      if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
+      {
+        if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
+          this.endGame(roomName);
+        clearInterval(interval);
+      }
 
       this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
       this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
-      this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
+      if (this.rooms[roomName].settings.powerUps)
+        this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
       // console.log('pong.leftPaddle',  this.rooms[roomName].players[0]);
       this.server.to(roomName).emit('getPaddles', this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
 
-  };
+    };
+
     // let roomName = this.getRoomNameBySocket(client);
     var interval = null;
     let dt  = 10;
     var myBall = this.rooms[roomName].ball;   
-    // let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].map, powerup: this.rooms[roomName].type === IGameType.Powerups});
-    let pong = new Pong(myBall, this.rooms[roomName].scores, {map: 1, powerup: true });
+    let pong = new Pong(myBall, this.rooms[roomName].scores, {map: this.rooms[roomName].settings.maps, powerup: this.rooms[roomName].settings.powerUps});
     interval = setInterval(function() {callback(dt, pong)}, dt);
   }
 
@@ -370,16 +382,6 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('changeScore', this.rooms[this.getRoomNameBySocket(socket)].scores)
   }
 
-
-  getActiveRooms = () => {
-
-    const arr = Array.from(this.server.sockets.adapter.rooms);
-    const filtered = arr.filter(room => !room[1].has(room[0]))
-    const res = filtered.map(i => i[0]);
-
-    return res/*.map(i => res[i].map*/;
-  }
-
   getRoomNameBySocket = (socket: Socket) => {
     const arr = Array.from(socket.rooms);
     const filtered = arr.filter(room => room !== socket.id)
@@ -401,31 +403,13 @@ export class GameGateway implements OnGatewayInit {
     this.server.emit('getListOfRooms', this.showRooms());
   }
 
-  getClosestPlayerIdByElo()
-  {
-    var getCloseToMe = this.playersIdAndElo[0][1];
-    var biggest = 1000;
-    let i = 1;
-    let rtn_me = -1;
-    while (i < this.playersIdAndElo.length)
-    {
-      if (Math.abs(this.playersIdAndElo[i][1] - getCloseToMe) < biggest)
-      {
-        biggest = Math.abs(this.playersIdAndElo[i][1] - getCloseToMe);
-        rtn_me = i;
-      }
-      i++;
-    }
-    return (rtn_me);
-  }
-
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  createRoom(socket: AuthenticatedSocket, userInfo) { // [mapNb, boolPowerUps]
+  createRoom(socket: AuthenticatedSocket, userInfo) {
     console.log('joinRoom', userInfo[0], userInfo[1], userInfo[3]);
   
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);
+    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
   }
   
   @SubscribeMessage('getListOfRooms')

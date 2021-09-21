@@ -4,7 +4,7 @@ import EndGameMenu from '../../components/end-game-menu/end-game-menu.component'
 import './game.styles.scss';
 import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
-import { User } from "../../App.types";
+import { User, Settings } from "../../App.types";
 
 const ENDPOINT = "ws://127.0.0.1:3002";
 
@@ -12,27 +12,21 @@ export interface IGameProps {
   user?: User | null,
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
-  gameType: IGameType
-}
-
-export enum IGameType {
-  Classic,
-  Powerups,
-  Ranked
+  gameSettings: Settings
 }
 
 
 
 
 
-const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameType}) => {
+const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) => {
     console.log('game_component');
 
     /* result of the game stored in string; can be 'win' 'lost' and 'game' */
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
 
     /* boolean to manage restart of the game */
-    const [restart, setRestart] = useState<Boolean>(false);
+    const [restart, setRestart] = useState<Boolean>(true);
 
     /* boolean state when set true both players connected to server and game can be started */
     const [ready, setReady] = useState<Boolean>(false);
@@ -67,8 +61,11 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameType}) => {
     useEffect(() => {
       console.log(socket);
       console.log(user)
-      if (user)
-        socket.emit('joinRoom', user.name, user.id, user.elo, gameType);
+      if (user && restart)
+      {
+        socket.emit('joinRoom', user.name, user.id, user.elo, gameSettings);
+        setRestart(false);
+      }
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })
@@ -183,7 +180,7 @@ useEffect(() => {
         {            isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={() =>
          {
            setReady(false);
-           setRestart(!restart)
+           setRestart(true)
            socket.emit('leaveRoom');
         }
         }/> 

@@ -24,6 +24,7 @@ import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
 import ChooseGame from "./pages/game/choose-game.component";
 import DuelGame from "./pages/game/duel-game/duel-game.component";
+import Custom404 from "./pages/error-pages/404.component";
 const ENDPOINT = "http://127.0.0.1:3003";
 
 
@@ -38,7 +39,7 @@ interface AuthResponse {
   access_token: string;
 }
 
-async function process42ApiRedirect(code: string): Promise<AuthResponse> {
+async function process42ApiRedirect(code: string): Promise<AuthResponse|null> {
   const data = {
     code: code
   };
@@ -49,6 +50,8 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse> {
     },
     body: JSON.stringify(data),
   });
+  if (!response.ok)
+    return null;
   //   console.log(data);
   const jsonData = await response.json();
   return jsonData as AuthResponse;
@@ -98,15 +101,19 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
 
 
 async function set42User(setUser: Function, setAuthToken: Function, code: string) {
-  let authResponse: AuthResponse = await process42ApiRedirect(code);
+  let authResponse: AuthResponse | null = await process42ApiRedirect(code);
+  if (authResponse === null)
+    return alert('Could not authenticate')
   // If user has 2fa, we need to confirm 2fa first
-  if (authResponse.twofa) {
+  else if (authResponse.twofa) {
     const twofaCode = window.prompt("Please enter your 2fa code");
     if (!twofaCode) {
       alert('Next time, enter the code.');
       return;
     }
     authResponse = await validate2fa(twofaCode, authResponse.access_token); // rewrite authResponse with the complete one
+    if (authResponse === null)
+      return alert('Could not authenticate')
     if (!authResponse.user) // if the backend didn't send us the user, the code wasn't OK
     {
       alert('Wrong or expired code. Try again.');
@@ -130,6 +137,7 @@ async function getMe(authToken: string): Promise<User> {
       'Authorization': `Bearer ${authToken}`
     },
   });
+
   //   console.log(data);
   const jsonData = await response.json();
   return jsonData as User;
@@ -227,7 +235,7 @@ function App() {
           exact
           path="/watch/:room"
           component={Room} />
-
+      <Route path="/" component={Custom404}/>
       </Switch>
       : <p></p>}
     </div>

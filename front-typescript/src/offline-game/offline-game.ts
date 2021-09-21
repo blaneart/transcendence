@@ -489,6 +489,8 @@ class Offline_Pong {
       this.ratio = this._canvas.width / 800;
       old_ratio = this.ratio / old_ratio;
       this.changeplace(this.ball, old_ratio);
+      this.ball.vel.x *= old_ratio;
+      this.ball.vel.y *= old_ratio;
       this.changeplace(this.curr_powerUp, old_ratio);
       this.players.forEach(player => this.changeplace(player, old_ratio));
       this.obstacles.forEach(obstacle => this.changeplace(obstacle, old_ratio));

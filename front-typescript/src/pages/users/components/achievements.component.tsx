@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { User } from "../../../App.types";
 
-
-
 var achivs = [
   {
     id: 0,
@@ -53,7 +51,6 @@ const Achievements = ({user, authToken, setUser }: AchievementsProps) => {
   useEffect(() => {
     getAchievements(user.id, authToken).then(res => setAchievements(res));
   }, [user.id, authToken]);
-
   
   return (
     <div>

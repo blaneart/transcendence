@@ -105,7 +105,7 @@ export class Pong {
   canvasWidth: number;
   canvasHeight: number;
 
-  constructor(ball: Ball, scores, map: any = {map: 0, powerup: true})
+  constructor(ball: Ball, scores, map: any)
   {
       console.log(map);
       this.ball = ball;

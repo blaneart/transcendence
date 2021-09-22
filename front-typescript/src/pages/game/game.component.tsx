@@ -6,6 +6,7 @@ import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
 import { User, Settings } from "../../App.types";
 import { useParams } from 'react-router-dom';
+import RoomLink from '../chats/components/roomLink.component';
 
 
 
@@ -16,6 +17,12 @@ export interface IGameProps {
   setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   authToken: string
   gameSettings: Settings
+}
+
+interface FrontSettings
+{
+  maps: number
+  powerUps: Boolean
 }
 
 const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) => {
@@ -34,6 +41,19 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
 
     /* id of the player of this client can be 0 or 1, default on three rendomly set on server */
     const [id, setId] = useState<number>(3);
+
+
+    let frontSettings = {} as FrontSettings;
+    if (!gameRoomName)
+    {
+      frontSettings.maps = gameSettings.maps;
+      frontSettings.powerUps = gameSettings.powerUps;
+    }
+    else if (gameRoomName && userId)
+    {
+      frontSettings.maps = gameSettings.maps;
+      frontSettings.powerUps = gameSettings.powerUps;
+    }
 
     /* uid of the game room */
     const [gameId, setGameId] = useState<string>('no id');
@@ -70,6 +90,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       else if (gameRoomName && user && restart)
       {
         console.log('gameRoomName exist, INVITE game');
+        setRestart(false);
         if (userId === '-1')
         {
           console.log('userID no, creating room and sending it basic options');
@@ -83,6 +104,13 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       }
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
+      })
+
+      socket.on('setFrontSettings', (map, powerUps) => {
+        console.log('map', map)
+        console.log('powerUps', powerUps)
+        frontSettings.maps = map;
+        frontSettings.powerUps = powerUps;
       })
 
       socket.on('ready', () => {
@@ -148,7 +176,9 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: 1, powerup: true}, ratio);
+        console.log('frontSettings.maps', frontSettings.maps)
+        console.log('frontSettings.powerUps', frontSettings.powerUps)
+          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps}, ratio);
           console.log(id)
 
           canvas.addEventListener('mousemove', mouseTracker);

@@ -217,14 +217,16 @@ export class GameGateway implements OnGatewayInit {
     if (ready)
     {
       console.log('ready = 1')
+      console.log('this.rooms[roomName].settings', this.rooms[roomName].settings)
       this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
       this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
       this.server.to(roomName).emit('ready');
+      this.server.to(roomName).emit('setFrontSettings', this.rooms[roomName].settings.maps, this.rooms[roomName].settings.powerUps);
       this.server.emit('getListOfRooms', this.showRooms());
       this.pushBall(roomName);
     }
   }
-  
+
   getRoomByRoomName = (roomName: string) => {
 
     const arr = Array.from(this.server.sockets.adapter.rooms);
@@ -290,6 +292,7 @@ export class GameGateway implements OnGatewayInit {
       console.log('ready = 1')
       this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
       this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
+      this.server.to(roomName).emit('setFrontSettings', this.rooms[roomName].settings.maps, this.rooms[roomName].settings.powerUps);
       this.server.to(roomName).emit('ready');
       this.server.emit('getListOfRooms', this.showRooms());
       this.pushBall(roomName);

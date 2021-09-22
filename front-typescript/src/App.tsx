@@ -23,6 +23,7 @@ import Map from "./components/maps-chooser/maps-chooser.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
+import Ruleset from "./pages/ruleset/ruleset.component";
 
 import AdminPanel from "./pages/adminPanel/adminPanel";
 import Watchdog from "./components/watchdog.component";
@@ -182,6 +183,9 @@ const RouteGuest: React.FC<IGuest> = ({user, settings, difficulty, authToken,
       <Difficulty difficultyLvl={difficulty} />
       <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps} />
     </Route>
+    <Route exact path="/ruleset">
+      <Ruleset user={user}/>
+    </Route>
     <Route exact path="/cheats">
       <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
     </Route>
@@ -219,6 +223,11 @@ const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
       <Route path="/play/:gameRoomName/:userId">
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
           <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
+        </Watchdog>
+      </Route>
+      <Route path="/ruleset">
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          {user ? <Ruleset user={user} /> : <p>Please log in</p>}
         </Watchdog>
       </Route>
       <Route path="/chats">

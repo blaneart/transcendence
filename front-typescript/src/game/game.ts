@@ -146,6 +146,7 @@ class Pong {
     this.ratio = ratio;
 
     // MAPS
+    console.log('map', map);
     this.curr_map = map.map;
     this.powerups = map.powerup;
 	  this.curr_powerUp = new PowerUp(ratio);

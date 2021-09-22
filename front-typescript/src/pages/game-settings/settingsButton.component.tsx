@@ -1,5 +1,6 @@
 import React from 'react';
 import { Settings } from "../../App.types";
+import './settingsButton.scss'
 
 interface IButtonProps {
     name: string,
@@ -27,7 +28,7 @@ const ChangeSettingsButton: React.FC<IButtonProps> = ({
     }
     
     return (
-    <button type="button" onClick={HandleClick}>
+    <button className="square-settings" onClick={HandleClick}>
         {name}
     </button>
     );

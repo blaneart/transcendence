@@ -16,14 +16,14 @@ const GameSettings: React.FC<ISettingsProps> = ({
         <div>
             <div>
                 <div>Ranked</div>
-                <div>
+                <div className="game-board-settings">
                     <ChangeSettingsButton name={'On'} ranked={true}  maps={settings.maps} powerUps={settings.powerUps}  setSettings={setSettings} />
                     <ChangeSettingsButton name={'Off'} ranked={false}  maps={settings.maps} powerUps={settings.powerUps}  setSettings={setSettings} />
                 </div>
             </div>
             <div>
                 <div>Maps</div>
-                <div>
+                <div className="game-board-settings">
                     <ChangeSettingsButton name={'Map1'} ranked={settings.ranked}  maps={0} powerUps={settings.powerUps}  setSettings={setSettings} />
                     <ChangeSettingsButton name={'Map2'} ranked={settings.ranked}  maps={1} powerUps={settings.powerUps}  setSettings={setSettings} />
                     <ChangeSettingsButton name={'Map3'} ranked={settings.ranked}  maps={2} powerUps={settings.powerUps}  setSettings={setSettings} />
@@ -31,7 +31,7 @@ const GameSettings: React.FC<ISettingsProps> = ({
             </div>
             <div>
                 <div>Power-ups</div>
-                <div>
+                <div className="game-board-settings">
                     <ChangeSettingsButton name={'On'} ranked={settings.ranked}  maps={settings.maps} powerUps={true}  setSettings={setSettings} />
                     <ChangeSettingsButton name={'Off'} ranked={settings.ranked}  maps={settings.maps} powerUps={false}  setSettings={setSettings} />
                 </div>

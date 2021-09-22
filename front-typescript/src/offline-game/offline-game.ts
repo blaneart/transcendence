@@ -110,12 +110,15 @@ class Offline_Pong {
 
   constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any, ratio: number)
   {
-    this.ratio = ratio;
     this.last_score = -1;
 	  this.curr_map = map.map;
 	  this.powerups = map.powerup;
 	  this.curr_powerUp = new PowerUp(ratio);
     this._canvas = canvas as HTMLCanvasElement;
+    let size = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
+    this._canvas.width = size * 0.8;
+    this._canvas.height = size * 0.8;
+    this.ratio = this._canvas.width / 800;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball(ratio);
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
@@ -443,6 +446,12 @@ class Offline_Pong {
         this._context.fillRect(rect.pos.x, rect.pos.y, 
                               rect.size.x, rect.size.y);
       }
+      else
+      {
+        this._context.fillStyle = "white";
+        this._context.fillRect(rect.pos.x, rect.pos.y, 
+                              rect.size.x, rect.size.y);
+      }
     }
   }
 
@@ -482,8 +491,8 @@ class Offline_Pong {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
     let size = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
-    this._canvas.width = size * 0.7;
-    this._canvas.height = size * 0.7;
+    this._canvas.width = size * 0.8;
+    this._canvas.height = size * 0.8;
     if (this.ratio !== this._canvas.width / 800)
     {
       let old_ratio = this.ratio

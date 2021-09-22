@@ -23,7 +23,10 @@ services:
       - DB_PORT=5432
       - FRONTEND_URL=${FRONTEND_URL}
   front:
-    build: ./front-typescript/
+    build:
+      context: ./front-typescript/
+      args:
+        - REACT_APP_API_UID=${API_UID}
     ports:
       - "3001:3000"
     environment: 

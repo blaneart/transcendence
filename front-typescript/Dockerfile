@@ -3,6 +3,8 @@
 FROM node:16.9.1
 # Latest stable version at the time of the defence. Fixed to avoid bugs
 # ENV NODE_ENV=production
+ARG REACT_APP_API_UID
+ENV REACT_APP_API_UID $REACT_APP_API_UID
 
 WORKDIR /app
 
@@ -10,6 +12,10 @@ COPY ["package.json", "package-lock.json*", "./"]
 
 RUN npm install
 
+RUN npm install -g serve
+
 COPY . .
 
-CMD [ "npm", "run", "start" ]
+RUN npm run build
+
+CMD [ "serve", "-s", "build", "-l", "3000"]

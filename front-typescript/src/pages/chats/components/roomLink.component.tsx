@@ -2,7 +2,6 @@ import React from "react";
 import { Room } from "../chats.types";
 import { Link } from "react-router-dom";
 import './roomLink.styles.scss';
-import StyledButton from "./styledButton.component";
 
 interface RoomLinkParams {
   authToken: string,

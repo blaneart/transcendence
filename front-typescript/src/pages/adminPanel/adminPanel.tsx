@@ -59,7 +59,7 @@ async function promoteUser(authToken: string, userId: number) {
 
 async function demoteUser(authToken: string, userId: number) {
 
-  const response = await fetch(`http://127.0.0.1:3000/profile/demote/${userId}`, {
+  await fetch(`http://127.0.0.1:3000/profile/demote/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

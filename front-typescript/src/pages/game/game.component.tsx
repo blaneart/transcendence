@@ -55,7 +55,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     /* uid of the game room */
     const [gameId, setGameId] = useState<string>('no id');
 
-    const [socket, setSocket] = useState<Socket>(() => {
+    const [socket] = useState<Socket>(() => {
       const initialState = io(ENDPOINT,
           {
             auth: {

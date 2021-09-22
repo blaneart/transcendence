@@ -15,7 +15,7 @@ const CustomButton: React.FC<IButtonProps> = ({children, isLogged, avatar_name, 
       className='image'
       style={{
         backgroundImage: isLogged ?
-        (realAvatar ? `url(http://127.0.0.1:3000/static/${avatar_name})` : `url(https://source.boringavatars.com/beam/150/${avatar_name})`)
+        (realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${avatar_name})` : `url(https://source.boringavatars.com/beam/150/${avatar_name})`)
         :
         `url(${process.env.PUBLIC_URL + '/42.png'})`
       }}
@@ -26,4 +26,4 @@ const CustomButton: React.FC<IButtonProps> = ({children, isLogged, avatar_name, 
     </button>
 )
 
-export default CustomButton; //<img className="realAvatar" src={`http://127.0.0.1:3000/static/${avatar_name}`} width={150} height={150}></img>
+export default CustomButton;

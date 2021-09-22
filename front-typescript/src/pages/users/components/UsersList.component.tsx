@@ -14,7 +14,7 @@ interface IUsersListProps {
 
 async function getUsers(authToken: string): Promise<User[] | null> {
 
-  const response = await fetch("http://127.0.0.1:3000/users", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/users", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

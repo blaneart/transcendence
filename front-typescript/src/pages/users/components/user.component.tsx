@@ -10,7 +10,7 @@ interface IUserProps {
 
 async function getFriend(id1: number, id2: number, authToken: string): Promise<boolean | null> {
 
-    const response = await fetch(`http://127.0.0.1:3000/friends/exist/${id1}/${id2}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/exist/${id1}/${id2}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +26,7 @@ async function getFriend(id1: number, id2: number, authToken: string): Promise<b
 
 async function addFriend(id1: number, id2: number, authToken: string) {
 
-    await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -37,7 +37,7 @@ async function addFriend(id1: number, id2: number, authToken: string) {
 
 async function removeFriend(id1: number, id2: number, authToken: string) {
     
-    await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -85,7 +85,7 @@ const UserComponent: React.FC<IUserProps> = ({
         {user.name}
         <div className='image'
           style={{
-          backgroundImage: (user.realAvatar ? `url(http://127.0.0.1:3000/static/${user.avatar})` : `url(https://source.boringavatars.com/beam/150/${user.avatar})`)
+          backgroundImage: (user.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${user.avatar})` : `url(https://source.boringavatars.com/beam/150/${user.avatar})`)
         }}
         />
         </div>

@@ -21,7 +21,7 @@ interface DirectRouteParams {
 const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings }) => {
 
   const { target } = useParams<DirectRouteParams>();
-  const [socket] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
+  const [socket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":8080", {
     auth: {
       token: authToken
     }

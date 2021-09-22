@@ -7,7 +7,7 @@ import { io, Socket } from 'socket.io-client';
 import { User, Settings } from "../../App.types";
 import { useParams } from 'react-router-dom';
 
-const ENDPOINT = "ws://127.0.0.1:3002";
+const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":3002";
 
 export interface IGameProps {
   user?: User | null,
@@ -139,7 +139,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         var data = {
           value: user.id,
         }
-        const response = await fetch('http://127.0.0.1:3000/userById', {
+        const response = await fetch(process.env.REACT_APP_API_URL + "/userById", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

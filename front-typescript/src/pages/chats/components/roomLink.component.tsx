@@ -13,7 +13,7 @@ interface RoomLinkParams {
 // Get all open rooms from the backend
 async function deleteRoom(authToken: string, roomName: string) {
   // Perform the request to backend
-  await fetch(`http://127.0.0.1:3000/chat/rooms/${roomName}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/chat/rooms/${roomName}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -24,7 +24,7 @@ async function deleteRoom(authToken: string, roomName: string) {
 
 async function leaveRoom(authToken: string, roomID: number, onLeave: Function) {
   // Perform the request to backend
-  await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/chat/favs/${roomID}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

@@ -12,7 +12,7 @@ interface DirectListProps {
 
 // Get all direct conversations we already have
 async function getDirects(authToken: string): Promise<Direct[] | null> {
-  const response = await fetch("http://127.0.0.1:3000/chat/directs/me/", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/chat/directs/me/", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -31,7 +31,7 @@ async function getDirects(authToken: string): Promise<Direct[] | null> {
 // Get all existing users
 async function getUsers(authToken: string): Promise<User[] | null> {
   const response = await fetch(
-    `http://127.0.0.1:3000/users/`,
+    `${process.env.REACT_APP_API_URL}/users/`,
     {
       method: "GET",
       headers: {
@@ -47,7 +47,7 @@ async function getUsers(authToken: string): Promise<User[] | null> {
 // Start a new direct conversation with a user
 async function createDirect(authToken: string, userB: number) {
   const response = await fetch(
-    `http://127.0.0.1:3000/chat/directs/${userB}/`,
+    `${process.env.REACT_APP_API_URL}/chat/directs/${userB}/`,
     {
       method: "PUT",
       headers: {

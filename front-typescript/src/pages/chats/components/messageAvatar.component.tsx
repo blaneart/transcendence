@@ -11,7 +11,7 @@ interface MessageAvatarProps {
 const MessageAvatar: React.FC<MessageAvatarProps> = ({ user }) => {
   if (user.realAvatar)
   {
-    return <img src={"http://127.0.0.1:3000/static/" + user.avatar} className="message-image" alt="Avatar"></img>
+    return <img src={process.env.REACT_APP_API_URL + "/static/" + user.avatar} className="message-image" alt="Avatar"></img>
   }
   else
   {

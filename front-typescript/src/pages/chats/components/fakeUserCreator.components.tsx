@@ -12,7 +12,7 @@ interface FakeUserCreatorProps {
 async function getMe(authToken: string): Promise<User | null> {
 
   // Make a request to backend
-  const response = await fetch('http://127.0.0.1:3000/profile/me', {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/profile/me", {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ setAuthToken, setUser
     e.preventDefault();
     // Make a response to backend
     const response = await fetch(
-      `http://127.0.0.1:3000/fakeUser/${newName}/`,
+      `${process.env.REACT_APP_API_URL}/fakeUser/${newName}/`,
       {
         method: "POST"
       });

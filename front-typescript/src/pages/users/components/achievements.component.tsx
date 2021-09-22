@@ -25,7 +25,7 @@ var achivs = [
 ]
 
 async function getAchievements(user_id: number, authToken: string) {
-  const response = await fetch(`http://127.0.0.1:3000/profile/${user_id}/achievements/`, {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/profile/${user_id}/achievements/`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${authToken}`

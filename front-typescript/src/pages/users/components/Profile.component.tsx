@@ -32,7 +32,7 @@ async function toggleTwofa(
   const data = {
     value: user.twofa ? false : true, // toggle to the inverse of the actual value
   };
-  const response = await fetch("http://127.0.0.1:3000/auth/set2fa", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/auth/set2fa", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -56,7 +56,7 @@ async function getUserByName( authToken: string, name: string): Promise<User | n
   const data = {
     value: name,
   };
-  const response = await fetch("http://127.0.0.1:3000/userByName", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/userByName", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

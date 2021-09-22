@@ -12,9 +12,9 @@ services:
   backend:
     build: ./pong-backend/
     ports:
-      - "3000:3000"
-      - "8080:8080"
-      - "3002:3002"
+      - "2053:3000"
+      - "2083:2083"
+      - "2081:2081"
     environment: 
       - API_UID=${API_UID}
       - API_SECRET=${API_SECRET}
@@ -28,6 +28,6 @@ services:
       args:
         - REACT_APP_API_UID=${API_UID}
     ports:
-      - "3001:3000"
+      - "80:3000"
     environment: 
       - REACT_APP_API_UID=${API_UID}

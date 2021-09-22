@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
-const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":3002";
+const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":2081";
 
 const Watch = () => {
     const [socket] = useState<Socket>(() => {

@@ -11,7 +11,7 @@ import { Settings } from "http2";
 var uuid = require('uuid');
 
 
-@WebSocketGateway(8080, { cors: true })
+@WebSocketGateway(2083s, { cors: true })
 export class ChatGateway {
   constructor (private readonly chatService: ChatService, private readonly profileService: ProfileService) {}
 

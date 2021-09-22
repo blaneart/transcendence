@@ -39,15 +39,26 @@ async function createAchievements() {
     }
 }
 
+interface Settings {
+  ranked: Boolean;
+  maps: number;
+  powerUps: Boolean;
+}
+
 async function createGames() {
   const exists = await db.schema.hasTable('games');
 
   if (!exists) {
       await db.schema.createTable('games', function(t) {
         t.increments('id').primary();
-        t.string('winner', 100);
-        t.string('loser', 100);
+        t.integer('winner_id');
+        t.integer('loser_id');
         t.integer('loserScore');
+        t.integer('winner_elo');
+        t.integer('loser_elo');
+        t.boolean('ranked');
+        t.integer('maps');
+        t.boolean('powerUps');
       });
     }
 }

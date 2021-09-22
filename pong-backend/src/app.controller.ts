@@ -71,7 +71,7 @@ export class AppController {
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
   @Get('games')
   async getGames(@Request() req) {
-    const games = await this.gameService.getGamesByName(req.user.name);
+    const games = await this.gameService.getGamesById(req.user.id);
     return games;
   }
 

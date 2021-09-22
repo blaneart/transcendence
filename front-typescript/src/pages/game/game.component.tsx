@@ -213,7 +213,9 @@ useEffect(() => {
           ready ?
         <>
           <GameHeader playerId = {id} userName={user.name} enemyName={enemyName}/>
-        <canvas id="forCanvas" width={800*ratio} height={600*ratio}></canvas>
+          <div className=" w-12/12 border border-white-800 border-solid">
+        <canvas  id="forCanvas" width={800*ratio} height={600*ratio}></canvas>
+        </div>
         <h1>{gameId}</h1>
         </>
         :

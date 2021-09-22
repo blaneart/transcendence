@@ -322,16 +322,16 @@ export class Pong {
     var pt =null;
     if (nx < 0)
     {
-      pt = this.intercept(ball.pos.x , ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
-        rect.right, 
-        rect.top,
-        rect.right,  
-        rect.bottom,
+      pt = this.intercept(ball.pos.x +ball.size.x / 2, ball.pos.y +ball.size.x / 2, ball.pos.x + ball.size.x / 2 + nx, ball.pos.y +  ball.size.x / 2 + ny, 
+        rect.right   + ball.size.x / 2, 
+        rect.top    - ball.size.x / 2, 
+        rect.right   + ball.size.x / 2, 
+        rect.bottom + ball.size.x / 2,
         "right");
     }
     else if (nx > 0)
     {
-      pt = this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+      pt = this.intercept(ball.pos.x +ball.size.x / 2, ball.pos.y +ball.size.x / 2, ball.pos.x + ball.size.x / 2 + nx, ball.pos.y +  ball.size.x / 2 + ny, 
         rect.left   - ball.size.x / 2, 
         rect.top    - ball.size.x / 2, 
         rect.left   - ball.size.x / 2, 
@@ -341,7 +341,7 @@ export class Pong {
       }
     if (!pt) {
       if (ny < 0) {
-          pt =  this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+          pt =  this.intercept(ball.pos.x +ball.size.x / 2, ball.pos.y +ball.size.x / 2, ball.pos.x + ball.size.x / 2 + nx, ball.pos.y +  ball.size.x / 2 + ny, 
                                      rect.left   - ball.size.x / 2,
                                      rect.bottom + ball.size.x / 2, 
                                      rect.right  + ball.size.x / 2, 
@@ -350,7 +350,7 @@ export class Pong {
 
         }
       else if (ny > 0) {
-          pt = this.intercept(ball.pos.x, ball.pos.y, ball.pos.x + nx, ball.pos.y + ny, 
+          pt = this.intercept(ball.pos.x +ball.size.x / 2, ball.pos.y +ball.size.x / 2, ball.pos.x + ball.size.x / 2 + nx, ball.pos.y +  ball.size.x / 2 + ny, 
                                      rect.left   - ball.size.x  / 2, 
                                      rect.top    - ball.size.x  / 2, 
                                      rect.right  + ball.size.x  / 2, 

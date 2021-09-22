@@ -371,7 +371,7 @@ export class GameGateway implements OnGatewayInit {
 
   saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, loser_id: number, loser_elo: number, loser_score: number)
   {
-    this.gameService.saveGame(winner_id, loser_id, loser_score);
+    this.gameService.saveGame(winner_id, loser_id, loser_score, winner_elo, loser_elo, this.rooms[roomName].settings);
     this.profileService.updateUserById(winner_id, {status: 1});
     this.profileService.updateUserById(loser_id, {status: 1});
     if (this.rooms[roomName].settings.ranked === true)

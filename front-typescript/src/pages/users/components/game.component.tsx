@@ -14,9 +14,9 @@ const GameComponent: React.FC<IGameProps> = ({
   }) => {
   return (game ?
     <div>
-      <td>{game.winner}</td>
-      <td>{10}</td>
-      <td>{game.loserScore}</td>
+      <td>{game.winner} ({game.winner_elo})</td>
+      <td>{10} - </td>
+      <td>{game.loserScore} ({game.loser_elo})</td>
       <td>{game.loser}</td>
     </div>
     : <div></div>

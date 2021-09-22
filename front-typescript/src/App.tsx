@@ -275,28 +275,34 @@ function App() {
     history.replace("/");
   }
 
+  // Retreive local user storage
   useEffect(() => {
-    var searchParams: URLSearchParams = new URLSearchParams(search);
     const localStoragePongToken: string | null = localStorage.getItem(
       "pongToken"
     );
-    if (!user && authToken === "" && localStoragePongToken !== null) {
+    if (localStoragePongToken)
       setAuthToken(localStoragePongToken);
-      getMe(localStoragePongToken).then((me: User | null) => me ? setUser(me) : completeLogOut());
-    }
-    else if (!user && authToken && authToken !== "") {
+  }, []);
+
+  // On auth token change, re-retreive user state
+  useEffect(() => {
+    // If getMe fails (we're banned), log out
+    if (authToken && authToken != "")
       getMe(authToken).then((me: User | null) => me ? setUser(me) : completeLogOut());
+  }, [authToken]);
+
+  // On redirect, perform 42 login if necessary
+  useEffect(() => {
+    var searchParams: URLSearchParams = new URLSearchParams(search);
+
+    // if we catch an auth redirect from 42 api
+    let code: string | null = searchParams.get("code");
+    if (code) {
+      set42User(setUser, setAuthToken, code);
+      history.replace("/");
     }
 
-    if (searchParams.get("code")) {
-      // if we catch an auth redirect from 42 api
-      let code: string | null = searchParams.get("code");
-      if (code) {
-        set42User(setUser, setAuthToken, code);
-        history.replace("/");
-      }
-    }
-  }, [authToken, user, history, search]);
+  }, [search, history]);
 
 
   let difficulty = { number: 4 };

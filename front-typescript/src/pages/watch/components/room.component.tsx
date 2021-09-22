@@ -10,7 +10,7 @@ const ENDPOINT = "http://127.0.0.1:3002";
 const Room = () => {
     var watcher: Watcher;
     // const { from } = location.state;
-    const [socket, setSocket] = useState<Socket>(() => {
+    const [socket] = useState<Socket>(() => {
         const initialState = io(ENDPOINT);
         return initialState;
     });

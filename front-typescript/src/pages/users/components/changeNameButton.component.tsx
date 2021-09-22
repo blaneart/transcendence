@@ -30,6 +30,9 @@ async function updateName(
       body: JSON.stringify(data),
     });
 
+    if (!response.ok)
+      return null;
+
     const jsonData = await response.json();
     const userUpdated = jsonData as User;
 

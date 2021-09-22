@@ -10,7 +10,7 @@ interface DirectLinkProps {
 }
 
 // Get the user instance for a given userId
-async function getUser(authToken: string, userId: number): Promise<User> {
+async function getUser(authToken: string, userId: number): Promise<User | null> {
   const response = await fetch(`http://127.0.0.1:3000/profile/${userId}/`, {
     method: "GET",
     headers: {
@@ -18,6 +18,8 @@ async function getUser(authToken: string, userId: number): Promise<User> {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+    return null;
   // Read response as JSON
   const jsonData = await response.json();
   // Cast response to an array of rooms

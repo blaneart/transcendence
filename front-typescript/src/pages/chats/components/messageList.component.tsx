@@ -19,7 +19,7 @@ interface MessageListParams {
 }
 
 // Get the list of all blocked users
-async function getBlockList(authToken: string): Promise<BlockedUserEntry[]> {
+async function getBlockList(authToken: string): Promise<BlockedUserEntry[] | null> {
   // Send a request to backend
   const response = await fetch(
     `http://127.0.0.1:3000/chat/block/`,
@@ -30,6 +30,8 @@ async function getBlockList(authToken: string): Promise<BlockedUserEntry[]> {
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response.ok)
+    return null;
   return await response.json() as BlockedUserEntry[];
 }
 
@@ -47,6 +49,10 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
   const updateBlockList = useCallback(() => {
     // Get all the blocked users
     getBlockList(authToken).then((users) => {
+
+      // If the backend response failed, don't corrupt the state
+      if (users === null)
+        return;
 
       // Mutate the block list
       setBlockList((oldBlockList) => {

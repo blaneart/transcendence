@@ -16,7 +16,7 @@ interface AdminEntry {
   userID: number
 }
 
-async function getAdmins(authToken: string, roomName: string): Promise<AdminEntry[]>
+async function getAdmins(authToken: string, roomName: string): Promise<AdminEntry[] | null>
 {
   const response = await fetch(
     `http://127.0.0.1:3000/chat/admins/${roomName}/`,
@@ -27,10 +27,12 @@ async function getAdmins(authToken: string, roomName: string): Promise<AdminEntr
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response)
+    return null;
   return await response.json() as AdminEntry[];
 }
 
-async function getUsers(authToken: string): Promise<User[]>
+async function getUsers(authToken: string): Promise<User[] | null>
 {
   const response = await fetch(
     `http://127.0.0.1:3000/users/`,
@@ -41,6 +43,8 @@ async function getUsers(authToken: string): Promise<User[]>
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response.ok)
+    return null;
   return await response.json() as User[];
 }
 
@@ -61,8 +65,8 @@ const Admins: React.FC<AdminsProps> = ({authToken, socket, room}) => {
   const [selectedUserId, setSelectedUserId] = useState<number>();
 
   useEffect(() => {
-    getUsers(authToken).then((newUsers) => setUsers(newUsers));
-    getAdmins(authToken, room.name).then((newAdmins) => setAdmins(newAdmins));
+    getUsers(authToken).then(newUsers => newUsers !== null ? setUsers(newUsers) : null);
+    getAdmins(authToken, room.name).then(newAdmins => newAdmins === null ? null : setAdmins(newAdmins));
   }, [authToken, room.name]);
 
   const handleChange = (event: any) => {
@@ -78,7 +82,7 @@ const Admins: React.FC<AdminsProps> = ({authToken, socket, room}) => {
       roomName: room.name
     }
     socket.emit("makeAdmin", request);
-    getAdmins(authToken, room.name).then((newAdmins) => setAdmins(newAdmins));
+    getAdmins(authToken, room.name).then(newAdmins => newAdmins ? setAdmins(newAdmins) : null);
   }
 
   return (<div>

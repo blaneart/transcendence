@@ -10,7 +10,7 @@ interface IGameHistoryProps {
   authToken: string;
 }
 
-async function getGames(authToken: string): Promise<Game[]> {
+async function getGames(authToken: string): Promise<Game[] | null> {
 
   const response = await fetch("http://127.0.0.1:3000/games", {
     method: "GET",
@@ -19,6 +19,8 @@ async function getGames(authToken: string): Promise<Game[]> {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
 
   return jsonData as Game[];
@@ -33,6 +35,8 @@ const GameHistory: React.FC<IGameHistoryProps> = ({
 
   const refreshGames = useCallback(() => {
     getGames(authToken).then(newGames => {
+      if (newGames === null)
+        return;
       setGames(newGames);
     });
   }, [authToken]);

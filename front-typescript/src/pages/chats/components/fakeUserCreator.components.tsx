@@ -9,7 +9,7 @@ interface FakeUserCreatorProps {
 
 
 // Get the profile information
-async function getMe(authToken: string): Promise<User> {
+async function getMe(authToken: string): Promise<User | null> {
 
   // Make a request to backend
   const response = await fetch('http://127.0.0.1:3000/profile/me', {
@@ -19,6 +19,9 @@ async function getMe(authToken: string): Promise<User> {
       'Authorization': `Bearer ${authToken}`
     },
   });
+
+  if (!response.ok)
+    return null;
   // Return the user info
   const jsonData = await response.json();
   return jsonData as User;

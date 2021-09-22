@@ -5,7 +5,6 @@ import { Room } from '../chats.types';
 import RoomLink from "./roomLink.component";
 import DirectList from "../direct/directList.component";
 import { Settings } from "../../../App.types";
-import StyledButton from "./styledButton.component";
 
 interface RoomListProps {
   authToken: string
@@ -14,7 +13,7 @@ interface RoomListProps {
 }
 
 // Get all open rooms from the backend
-async function getRooms(authToken: string): Promise<Room[]> {
+async function getRooms(authToken: string): Promise<Room[] | null> {
   // Perform the request to backend
   const response = await fetch("http://127.0.0.1:3000/chat/rooms", {
     method: "GET",
@@ -23,23 +22,12 @@ async function getRooms(authToken: string): Promise<Room[]> {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+    return null;
   // Read response as JSON
   const jsonData = await response.json();
   // Cast response to an array of rooms
   return jsonData as Room[];
-}
-
-
-async function leaveRoom(authToken: string, roomID: number, onLeave: Function) {
-  // Perform the request to backend
-  await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
-    },
-  });
-  onLeave();
 }
 
 async function addRoom(authToken: string, roomID: number, onAdd: Function) {
@@ -62,7 +50,8 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   const refreshRooms = useCallback(() => {
     // Get all rooms from the backend and add them to state
     getRooms(authToken).then(newRooms => {
-      setRooms(newRooms);
+      if (newRooms !== null)
+        setRooms(newRooms);
     });
 
   }, [authToken]);

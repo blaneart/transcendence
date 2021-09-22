@@ -55,7 +55,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     /* uid of the game room */
     const [gameId, setGameId] = useState<string>('no id');
 
-    const [socket, setSocket] = useState<Socket>(() => {
+    const [socket] = useState<Socket>(() => {
       const initialState = io(ENDPOINT,
           {
             auth: {
@@ -147,9 +147,14 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
           },
           body: JSON.stringify(data),
         });
+
+        document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
+        
+        if (!response.ok)
+          return null;
+        
         const jsonData = await response.json();
         const userUpdate = jsonData as User;
-        document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
         setUser(userUpdate);
       }
 

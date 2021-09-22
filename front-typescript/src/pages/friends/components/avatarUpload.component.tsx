@@ -21,6 +21,9 @@ async function uploadHandler(authToken: string, setUser: Function) {
     body: data
   })
 
+  if (!response.ok)
+    return;
+
   const jsonData = await response.json();
   const userUpdate = jsonData as User;
 
@@ -37,6 +40,9 @@ async function removeHandler(authToken: string, setUser: Function) {
       'Authorization': `Bearer ${authToken}`
     },
   })
+
+  if (!response.ok)
+    return;
 
   const jsonData = await response.json();
   const userUpdate = jsonData as User;

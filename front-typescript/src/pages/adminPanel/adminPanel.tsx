@@ -8,7 +8,7 @@ interface AdminPanelProps {
   user: User
 }
 
-async function getUsers(authToken: string): Promise<User[]> {
+async function getUsers(authToken: string): Promise<User[]|null> {
 
   const response = await fetch("http://127.0.0.1:3000/users", {
     method: "GET",
@@ -17,65 +17,55 @@ async function getUsers(authToken: string): Promise<User[]> {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
 
   return jsonData as User[];
 }
 
-async function banUser(authToken: string, userId: number): Promise<User[]> {
+async function banUser(authToken: string, userId: number) {
 
-  const response = await fetch(`http://127.0.0.1:3000/profile/ban/${userId}`, {
+  await fetch(`http://127.0.0.1:3000/profile/ban/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
-  const jsonData = await response.json();
-
-  return jsonData as User[];
 }
 
-async function forgiveUser(authToken: string, userId: number): Promise<User[]> {
+async function forgiveUser(authToken: string, userId: number) {
 
-  const response = await fetch(`http://127.0.0.1:3000/profile/forgive/${userId}`, {
+  await fetch(`http://127.0.0.1:3000/profile/forgive/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
-  const jsonData = await response.json();
-
-  return jsonData as User[];
 }
 
-async function promoteUser(authToken: string, userId: number): Promise<User[]> {
+async function promoteUser(authToken: string, userId: number) {
 
-  const response = await fetch(`http://127.0.0.1:3000/profile/makeAdmin/${userId}`, {
+  await fetch(`http://127.0.0.1:3000/profile/makeAdmin/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
-  const jsonData = await response.json();
-
-  return jsonData as User[];
 }
 
-async function demoteUser(authToken: string, userId: number): Promise<User[]> {
+async function demoteUser(authToken: string, userId: number) {
 
-  const response = await fetch(`http://127.0.0.1:3000/profile/demote/${userId}`, {
+  await fetch(`http://127.0.0.1:3000/profile/demote/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
-  const jsonData = await response.json();
-
-  return jsonData as User[];
 }
 
 
@@ -83,7 +73,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
   const [users, setUsers] = useState<User[]>([]);
 
   const updateUsers = (authToken: string) => {
-    getUsers(authToken).then(update => setUsers(update));
+    getUsers(authToken).then(update => update === null ? null : setUsers(update));
   }
 
   useEffect(() => {

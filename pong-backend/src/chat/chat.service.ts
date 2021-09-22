@@ -13,6 +13,11 @@ export class ChatService {
   async createRoom(name: string, creatorId: number) {
     // Create a new room in the database
     const new_room = await db('room').returning('*').insert({ name: name, ownerID: creatorId });
+    
+    // Add new room to favourites
+    await db('my_rooms')
+      .returning('*')
+      .insert({ userID: creatorId, roomID: new_room[0].id });
     // Return the instance of the room
     return new_room[0];
   }
@@ -23,11 +28,15 @@ export class ChatService {
     return response;
   }
 
-  async getAllRooms() {
+  async getAllRooms(userID: number) {
     // Get all rooms in the database
     const rooms = await db('room')
       .join('users', 'users.id', '=', 'room.ownerID')
-      .select('room.id', 'room.name', 'room.ownerID', 'room.restricted', 'users.name as owner_name');
+      .leftJoin('my_rooms', function () {
+        this.on('my_rooms.roomID', '=', 'room.id')
+        .andOn('my_rooms.userID', '=', userID)
+      })
+      .select('room.id', 'room.name', 'room.ownerID', 'room.restricted', 'users.name as owner_name', 'my_rooms.userID as fav');
     // Return all of the rooms
     return rooms;
   }
@@ -60,6 +69,13 @@ export class ChatService {
     const new_participation = await db('participants')
       .returning('*')
       .insert({ userID: userID, roomID: roomID });
+
+    // Add the room to favourites
+    await db('my_rooms')
+      .insert({ userID: userID, roomID: roomID })
+      .onConflict(['userID', 'roomID'])
+      .ignore();
+    console.log("insert");
     // Return the created participation
     return new_participation[0];
   }
@@ -439,5 +455,22 @@ export class ChatService {
     const response = await db('directmessages').returning('*')
       .insert({ directID: directId, senderID: senderId, message: message, type: type, receiverId: receiverId });
     return response[0]
+  }
+
+  async removeRoomFromFavs(roomID: number, userID: number)
+  {
+    const response = await db('my_rooms').where({ roomID: roomID, userID: userID }).delete();
+
+    return response;
+  }
+
+  async addRoom(roomID: number, userID: number)
+  {
+    // Add the room to favourites
+    const response = await db('my_rooms')
+      .returning('*')
+      .insert({ userID: userID, roomID: roomID });
+
+    return response[0];
   }
 }

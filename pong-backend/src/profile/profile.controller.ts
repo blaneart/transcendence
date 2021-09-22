@@ -98,7 +98,7 @@ export class ProfileController {
     if (!target)
       throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
 
-    if (target.owner)
+    if (target.owner === true)
       throw new HttpException("You can't demote the owner of the site.", HttpStatus.FORBIDDEN);
 
     return await this.profileService.demote(param.id);

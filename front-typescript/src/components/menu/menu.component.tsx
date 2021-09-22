@@ -90,7 +90,7 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
     ]
 
     if (user && (user.owner || user.admin)) {
-      if (sections.length === 9)
+      if (sections.length === 10)
       {
         sections.push(
           {

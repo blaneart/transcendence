@@ -122,7 +122,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
             <MessageAvatar user={member} /><p className="px-4 text-xl">{member.name}</p>
             </div>
             {
-              member.owner ? <p>Proud owner</p> : member.id === user.id ? <p>Your Honour</p> : <button onClick={() => handleDemote(user.id)} className="py-4 px-10 text-xl bg-white rounded-lg bg-red-300 font-bold border-solid border-red-400 hover:bg-red-400 border-3 text-red-600 shadow-lg">Demote</button>
+              member.owner ? <p>Proud owner</p> : member.id === user.id ? <p>Your Honour</p> : <button onClick={() => handleDemote(member.id)} className="py-4 px-10 text-xl bg-white rounded-lg bg-red-300 font-bold border-solid border-red-400 hover:bg-red-400 border-3 text-red-600 shadow-lg">Demote</button>
             }
             
           </div>

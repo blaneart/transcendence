@@ -21,7 +21,7 @@ import { ProfileService } from './profile/profile.service';
 import { AchievementService } from './achievement/achievement.service';
 import { GameService } from './game/game.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { fakeUserDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto, setEloDto, saveGameDto } from './app.dto';
+import { fakeUserBodyDto, fakeUserParamDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto, setEloDto, saveGameDto } from './app.dto';
 import path from 'path';
 
 const multer = require('multer');
@@ -55,8 +55,6 @@ export class AppController {
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
   @Post('userById')
   async getUserById(@Body() body: getUserByIdDto) {
-    console.log('userById');
-    console.log(body.value);
     const user = await this.profileService.getUserById(body.value);
     return user;
   }
@@ -187,7 +185,7 @@ export class AppController {
   }
 
   @Post('/fakeUser/:newName')
-  async createFakeUser(@Param() param: fakeUserDto)
+  async createFakeUser(@Body() body: fakeUserBodyDto, @Param() param: fakeUserParamDto)
   {
     // Check that the user doesn't exist
     const nowUser = await this.profileService.getUserByName(param.newName);
@@ -198,6 +196,15 @@ export class AppController {
       throw new HttpException("User already exists", HttpStatus.CONFLICT);
     }
 
+    // puts your status to 0 if you are already logged in
+    if (body.id !== 0)
+    {
+      console.log('status = 0');
+      await this.profileService.updateUserById(
+        body.id, {
+        status: 0,
+      });
+    }
     // Create a new user
     const newUser = await this.profileService.createFakeUser(param.newName);
     // Add this user to JWT

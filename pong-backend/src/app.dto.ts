@@ -52,7 +52,13 @@ export class setGamesDto {
   wins: number
 }
 
-export class fakeUserDto {
+export class fakeUserBodyDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number
+}
+
+export class fakeUserParamDto {
   @IsString()
   @IsNotEmpty()
   newName: string

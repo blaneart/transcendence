@@ -4,6 +4,7 @@ export interface Room {
   ownerID: number
   owner_name: string
   restricted: boolean
+  fav: number | null
 }
 
 // The public information about a user

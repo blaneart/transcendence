@@ -11,11 +11,12 @@ export class ChatController {
   }
 
   // Return all rooms
+  @UseGuards(JwtAuthGuard)
   @Get('/rooms')
-  async allRooms()
+  async allRooms(@Request() req)
   {
     // Get the rooms from the service
-    return await this.chatService.getAllRooms();
+    return await this.chatService.getAllRooms(req.user.id);
   }
 
   // Create a new room with a given name
@@ -173,5 +174,22 @@ export class ChatController {
       throw new HttpException("Direct conversation with this user already exists.", HttpStatus.CONFLICT);
     return await this.chatService.createDirect(request.user.id, id);
   }
+
+  // Remove a room from 'My rooms'
+  @UseGuards(JwtAuthGuard)
+  @Delete('/favs/:id/')
+  async removeRoomFromFavs(@Request() request, @Param('id', ParseIntPipe) id: number)
+  {
+    await this.chatService.removeRoomFromFavs(id, request.user.id,);
+  }
+
+  // Remove a room from 'My rooms'
+  @UseGuards(JwtAuthGuard)
+  @Put('/favs/:id/')
+  async addRoomToFavs(@Request() request, @Param('id', ParseIntPipe) id: number)
+  {
+    await this.chatService.addRoom(id, request.user.id);
+  }
+
 
 }

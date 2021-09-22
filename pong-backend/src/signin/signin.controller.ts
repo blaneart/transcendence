@@ -197,6 +197,21 @@ async function createDirectMessages() {
     }
 }
 
+async function createMyRooms() {
+  const exists = await db.schema.hasTable('my_rooms');
+    if (!exists) {
+      await db.schema.createTable('my_rooms', function(t) {
+        t.increments('id').primary();
+        t.integer('userID');
+        t.integer('roomID');
+
+        t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
+        t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding direct
+        t.unique(['userID', 'roomID']);
+      });
+    }
+}
+
 const dbHost = process.env.DB_HOST || "127.0.0.1"
 console.log(`Will be connecting to database at: ${dbHost}`)
 const dbPort = process.env.DB_PORT || "8001"
@@ -225,6 +240,7 @@ export const db = knex({
     .then(() => createAdmins())
     .then(() => createDirects())
     .then(() => createDirectMessages())
+    .then(() => createMyRooms());
 
 
 @Controller('signin')

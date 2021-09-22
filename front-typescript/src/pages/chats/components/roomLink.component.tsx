@@ -23,6 +23,28 @@ async function deleteRoom(authToken: string, roomName: string) {
   });
 }
 
+async function leaveRoom(authToken: string, roomID: number, onLeave: Function) {
+  // Perform the request to backend
+  const response = await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  onLeave();
+}
+
+interface DangerButtonProps {
+  onClick: React.MouseEventHandler<HTMLButtonElement>
+  children: any
+}
+
+const DangerButton: React.FC<DangerButtonProps> = ({onClick, children}) => {
+  return (
+  <button className="py-2 px-4 hover:bg-red-400 hover:text-white bg-red-300 text-red-600 shadow rounded-lg border-solid border-1 border-red-400 " onClick={onClick}>{children}</button>
+  );
+}
 
 const RoomLink: React.FC<RoomLinkParams> = ({ authToken, room, onDelete, userId }) => {
   const deleteHandler = () => {
@@ -30,9 +52,14 @@ const RoomLink: React.FC<RoomLinkParams> = ({ authToken, room, onDelete, userId 
   }
 
   return (
-    <div className="flex flex-row">
-      <Link to={`/chats/${room.name}`}>{room.name}, owner: {room.owner_name}</Link>
-      <div className="px-4 ">{room.ownerID === userId ? <StyledButton onClick={deleteHandler}>Delete</StyledButton> : null}</div>
+    <div className="bg-gray-100 bg-opacity-25 flex mb-4 flex-row rounded-lg shadow-lg hover:bg-opacity-50">
+      <div className="flex-1 flex flex-row items-center">
+        <div className="px-4 py-3 flex-1"><Link to={`/chats/${room.name}`}>{room.name}, owner: {room.owner_name}</Link></div>
+        <div className="px-4">{room.ownerID === userId
+         ? <DangerButton onClick={deleteHandler}>Delete</DangerButton>
+         : <DangerButton onClick={() => {leaveRoom(authToken, room.id, onDelete)}}>Leave</DangerButton>}
+         </div>
+      </div>
     </div>
   );
 }

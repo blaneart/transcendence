@@ -296,7 +296,7 @@ function App() {
   // On auth token change, re-retreive user state
   useEffect(() => {
     // If getMe fails (we're banned), log out
-    if (authToken && authToken != "")
+    if (authToken && authToken !== "")
       getMe(authToken).then((me: User | null) => me ? setUser(me) : completeLogOut());
   }, [authToken]);
 

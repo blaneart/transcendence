@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 
-import { User, Settings } from "../../App.types";
+import { Settings } from "../../App.types";
 import ChangeSettingsButton from "./settingsButton.component";
 
 interface ISettingsProps {

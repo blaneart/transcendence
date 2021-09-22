@@ -32,7 +32,7 @@ async function getRooms(authToken: string): Promise<Room[]> {
 
 async function leaveRoom(authToken: string, roomID: number, onLeave: Function) {
   // Perform the request to backend
-  const response = await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
+  await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -44,7 +44,7 @@ async function leaveRoom(authToken: string, roomID: number, onLeave: Function) {
 
 async function addRoom(authToken: string, roomID: number, onAdd: Function) {
   // Perform the request to backend
-  const response = await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
+  await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

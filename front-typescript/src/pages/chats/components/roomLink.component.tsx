@@ -25,7 +25,7 @@ async function deleteRoom(authToken: string, roomName: string) {
 
 async function leaveRoom(authToken: string, roomID: number, onLeave: Function) {
   // Perform the request to backend
-  const response = await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
+  await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

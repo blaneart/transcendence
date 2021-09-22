@@ -192,7 +192,7 @@ const RouteGuest: React.FC<IGuest> = ({user, settings, difficulty, authToken,
       <Ruleset user={user}/>
     </Route>
     <Route exact path="/cheats">
-      <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
+      <FakeUserCreator loggedIn={0} setAuthToken={setAuthToken} setUser={setUser} />
     </Route>
     <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings} /></Route>
   </Switch>  </>);
@@ -215,7 +215,7 @@ const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
         <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={settings} />
       </Route>
       <Route path="/cheats">
-        <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
+        <FakeUserCreator loggedIn={user?.id} setAuthToken={setAuthToken} setUser={setUser} />
       </Route>
       <Route path="/play">
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>

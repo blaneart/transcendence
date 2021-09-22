@@ -3,6 +3,7 @@ import { User } from '../../../App.types';
 
 
 interface FakeUserCreatorProps {
+  loggedIn: number | undefined
   setAuthToken: Function
   setUser: Function
 }
@@ -28,16 +29,24 @@ async function getMe(authToken: string): Promise<User | null> {
 }
 
 
-const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ setAuthToken, setUser }) => {
+const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToken, setUser }) => {
   const [newName, setNewName] = useState<string>();
 
   const submitHandler = async (e: any) => {
     e.preventDefault();
     // Make a response to backend
+
+    const data = {
+      id: loggedIn
+    };
     const response = await fetch(
       `http://127.0.0.1:3000/fakeUser/${newName}/`,
       {
-        method: "POST"
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
       });
 
     if (!response.ok) {

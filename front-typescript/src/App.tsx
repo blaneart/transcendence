@@ -184,7 +184,7 @@ const RouteGuest: React.FC<IGuest> = ({user, settings, difficulty, authToken,
     <Route exact path="/cheats">
       <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
     </Route>
-    <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={maps} /></Route>
+    <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings} /></Route>
   </Switch>  </>);
 }
 
@@ -254,7 +254,7 @@ const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
           <Room />
         </Watchdog>
       </Route>
-      <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={maps}  /></Route>
+      <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings}  /></Route>
     </Switch></> );
 }
 

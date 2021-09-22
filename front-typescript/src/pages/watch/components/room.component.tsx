@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Watcher from './draw-watch';
 import GameHeader from '../../game/components/game-header/game-header.component';
@@ -8,7 +8,7 @@ import './end-watch-menu.styles.scss';
 const ENDPOINT = "http://127.0.0.1:3002";
 
 const Room = () => {
-    var watcher: Watcher;
+    const watcher = useRef<Watcher|null>(null);
     // const { from } = location.state;
     const [socket] = useState<Socket>(() => {
         const initialState = io(ENDPOINT);
@@ -21,15 +21,10 @@ const Room = () => {
 
     const { room } = useParams<{ room: string }>();
 
-    useEffect(() => {
-
+    useEffect(()=> {
         socket.on('playersNames', (leftName, rightName) => {
             setLeftPlayerName(leftName);
             setRightPlayerName(rightName);
-            console.log('leftPlayerName', leftPlayerName);
-            console.log('new leftPlayerName', leftName);
-            console.log('rightPlayerName', rightPlayerName);
-            console.log('new rightPlayerName', rightName);
         })
         socket.on('endGame', (abandonned: string) => {
             setAbandonned(abandonned);
@@ -37,21 +32,24 @@ const Room = () => {
         socket.on('winner', (winner: string) => {
             setWinner(winner)
         })
-        console.log('room =', room);
+    }, [socket])
+
+    useEffect(() => {
         socket.emit('watchMatch', room);
         let canvas = document.getElementById('forCanvas');
         if (canvas)
             canvas.style.opacity = '1';
-        watcher = new Watcher(canvas!, socket);
+        watcher.current = new Watcher(canvas!, socket);
         // watcher.start();
 
-    }, [])
+    }, [socket, room])
+
     useEffect(() => {
         return (() => {
-            watcher.end();
+            watcher.current!.end();
             socket.disconnect();
         })
-    }, [])
+    }, [socket])
 
     return (
         <div className='game'>

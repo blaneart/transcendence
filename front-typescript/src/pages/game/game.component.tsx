@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Pong from '../../game/game';
 import EndGameMenu from '../../components/end-game-menu/end-game-menu.component';
 import './game.styles.scss';
@@ -65,13 +65,14 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       return initialState;
     });
     var ratio = 0.5;
-
+    var counter = useRef(0);
+    console.log('counter', counter.current++)
     socket.emit('gameSettings', gameSettings);
     /* event listener */
 
     const [enemyName, setEnemyName] = useState<string>('None');
 
-    var pong: Pong | null = null;
+    const pong = useRef<Pong|null>(null);
 
     /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {
@@ -127,9 +128,9 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
   /* function that starts the game, destroys game when ended */
   useEffect(() => {
     
-    if (pong)
+    if (pong.current)
     {
-      pong.end();
+      pong.current.end();
       setIsGameEnded('game');
     }
     
@@ -164,10 +165,10 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
 
     function mouseTracker(event: MouseEvent) 
     {
-      let old_pos = pong!.players[id].pos.y;
-      pong!.players[id].pos.y = (event.offsetY - (pong!.players[id].size.y / 2));
-      let d_pos = pong!.players[id].pos.y - old_pos;
-      socket.emit('playerPos', pong!.players[id].pos.y / pong!.ratio, d_pos / pong!.ratio);
+      let old_pos = pong.current!.players[id].pos.y;
+      pong.current!.players[id].pos.y = (event.offsetY - (pong.current!.players[id].size.y / 2));
+      let d_pos = pong.current!.players[id].pos.y - old_pos;
+      socket.emit('playerPos', pong.current!.players[id].pos.y / pong.current!.ratio, d_pos / pong.current!.ratio);
     }
     setIsGameEnded('game')
     if (ready)
@@ -177,9 +178,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         canvas.style.opacity = '1';
       if (canvas !== null)
       {
-        console.log('frontSettings.maps', frontSettings.maps)
-        console.log('frontSettings.powerUps', frontSettings.powerUps)
-          pong = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps}, ratio);
+          pong.current = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps}, ratio);
           console.log(id)
 
           canvas.addEventListener('mousemove', mouseTracker);
@@ -190,12 +189,12 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         //       pong.players[id ? 0 : 1].pos.y = pong.players[0].pos.y + 25;
         // });
       return () => {
-          socket?.emit('quitGame', pong!.players[0].score, pong!.players[1].score)
-          pong!.end();
+          socket?.emit('quitGame', pong.current!.players[0].score, pong.current!.players[1].score)
+          pong.current!.end();
         }
       }
     }
-}, [ready]);
+}, [ready, authToken, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user]);
 
 
 /* willUnmount game destruction */

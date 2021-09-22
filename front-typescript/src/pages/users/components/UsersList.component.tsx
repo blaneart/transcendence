@@ -12,7 +12,7 @@ interface IUsersListProps {
   setAuthToken: React.Dispatch<React.SetStateAction<string>>;
 }
 
-async function getUsers(authToken: string): Promise<User[]> {
+async function getUsers(authToken: string): Promise<User[] | null> {
 
   const response = await fetch("http://127.0.0.1:3000/users", {
     method: "GET",
@@ -36,6 +36,8 @@ const UsersList: React.FC<IUsersListProps> = ({
 
   const refreshUsers = useCallback(() => {
     getUsers(authToken).then(newUsers => {
+      if (newUsers === null)
+        return;
       setUsers(newUsers);
     });
   }, [authToken]);

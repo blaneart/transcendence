@@ -40,6 +40,8 @@ async function toggleTwofa(
     },
     body: JSON.stringify(data),
   });
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
   console.log(jsonData);
   const userUpdate = jsonData as User;
@@ -49,7 +51,7 @@ async function toggleTwofa(
   }
 }
 
-async function getUserByName( authToken: string, name: string)
+async function getUserByName( authToken: string, name: string): Promise<User | null>
 {
   const data = {
     value: name,
@@ -62,6 +64,8 @@ async function getUserByName( authToken: string, name: string)
     },
     body: JSON.stringify(data),
   });
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
 
   return jsonData as User;

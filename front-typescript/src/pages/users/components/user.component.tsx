@@ -8,7 +8,7 @@ interface IUserProps {
   authToken: string;
 }
 
-async function getFriend(id1: number, id2: number, authToken: string) {
+async function getFriend(id1: number, id2: number, authToken: string): Promise<boolean | null> {
 
     const response = await fetch(`http://127.0.0.1:3000/friends/exist/${id1}/${id2}`, {
       method: "GET",
@@ -17,6 +17,8 @@ async function getFriend(id1: number, id2: number, authToken: string) {
         Authorization: `Bearer ${authToken}`,
       },
     });
+    if (!response.ok)
+      return null;
     const jsonData = await response.json();
 
     return jsonData as boolean;
@@ -54,6 +56,8 @@ const UserComponent: React.FC<IUserProps> = ({
 
   const refreshFriend = useCallback(() => {
     getFriend(id1, user.id, authToken).then(newRelationship => {
+      if (newRelationship === null)
+        return;
       setFriend(newRelationship);
     });
   }, [authToken, id1, user.id]);

@@ -39,6 +39,9 @@ async function removeHandler(authToken: string, setUser: Function) {
     },
   })
 
+  if (!response.ok)
+    return null;
+
   const jsonData = await response.json();
   const userUpdate = jsonData as User;
 

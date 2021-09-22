@@ -27,7 +27,7 @@ async function Click(
       value: newStatus,
     };
 
-    await fetch("http://127.0.0.1:3000/account/setStatus", {
+    fetch("http://127.0.0.1:3000/account/setStatus", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

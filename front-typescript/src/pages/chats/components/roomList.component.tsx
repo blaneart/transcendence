@@ -64,7 +64,7 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   const refreshRooms = useCallback(() => {
     // Get all rooms from the backend and add them to state
     getRooms(authToken).then(newRooms => {
-      if (newRooms)
+      if (newRooms !== null)
         setRooms(newRooms);
     });
 

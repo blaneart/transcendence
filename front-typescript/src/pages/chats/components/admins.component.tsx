@@ -65,8 +65,8 @@ const Admins: React.FC<AdminsProps> = ({authToken, socket, room}) => {
   const [selectedUserId, setSelectedUserId] = useState<number>();
 
   useEffect(() => {
-    getUsers(authToken).then(newUsers => newUsers ? setUsers(newUsers) : null);
-    getAdmins(authToken, room.name).then(newAdmins => newAdmins ? setAdmins(newAdmins) : null);
+    getUsers(authToken).then(newUsers => newUsers !== null ? setUsers(newUsers) : null);
+    getAdmins(authToken, room.name).then(newAdmins => newAdmins === null ? null : setAdmins(newAdmins));
   }, [authToken, room.name]);
 
   const handleChange = (event: any) => {

@@ -147,9 +147,14 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
           },
           body: JSON.stringify(data),
         });
+
+        document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
+        
+        if (!response.ok)
+          return null;
+        
         const jsonData = await response.json();
         const userUpdate = jsonData as User;
-        document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
         setUser(userUpdate);
       }
 

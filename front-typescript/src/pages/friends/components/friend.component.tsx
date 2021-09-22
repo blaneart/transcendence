@@ -9,7 +9,7 @@ interface IFriendProps {
 }
 
 
-async function getFriendById(id2: number, authToken: string)
+async function getFriendById(id2: number, authToken: string): Promise<User | null>
 {
   const data = {
     value: id2,
@@ -22,6 +22,8 @@ async function getFriendById(id2: number, authToken: string)
     },
     body: JSON.stringify(data),
   });
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
 
   return jsonData as User;
@@ -55,8 +57,9 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
   const [bool, setBool] = useState<Boolean>(true);
 
   const refreshFriend = useCallback(() => {
-    console.log('refresh Friend')
     getFriendById(id2, authToken).then(newFriend => {
+      if (newFriend === null)
+        return null;
       setFriend(newFriend);
     });
   }, [authToken, id2]);

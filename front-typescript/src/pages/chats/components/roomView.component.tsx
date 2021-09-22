@@ -49,6 +49,8 @@ async function getMuted(authToken: string, roomName: string): Promise<boolean | 
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response.ok)
+    return null;
   return await response.json();
 }
 
@@ -62,10 +64,12 @@ async function getMutedUntil(authToken: string, roomName: string) {
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response.ok)
+    return null;
   return await response.json();
 }
 
-async function getAmAdmin(authToken: string, roomName: string) {
+async function getAmAdmin(authToken: string, roomName: string): Promise<boolean | null> {
   const response = await fetch(`http://127.0.0.1:3000/chat/admins/${roomName}/me/`,
     {
       method: "GET",
@@ -74,6 +78,8 @@ async function getAmAdmin(authToken: string, roomName: string) {
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response.ok)
+    return null;
   return await response.json();
 }
 
@@ -98,11 +104,14 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
 
   useEffect(() => {
     // Get the current room instance
-    getRoom(authToken, roomName).then((room) => setRoom(room));
+    getRoom(authToken, roomName).then((update) => update !== null ? setRoom(update) : null);
 
     // Find out if we're muted
     getMuted(authToken, roomName).then(async (isMuted) => {
       // Set the state
+      if (isMuted === null)
+        return;
+      
       setMuted(isMuted);
 
       // Setup the re-check once (if) we get un-muted
@@ -116,14 +125,14 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
           const msToWait = mutedUntil.getTime() - now.getTime();
           // Schedule to re-check at that moment
           setTimeout(() => {
-            getMuted(authToken, roomName).then((isMuted) => setMuted(isMuted));
+            getMuted(authToken, roomName).then(isMuted => isMuted !== null ? setMuted(isMuted) : null);
           }, msToWait);
         }
 
       }
     });
 
-    getAmAdmin(authToken, roomName).then((amAdminUpdate) => setAmAdmin(amAdminUpdate));
+    getAmAdmin(authToken, roomName).then((amAdminUpdate) => amAdminUpdate !== null ? setAmAdmin(amAdminUpdate) : null);
 
     // Handle the messages that were sent before we joined
     socket.on("initialMessages", (msg) => {
@@ -212,7 +221,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
 
       // Re-check if we're unmuted after minutes pass
       setTimeout(() => {
-        getMuted(authToken, roomName).then((isMuted) => setMuted(isMuted));
+        getMuted(authToken, roomName).then((isMuted) => isMuted ? setMuted(isMuted) : null);
       }, minutes * 60 * 1000);
     })
 

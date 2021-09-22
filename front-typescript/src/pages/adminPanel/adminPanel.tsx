@@ -73,7 +73,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
   const [users, setUsers] = useState<User[]>([]);
 
   const updateUsers = (authToken: string) => {
-    getUsers(authToken).then(update => update ? setUsers(update) : null);
+    getUsers(authToken).then(update => update === null ? null : setUsers(update));
   }
 
   useEffect(() => {

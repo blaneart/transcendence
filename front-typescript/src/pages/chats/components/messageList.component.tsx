@@ -51,8 +51,8 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
     getBlockList(authToken).then((users) => {
 
       // If the backend response failed, don't corrupt the state
-      if (!users)
-        return null;
+      if (users === null)
+        return;
 
       // Mutate the block list
       setBlockList((oldBlockList) => {

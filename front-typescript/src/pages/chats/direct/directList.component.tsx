@@ -11,7 +11,7 @@ interface DirectListProps {
 };
 
 // Get all direct conversations we already have
-async function getDirects(authToken: string): Promise<Direct[]> {
+async function getDirects(authToken: string): Promise<Direct[] | null> {
   const response = await fetch("http://127.0.0.1:3000/chat/directs/me/", {
     method: "GET",
     headers: {
@@ -19,6 +19,8 @@ async function getDirects(authToken: string): Promise<Direct[]> {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+    return null;
   // Read response as JSON
   const jsonData = await response.json();
   // Cast response to an array of rooms
@@ -27,7 +29,7 @@ async function getDirects(authToken: string): Promise<Direct[]> {
 }
 
 // Get all existing users
-async function getUsers(authToken: string): Promise<User[]> {
+async function getUsers(authToken: string): Promise<User[] | null> {
   const response = await fetch(
     `http://127.0.0.1:3000/users/`,
     {
@@ -37,6 +39,8 @@ async function getUsers(authToken: string): Promise<User[]> {
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response.ok)
+    return null;
   return await response.json() as User[];
 }
 
@@ -54,9 +58,9 @@ async function createDirect(authToken: string, userB: number) {
   if (!response.ok)
   {
     if (response.status === 409)
-      alert("A direct conversation already exists with this person.");
+      return alert("A direct conversation already exists with this person.");
     else
-      alert("Error creating a direct conversation");
+      return alert("Error creating a direct conversation");
   }
   return await response.json();
 }
@@ -74,10 +78,10 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
 
   useEffect(() => {
     // Get all the directs we already have
-    getDirects(authToken).then((newDirects) => setDirects(newDirects));
+    getDirects(authToken).then(newDirects => newDirects !== null ? setDirects(newDirects) : null);
 
     // Get all users that we can talk to in the future
-    getUsers(authToken).then((update) => setUsers(update));
+    getUsers(authToken).then(update => update !== null ? setUsers(update) : null);
   }, [authToken]);
 
   // Save changed user ID
@@ -97,7 +101,7 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
     await createDirect(authToken, parseInt(selectedUserId));
     setSelectedUserId("-1");
     // Update the list direct conversations
-    getDirects(authToken).then((newDirects) => setDirects(newDirects));
+    getDirects(authToken).then((newDirects) => newDirects !== null ? setDirects(newDirects) : null);
   }
 
   return (<div>

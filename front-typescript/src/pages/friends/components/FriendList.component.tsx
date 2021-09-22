@@ -11,7 +11,7 @@ interface IFriendsListProps {
   setAuthToken: React.Dispatch<React.SetStateAction<string>>;
 }
 
-async function getFriends(id1: number, authToken: string): Promise<number[]>  {
+async function getFriends(id1: number, authToken: string): Promise<number[] | null>  {
 
   const response = await fetch(`http://127.0.0.1:3000/friends/of/${id1}`, {
     method: "GET",
@@ -20,6 +20,8 @@ async function getFriends(id1: number, authToken: string): Promise<number[]>  {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
 
   return jsonData as number[];
@@ -33,6 +35,8 @@ const FriendList: React.FC<IFriendsListProps> = ({
 
   const refreshFriends = useCallback(() => {
     getFriends(user_logged.id, authToken).then(newFriends => {
+      if (newFriends === null)
+        return;
       setFriends(newFriends);
     });
   }, [authToken, user_logged.id]);

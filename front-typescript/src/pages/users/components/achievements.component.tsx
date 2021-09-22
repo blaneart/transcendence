@@ -53,7 +53,7 @@ const Achievements = ({user, authToken, setUser }: AchievementsProps) => {
   const [achievements, setAchievements] = useState([]);
 
   useEffect(() => {
-    getAchievements(user.id, authToken).then(res => res ? setAchievements(res) : null);
+    getAchievements(user.id, authToken).then(res => res !== null ? setAchievements(res) : null);
   }, [user.id, authToken]);
 
   

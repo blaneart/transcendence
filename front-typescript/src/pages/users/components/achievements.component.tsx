@@ -32,6 +32,8 @@ async function getAchievements(user_id: number, authToken: string) {
     },
   })
 
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
   const ach_ids = jsonData.map((element: any) => element.achievement_id);
   const achs = ach_ids.map((id: any) => achivs[id]);
@@ -51,7 +53,7 @@ const Achievements = ({user, authToken, setUser }: AchievementsProps) => {
   const [achievements, setAchievements] = useState([]);
 
   useEffect(() => {
-    getAchievements(user.id, authToken).then(res => setAchievements(res));
+    getAchievements(user.id, authToken).then(res => res ? setAchievements(res) : null);
   }, [user.id, authToken]);
 
   

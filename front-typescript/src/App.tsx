@@ -40,7 +40,7 @@ interface AuthResponse {
   access_token: string;
 }
 
-async function process42ApiRedirect(code: string): Promise<AuthResponse> {
+async function process42ApiRedirect(code: string): Promise<AuthResponse | null> {
   const data = {
     code: code
   };
@@ -51,7 +51,8 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse> {
     },
     body: JSON.stringify(data),
   });
-  //   console.log(data);
+  if (!response.ok)
+    return null;
   const jsonData = await response.json();
   return jsonData as AuthResponse;
 }
@@ -74,6 +75,9 @@ async function updateStatus(
     body: JSON.stringify(data),
   });
 
+  if (!response.ok)
+    return;
+
   const jsonData = await response.json();
   const userUpdated = jsonData as User;
 
@@ -81,7 +85,7 @@ async function updateStatus(
 }
 
 // Use a temporary grant and a 2fa code to obtain the permanent JWT
-async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
+async function validate2fa(code: string, tempAuthCode: string): Promise<AuthResponse | null> {
   const data = {
     code: code
   };
@@ -93,6 +97,9 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
     },
     body: JSON.stringify(data),
   });
+
+  if (!response.ok)
+    return null;
   //   console.log(data);
   const jsonData = await response.json();
   return jsonData as AuthResponse;
@@ -100,27 +107,30 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<any> {
 
 
 async function set42User(setUser: Function, setAuthToken: Function, code: string) {
-  let authResponse: AuthResponse = await process42ApiRedirect(code);
+  let authResponse: AuthResponse | null = await process42ApiRedirect(code);
   // If user has 2fa, we need to confirm 2fa first
-  if (authResponse.twofa) {
+  if (authResponse?.twofa) {
     const twofaCode = window.prompt("Please enter your 2fa code");
     if (!twofaCode) {
       alert('Next time, enter the code.');
       return;
     }
     authResponse = await validate2fa(twofaCode, authResponse.access_token); // rewrite authResponse with the complete one
-    if (!authResponse.user) // if the backend didn't send us the user, the code wasn't OK
+    if (!(authResponse?.user)) // if the backend didn't send us the user, the code wasn't OK
     {
       alert('Wrong or expired code. Try again.');
       return;
     }
   }
 
-  setUser(authResponse.user);
-  setAuthToken(authResponse.access_token);
-  updateStatus(setUser, authResponse.access_token);
-  // Save token in browser state
-  localStorage.setItem("pongToken", authResponse.access_token);
+  if (authResponse)
+  {
+    setUser(authResponse.user);
+    setAuthToken(authResponse.access_token);
+    updateStatus(setUser, authResponse.access_token);
+    // Save token in browser state
+    localStorage.setItem("pongToken", authResponse.access_token);
+  }
 }
 
 async function getMe(authToken: string): Promise<User | null> {

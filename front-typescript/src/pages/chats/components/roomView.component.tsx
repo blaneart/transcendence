@@ -23,7 +23,7 @@ interface RoomRouteParams {
 }
 
 // Get the current room instance
-async function getRoom(authToken: string, roomName: string) {
+async function getRoom(authToken: string, roomName: string): Promise<Room | null> {
   // Send the request to the backend
   const response = await fetch(
     `http://127.0.0.1:3000/chat/rooms/${roomName}/`,
@@ -34,11 +34,13 @@ async function getRoom(authToken: string, roomName: string) {
         Authorization: `Bearer ${authToken}`,
       },
     });
+  if (!response.ok)
+    return null;
   return await response.json() as Room;
 }
 
 // Check if we're muted in this chat
-async function getMuted(authToken: string, roomName: string) {
+async function getMuted(authToken: string, roomName: string): Promise<boolean | null> {
   const response = await fetch(`http://127.0.0.1:3000/chat/muted/${roomName}`,
     {
       method: "GET",

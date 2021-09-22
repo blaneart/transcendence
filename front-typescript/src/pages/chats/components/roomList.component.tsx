@@ -14,7 +14,7 @@ interface RoomListProps {
 }
 
 // Get all open rooms from the backend
-async function getRooms(authToken: string): Promise<Room[]> {
+async function getRooms(authToken: string): Promise<Room[] | null> {
   // Perform the request to backend
   const response = await fetch("http://127.0.0.1:3000/chat/rooms", {
     method: "GET",
@@ -23,6 +23,8 @@ async function getRooms(authToken: string): Promise<Room[]> {
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+    return null;
   // Read response as JSON
   const jsonData = await response.json();
   // Cast response to an array of rooms
@@ -62,7 +64,8 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   const refreshRooms = useCallback(() => {
     // Get all rooms from the backend and add them to state
     getRooms(authToken).then(newRooms => {
-      setRooms(newRooms);
+      if (newRooms)
+        setRooms(newRooms);
     });
 
   }, [authToken]);

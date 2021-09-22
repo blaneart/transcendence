@@ -11,11 +11,46 @@
 	margin-top: auto;
 	padding: 0;
 	text-align: center;
-	width: 180px;
-  }
+	width: 200px;
+    border-radius: 25px;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 7.5px 15px;
+    transition: transform 250ms;
+}
 
 .difficulty-item {
 	position: relative;
 	margin-top: 25px;
 	text-align: center;
+}
+
+.game-board {
+	display: inline-block;
+}
+
+.board-row:after {
+	clear: both;
+	content: "";
+	display:inline-block;
+}
+
+.button {
+    min-width: 30%;
+    height: 100px;
+    border-radius: 25px;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+    margin: 0 7.5px 15px;
+    transition: transform 250ms;
+    &:hover {
+        cursor: pointer;
+        transition: all 1s ease;
+        transform: scale(1.2);
+    }
 }

@@ -11,7 +11,6 @@ import Header from "./components/header/header.component";
 import Game from "./pages/game/game.component";
 import Users from "./pages/users/users.component";
 import Friends from "./pages/friends/friends.component";
-import maps from './components/maps-chooser/maps.component'
 
 import Chats from "./pages/chats/chats.component";
 import GameSettings from "./pages/game-settings/game-settings.component";
@@ -19,7 +18,6 @@ import { User, Settings } from "./App.types";
 import OfflineGame from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
-import Map from "./components/maps-chooser/maps-chooser.component";
 import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
@@ -173,15 +171,12 @@ const RouteGuest: React.FC<IGuest> = ({user, settings, difficulty, authToken,
     <Route exact path="/">
       <Menu user={user} />
     </Route>
-    <Route exact path="/playbots">
-      <Map history={history} />
-    </Route>
     <Route exact path="/game-settings">
       <GameSettings settings={settings} setSettings={setSettings} />
     </Route>
-    <Route exact path="/offline">
+    <Route exact path="/playbots">
       <Difficulty difficultyLvl={difficulty} />
-      <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps} />
+      <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={settings} />
     </Route>
     <Route exact path="/ruleset">
       <Ruleset user={user}/>
@@ -202,15 +197,12 @@ const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
       <Route exact path="/">
         <Menu user={user} />
       </Route>
-      <Route path="/playbots">
-        <Map history={history} />
-      </Route>
       <Route path="/game-settings">
         <GameSettings settings={settings} setSettings={setSettings} />
       </Route>
-      <Route path="/offline">
+      <Route path="/playbots">
         <Difficulty difficultyLvl={difficulty} />
-        <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps} />
+        <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={settings} />
       </Route>
       <Route path="/cheats">
         <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />

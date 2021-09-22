@@ -111,16 +111,17 @@ class Offline_Pong {
   constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any, ratio: number)
   {
     this.last_score = -1;
-	  this.curr_map = map.map;
-	  this.powerups = map.powerup;
-	  this.curr_powerUp = new PowerUp(ratio);
+	  this.curr_map = map.maps;
+	  this.powerups = map.powerUps;
     this._canvas = canvas as HTMLCanvasElement;
-    let size = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
+    let size = window.innerWidth < window.innerHeight * 4 / 3 ? window.innerWidth : window.innerHeight;
     this._canvas.width = size * 0.8;
-    this._canvas.height = size * 0.8;
+    this._canvas.height = size * 0.8 * 3 / 4;
     this.ratio = this._canvas.width / 800;
+    this.curr_powerUp = new PowerUp(this.ratio);
+
     this._context = this._canvas.getContext('2d');
-    this.ball = new Ball(ratio);
+    this.ball = new Ball(this.ratio);
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
     this.ball.pos.y = this._canvas.height / 2 - this.ball.size.y / 2;
     this.ball.vel.x = 0;
@@ -135,17 +136,17 @@ class Offline_Pong {
     this.audios[1].load();
     this.audios[2].load();
     this.players = [
-      new Player(-1, ratio),
-      new Player(difficultyBot.number + 1, ratio),
+      new Player(-1, this.ratio),
+      new Player(difficultyBot.number + 1, this.ratio),
     ]
 
 	if (this.curr_map === 1)
 	{
 		this.obstacles = [
-			new Rect(50 * ratio, 50 * ratio),
-			new Rect(50 * ratio, 50 * ratio),
-			new Rect(50 * ratio, 50 * ratio),
-			new Rect(50 * ratio, 50 * ratio)
+			new Rect(50 * this.ratio, 50 * this.ratio),
+			new Rect(50 * this.ratio, 50 * this.ratio),
+			new Rect(50 * this.ratio, 50 * this.ratio),
+			new Rect(50 * this.ratio, 50 * this.ratio)
 		]
 		this.obstacles[0].pos.x = this._canvas.width / 3 - this.obstacles[0].size.x / 2;
     this.obstacles[0].pos.y = this._canvas.height / 3 - this.obstacles[0].size.y / 2;
@@ -162,10 +163,10 @@ class Offline_Pong {
 	else if (this.curr_map === 2)
 	{
 		this.obstacles = [
-			new Rect(15 * ratio, 40 * ratio),
-			new Rect(15 * ratio, 80 * ratio),
-			new Rect(15 * ratio, 40 * ratio),
-			new Rect(15 * ratio, 80 * ratio)
+			new Rect(15 * this.ratio, 40 * this.ratio),
+			new Rect(15 * this.ratio, 80 * this.ratio),
+			new Rect(15 * this.ratio, 40 * this.ratio),
+			new Rect(15 * this.ratio, 80 * this.ratio)
 		]
 		this.obstacles[0].pos.x = this._canvas.width / 2 - this.obstacles[0].size.x / 2;
 		this.obstacles[0].pos.y = 0;
@@ -179,8 +180,8 @@ class Offline_Pong {
 	else
 		this.obstacles = [];
   this.auth = authToken;
-  this.players[0].pos.x = 20 * ratio;
-  this.players[1].pos.x = this._canvas.width - 20 * ratio - this.players[1].size.x;
+  this.players[0].pos.x = 20 * this.ratio;
+  this.players[1].pos.x = this._canvas.width - 20 * this.ratio - this.players[1].size.x;
   this.players[0].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
   this.players[1].pos.y = (this._canvas.height - this.players[0].size.y) / 2;
 
@@ -490,9 +491,9 @@ class Offline_Pong {
   update(dt: number, difficulty: any, map: any) {
     this.ball.pos.x += this.ball.vel.x * dt;
     this.ball.pos.y += this.ball.vel.y * dt;
-    let size = window.innerWidth < window.innerHeight ? window.innerWidth : window.innerHeight;
+    let size = window.innerWidth < window.innerHeight * 4 / 3 ? window.innerWidth : window.innerHeight;
     this._canvas.width = size * 0.8;
-    this._canvas.height = size * 0.8;
+    this._canvas.height = size * 0.8 * 3 / 4;
     if (this.ratio !== this._canvas.width / 800)
     {
       let old_ratio = this.ratio

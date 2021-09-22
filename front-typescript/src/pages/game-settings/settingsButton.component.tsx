@@ -1,5 +1,5 @@
-import React, { Component, MouseEvent } from 'react';
-import { User, Settings } from "../../App.types";
+import React from 'react';
+import { Settings } from "../../App.types";
 
 interface IButtonProps {
     name: string,

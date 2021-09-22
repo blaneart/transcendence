@@ -6,9 +6,6 @@ import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
 import { User, Settings } from "../../App.types";
 import { useParams } from 'react-router-dom';
-import RoomLink from '../chats/components/roomLink.component';
-
-
 
 const ENDPOINT = "ws://127.0.0.1:3002";
 
@@ -43,7 +40,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     const [id, setId] = useState<number>(3);
 
 
-    let frontSettings = {} as FrontSettings;
+    const [frontSettings, setFrontSettings] = useState<FrontSettings>({} as FrontSettings);
     if (!gameRoomName)
     {
       frontSettings.maps = gameSettings.maps;
@@ -71,7 +68,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
 
     socket.emit('gameSettings', gameSettings);
     /* event listener */
-    var mouse;
 
     const [enemyName, setEnemyName] = useState<string>('None');
 
@@ -109,8 +105,8 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       socket.on('setFrontSettings', (map, powerUps) => {
         console.log('map', map)
         console.log('powerUps', powerUps)
-        frontSettings.maps = map;
-        frontSettings.powerUps = powerUps;
+        let tmp = {} as FrontSettings; tmp.maps = map; tmp.powerUps = powerUps;
+        setFrontSettings(tmp);
       })
 
       socket.on('ready', () => {
@@ -124,7 +120,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
      socket.on('won', function(result: string, authToken: string) {
       socket.emit('leaveRoom');
     })
-  }, [restart, user]);
+  }, [restart, user, gameRoomName, userId, gameSettings, socket]);
 
 
 
@@ -202,7 +198,7 @@ useEffect(() => {
   return () => {
     socket?.disconnect();
   }
-}, [])
+}, [socket])
 
     return(
       <div className='game'>

@@ -1,4 +1,4 @@
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 
 class Vec {
   x: number;
@@ -74,7 +74,7 @@ class Watcher
     socket: Socket;
     constructor(canvas: HTMLElement, socket: Socket)
     {
-        this._canvas = <HTMLCanvasElement> canvas;
+        this._canvas = canvas as HTMLCanvasElement;
         this._context = this._canvas.getContext('2d');
         let lastTime: number;
         this.animation = 0;

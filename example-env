@@ -1,3 +1,5 @@
 #Rename this to .env, this way it will not be checked into git
 API_UID=YOUR_API_UID
 API_SECRET=YOUR_API_SECRET
+APP_SECRET=RANDOM
+FRONTEND_URL=http://127.0.0.1:3001

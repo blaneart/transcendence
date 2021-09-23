@@ -128,9 +128,9 @@ class Offline_Pong {
     this.ball.vel.y = 0;
     this.animation = 0;
     this.audios = [
-      new Audio("http://127.0.0.1:3000/audio/paddle_sound.mp3"),
-      new Audio("http://127.0.0.1:3000/audio/wall_sound.mp3"),
-      new Audio("http://127.0.0.1:3000/audio/score_sound.mp3")
+      new Audio(process.env.REACT_APP_API_URL + "/audio/paddle_sound.mp3"),
+      new Audio(process.env.REACT_APP_API_URL + "/audio/wall_sound.mp3"),
+      new Audio(process.env.REACT_APP_API_URL + "/audio/score_sound.mp3")
     ]
     this.audios[0].load();
     this.audios[1].load();

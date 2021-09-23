@@ -3,7 +3,7 @@ import CustomButton from '../custom-button/custom-button.component';
 const uuid = require("uuid");
 
 
-const REDIRECT_URL : string = "http://127.0.0.1:3001"; // 42 api will send the user back here
+const REDIRECT_URL : string = process.env.REACT_APP_FRONTEND_URL || "http://127.0.0.1:3001"; // 42 api will send the user back here
 let API_UID : string;
 if (process.env.REACT_APP_API_UID) {
   API_UID = process.env.REACT_APP_API_UID;

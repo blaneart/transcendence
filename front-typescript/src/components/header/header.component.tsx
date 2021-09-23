@@ -27,7 +27,7 @@ async function Click(
       value: newStatus,
     };
 
-    fetch("http://127.0.0.1:3000/account/setStatus", {
+    fetch(process.env.REACT_APP_API_URL + "/account/setStatus", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -13,7 +13,7 @@ async function uploadHandler(authToken: string, setUser: Function) {
   data.append('picture', input.files[0])
   // data.append('user', 'hubot')
 
-  const response = await fetch('http://127.0.0.1:3000/uploadAvatar', {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/uploadAvatar", {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${authToken}`
@@ -34,7 +34,7 @@ async function uploadHandler(authToken: string, setUser: Function) {
 
 async function removeHandler(authToken: string, setUser: Function) {
   
-  const response = await fetch('http://127.0.0.1:3000/removeAvatar', {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/removeAvatar", {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${authToken}`

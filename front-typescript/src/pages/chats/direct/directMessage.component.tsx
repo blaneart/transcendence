@@ -23,7 +23,7 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
   const handleBlock = async () => {
     // Send a response to the backend
     await fetch(
-      `http://127.0.0.1:3000/chat/block/${message.senderID}/`,
+      `${process.env.REACT_APP_API_URL}/chat/block/${message.senderID}/`,
       {
         method: "PUT",
         headers: {

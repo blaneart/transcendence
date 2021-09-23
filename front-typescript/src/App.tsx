@@ -42,7 +42,7 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse | null> 
   const data = {
     code: code
   };
-  const response = await fetch('http://127.0.0.1:3000/auth/login', {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/auth/login", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ async function updateStatus(
     value: newStatus,
   };
 
-  const response = await fetch("http://127.0.0.1:3000/account/setStatus", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/account/setStatus", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -87,7 +87,7 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<AuthResp
   const data = {
     code: code
   };
-  const response = await fetch('http://127.0.0.1:3000/auth/check2fa', {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/auth/check2fa", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
 
 async function getMe(authToken: string): Promise<User | null> {
 
-  const response = await fetch('http://127.0.0.1:3000/profile/me', {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/profile/me", {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

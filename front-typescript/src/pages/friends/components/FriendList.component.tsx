@@ -13,7 +13,7 @@ interface IFriendsListProps {
 
 async function getFriends(id1: number, authToken: string): Promise<number[] | null>  {
 
-  const response = await fetch(`http://127.0.0.1:3000/friends/of/${id1}`, {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/of/${id1}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

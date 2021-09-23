@@ -10,7 +10,7 @@ interface AdminPanelProps {
 
 async function getUsers(authToken: string): Promise<User[]|null> {
 
-  const response = await fetch("http://127.0.0.1:3000/users", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/users", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -26,7 +26,7 @@ async function getUsers(authToken: string): Promise<User[]|null> {
 
 async function banUser(authToken: string, userId: number) {
 
-  await fetch(`http://127.0.0.1:3000/profile/ban/${userId}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/profile/ban/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +37,7 @@ async function banUser(authToken: string, userId: number) {
 
 async function forgiveUser(authToken: string, userId: number) {
 
-  await fetch(`http://127.0.0.1:3000/profile/forgive/${userId}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/profile/forgive/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -48,7 +48,7 @@ async function forgiveUser(authToken: string, userId: number) {
 
 async function promoteUser(authToken: string, userId: number) {
 
-  await fetch(`http://127.0.0.1:3000/profile/makeAdmin/${userId}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/profile/makeAdmin/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -59,7 +59,7 @@ async function promoteUser(authToken: string, userId: number) {
 
 async function demoteUser(authToken: string, userId: number) {
 
-  await fetch(`http://127.0.0.1:3000/profile/demote/${userId}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/profile/demote/${userId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -172,11 +172,10 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     if (ready)
     {
       let canvas = document.getElementById('forCanvas');
-      if (canvas)
-        canvas.style.opacity = '1';
-      if (canvas !== null)
+      if (canvas !== null && isGameEnded === 'game')
       {
-          pong.current = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps}, ratio);
+        canvas.style.opacity = '1';
+        pong.current = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps}, ratio);
           console.log(id)
 
           canvas.addEventListener('mousemove', mouseTracker);
@@ -191,8 +190,10 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
           pong.current!.end();
         }
       }
+      else if (canvas)
+        canvas.style.opacity = '0.5';
     }
-}, [ready, authToken, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user]);
+}, [ready, authToken, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user, isGameEnded]);
 
 
 /* willUnmount game destruction */

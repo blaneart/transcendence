@@ -6,6 +6,7 @@ const axios = require('axios');
 
 const API_UID: string = process.env.API_UID;
 const API_SECRET: string = process.env.API_SECRET;
+const FRONTEND_URL: string = process.env.FRONTEND_URL || "http://127.0.0.1:3001"
 
 if (!API_UID)
   throw("Please set API_UID");
@@ -22,7 +23,7 @@ async function getAuthToken(authCode: string): Promise<string> {
     grant_type: 'authorization_code',
     client_id: API_UID,
     client_secret: API_SECRET,
-    redirect_uri: 'http://127.0.0.1:3001',
+    redirect_uri: FRONTEND_URL,
     code: authCode,
   });
   return response.data.access_token;

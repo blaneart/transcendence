@@ -12,7 +12,7 @@ interface IGameHistoryProps {
 
 async function getGames(authToken: string): Promise<Game[] | null> {
 
-  const response = await fetch("http://127.0.0.1:3000/games", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/games", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

@@ -4,7 +4,7 @@ import StyledTextInput from './styledTextInput.component';
 
 async function createRoom(authToken: string, name: string) {
   // Perform the request to backend
-  const response = await fetch(`http://127.0.0.1:3000/chat/rooms/${name}`, {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/rooms/${name}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

@@ -26,7 +26,7 @@ interface RoomRouteParams {
 async function getRoom(authToken: string, roomName: string): Promise<Room | null> {
   // Send the request to the backend
   const response = await fetch(
-    `http://127.0.0.1:3000/chat/rooms/${roomName}/`,
+    `${process.env.REACT_APP_API_URL}/chat/rooms/${roomName}/`,
     {
       method: "GET",
       headers: {
@@ -41,7 +41,7 @@ async function getRoom(authToken: string, roomName: string): Promise<Room | null
 
 // Check if we're muted in this chat
 async function getMuted(authToken: string, roomName: string): Promise<boolean | null> {
-  const response = await fetch(`http://127.0.0.1:3000/chat/muted/${roomName}`,
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/muted/${roomName}`,
     {
       method: "GET",
       headers: {
@@ -56,7 +56,7 @@ async function getMuted(authToken: string, roomName: string): Promise<boolean | 
 
 // Check until when we're muted in this chat
 async function getMutedUntil(authToken: string, roomName: string) {
-  const response = await fetch(`http://127.0.0.1:3000/chat/muted/${roomName}/until/`,
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/muted/${roomName}/until/`,
     {
       method: "GET",
       headers: {
@@ -70,7 +70,7 @@ async function getMutedUntil(authToken: string, roomName: string) {
 }
 
 async function getAmAdmin(authToken: string, roomName: string): Promise<boolean | null> {
-  const response = await fetch(`http://127.0.0.1:3000/chat/admins/${roomName}/me/`,
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/chat/admins/${roomName}/me/`,
     {
       method: "GET",
       headers: {
@@ -87,7 +87,7 @@ async function getAmAdmin(authToken: string, roomName: string): Promise<boolean 
 const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
-  const [socket] = useState<Socket>(() => io("ws://127.0.0.1:8080", {
+  const [socket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":2083", {
     auth: {
       token: authToken
     }

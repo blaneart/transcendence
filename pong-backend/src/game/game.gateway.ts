@@ -81,7 +81,7 @@ async function findAsyncSequential<T>(
   return undefined;
 }
 
-@WebSocketGateway(3002, { cors: true })
+@WebSocketGateway(2081, { cors: true })
 export class GameGateway implements OnGatewayInit {
   rooms = {};
   constructor(private readonly gameService: GameService, private readonly profileService: ProfileService){}

@@ -22,7 +22,7 @@ interface MessageListParams {
 async function getBlockList(authToken: string): Promise<BlockedUserEntry[] | null> {
   // Send a request to backend
   const response = await fetch(
-    `http://127.0.0.1:3000/chat/block/`,
+    `${process.env.REACT_APP_API_URL}/chat/block/`,
     {
       method: "GET",
       headers: {

@@ -11,7 +11,7 @@ interface DirectLinkProps {
 
 // Get the user instance for a given userId
 async function getUser(authToken: string, userId: number): Promise<User | null> {
-  const response = await fetch(`http://127.0.0.1:3000/profile/${userId}/`, {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/profile/${userId}/`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

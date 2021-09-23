@@ -8,7 +8,7 @@ interface UserAvatarProps {
 const UserAvatar = ({ user }: UserAvatarProps) => {
 
   if (user.realAvatar)
-    return <img className="realAvatar" src={`http://127.0.0.1:3000/static/${user.avatar}`} width={150} height={150}></img>;
+    return <img className="realAvatar" src={`${process.env.REACT_APP_API_URL}/static/${user.avatar}`} width={150} height={150}></img>;
   else
     return <Avatar size={150} name={"" + user.id42} variant="beam" />;
   

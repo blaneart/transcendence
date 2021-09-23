@@ -19,7 +19,7 @@ interface AdminEntry {
 async function getAdmins(authToken: string, roomName: string): Promise<AdminEntry[] | null>
 {
   const response = await fetch(
-    `http://127.0.0.1:3000/chat/admins/${roomName}/`,
+    `${process.env.REACT_APP_API_URL}/chat/admins/${roomName}/`,
     {
       method: "GET",
       headers: {
@@ -35,7 +35,7 @@ async function getAdmins(authToken: string, roomName: string): Promise<AdminEntr
 async function getUsers(authToken: string): Promise<User[] | null>
 {
   const response = await fetch(
-    `http://127.0.0.1:3000/users/`,
+    `${process.env.REACT_APP_API_URL}/users/`,
     {
       method: "GET",
       headers: {

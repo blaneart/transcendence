@@ -14,7 +14,7 @@ async function getFriendById(id2: number, authToken: string): Promise<User | nul
   const data = {
     value: id2,
   };
-  const response = await fetch("http://127.0.0.1:3000/userById", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/userById", {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ async function getFriendById(id2: number, authToken: string): Promise<User | nul
 
 async function addBackFriend(id1: number, id2: number, authToken: string, setBool: Function) {
   setBool(true);
-  await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -42,7 +42,7 @@ async function addBackFriend(id1: number, id2: number, authToken: string, setBoo
 
 async function removeFriend(id1: number, id2: number, authToken: string, setBool: Function) {
   setBool(false);
-    await fetch(`http://127.0.0.1:3000/friends/${id1}/${id2}`, {
+    await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
         {friendUser.name}
         <div className='image'
           style={{
-          backgroundImage: (friendUser.realAvatar ? `url(http://127.0.0.1:3000/static/${friendUser.avatar})` : `url(https://source.boringavatars.com/beam/150/${friendUser.avatar})`)
+          backgroundImage: (friendUser.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${friendUser.avatar})` : `url(https://source.boringavatars.com/beam/150/${friendUser.avatar})`)
         }}
         />
         </div>

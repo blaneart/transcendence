@@ -15,7 +15,7 @@ interface RoomListProps {
 // Get all open rooms from the backend
 async function getRooms(authToken: string): Promise<Room[] | null> {
   // Perform the request to backend
-  const response = await fetch("http://127.0.0.1:3000/chat/rooms", {
+  const response = await fetch(process.env.REACT_APP_API_URL + "/chat/rooms", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -32,7 +32,7 @@ async function getRooms(authToken: string): Promise<Room[] | null> {
 
 async function addRoom(authToken: string, roomID: number, onAdd: Function) {
   // Perform the request to backend
-  await fetch(`http://127.0.0.1:3000/chat/favs/${roomID}`, {
+  await fetch(`${process.env.REACT_APP_API_URL}/chat/favs/${roomID}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",

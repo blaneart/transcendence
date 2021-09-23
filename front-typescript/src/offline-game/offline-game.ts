@@ -107,6 +107,7 @@ class Offline_Pong {
   last_score: number;
   audios: any [];
   ratio: number;
+  borderElem: any;
 
   constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any, ratio: number)
   {
@@ -114,12 +115,13 @@ class Offline_Pong {
 	  this.curr_map = map.maps;
 	  this.powerups = map.powerUps;
     this._canvas = canvas as HTMLCanvasElement;
+    this.borderElem = document.getElementById("custom-border");
     let size = window.innerWidth < window.innerHeight * 4 / 3 ? window.innerWidth : window.innerHeight;
     this._canvas.width = size * 0.8;
     this._canvas.height = size * 0.8 * 3 / 4;
+    this.borderElem.style.width = this._canvas.width;
     this.ratio = this._canvas.width / 800;
     this.curr_powerUp = new PowerUp(this.ratio);
-
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball(this.ratio);
     this.ball.pos.x = this._canvas.width / 2 - this.ball.size.x / 2;
@@ -494,6 +496,7 @@ class Offline_Pong {
     let size = window.innerWidth < window.innerHeight * 4 / 3 ? window.innerWidth : window.innerHeight;
     this._canvas.width = size * 0.8;
     this._canvas.height = size * 0.8 * 3 / 4;
+    this.borderElem.style.width = this._canvas.width;
     if (this.ratio !== this._canvas.width / 800)
     {
       let old_ratio = this.ratio

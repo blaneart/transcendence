@@ -48,16 +48,14 @@ const GameHistory: React.FC<IGameHistoryProps> = ({
     // On setup, we update the games
     refreshGames();
   }, [user, refreshGames]); // We don't really reupdate.
-  
+
   return ( games.length ?
     (<div>
-      <h2>Games: </h2>
-      {games.map((game) =>
-      <div className='friend' key={game.id}>
-        <table>
-        <GameComponent game={game} user={user} authToken={authToken} />
-        </table>
-      </div>)}
+      <h2 className="mt-6 mb-1">Games: </h2>
+      <div className="flex flex-col">
+        {games.map((game) =>
+          <GameComponent key={game.id} game={game} user={user} authToken={authToken} />)}
+      </div>
     </div>)
     :
     (<div></div>)

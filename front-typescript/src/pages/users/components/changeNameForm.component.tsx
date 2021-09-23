@@ -20,8 +20,8 @@ const ChangeNameForm: React.FC<ICNFProps> = ({
     authToken
 }) => {
     return (
-    <form onSubmit={SendForm}>
-        <input type="text" id="name" />
+    <form onSubmit={SendForm} className="py-2">
+        <input type="text" id="name" className="py-2 pl-3 bg-white rounded-lg text-black border-1 border-solid border-gray-400 hover:bg-opacity-100 focus:bg-opacity-100 " />
         <ChangeNameButton user={user} setUser={setUser} setProfileUser={setProfileUser}  authToken={authToken}/>
     </form>
 );

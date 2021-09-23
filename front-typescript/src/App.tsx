@@ -64,22 +64,25 @@ async function updateStatus(
     value: newStatus,
   };
 
-  const response = await fetch(process.env.REACT_APP_API_URL + "/account/setStatus", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok)
-    return;
-
-  const jsonData = await response.json();
-  const userUpdated = jsonData as User;
-
-  setUser(userUpdated);
+  if (authToken && authToken !== "")
+  {
+    const response = await fetch(process.env.REACT_APP_API_URL + "/account/setStatus", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+  
+    if (!response.ok)
+      return;
+  
+    const jsonData = await response.json();
+    const userUpdated = jsonData as User;
+  
+    setUser(userUpdated);
+  }
 }
 
 // Use a temporary grant and a 2fa code to obtain the permanent JWT

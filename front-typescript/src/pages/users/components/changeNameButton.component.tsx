@@ -5,7 +5,7 @@ import { History } from 'history';
   interface ICNBProps {
     user: User;
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
-    setProfileUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
+    setProfileUser: React.Dispatch<React.SetStateAction<User | null>>;
     authToken: string;
 }
 

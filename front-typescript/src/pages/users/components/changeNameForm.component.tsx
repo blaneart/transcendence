@@ -5,7 +5,7 @@ import { User } from "../../../App.types";
   interface ICNFProps {
     user: User;
     setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
-    setProfileUser: React.Dispatch<React.SetStateAction<User | null | undefined>>;
+    setProfileUser: React.Dispatch<React.SetStateAction<User | null>>;
     authToken: string;
 }
 

@@ -9,7 +9,7 @@ interface IButtonProps {
     realAvatar?: boolean | boolean
 }
 
-const CustomButton: React.FC<IButtonProps> = ({children, isLogged, avatar_name, realAvatar,  ...otherProps }) => (
+const CustomButton: React.FC<IButtonProps> = ({children, isLogged, avatar_name, realAvatar, ...otherProps }) => (
     <button className='custom-button' {...otherProps }>
       <div
       className='image'

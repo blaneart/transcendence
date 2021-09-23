@@ -2,6 +2,7 @@ import { globalAgent } from "http";
 import { runInThisContext } from "vm";
 import { Player } from './game.gateway';
 import { PowerUpType } from "../app.types";
+import { Socket } from "socket.io";
 
 class Vec {
   x: number;
@@ -173,7 +174,7 @@ export class Pong {
     // MAPS END
   };
   
-  update(dt:number, player1: Player, player2: Player)
+  update(dt:number, player1: Player, player2: Player, server: any, roomName: string)
   {
     let pos = this.accelerate(this.ball.pos.x, this.ball.pos.y, this.ball.vel.x, this.ball.vel.y, this.ball.acceleration, dt);
 
@@ -185,11 +186,14 @@ export class Pong {
     }
     if ((this.ball.vel.y > 0) && (this.ball.bottom > this.height))
     {
+      server.to(roomName).emit('playTwo');
       pos.y = this.height - this.ball.size.y;
       pos.dy = -pos.dy;
     }
     else if ((this.ball.vel.y < 0) && (this.ball.top < 0))
     {
+      server.to(roomName).emit('playTwo');
+
       pos.y = 0;
       pos.dy = -pos.dy;
     }
@@ -201,6 +205,8 @@ export class Pong {
     pt = this.ballIntercept(this.ball, paddle.paddle, pos.nx, pos.ny);
     if (pt)
     {
+      server.to(roomName).emit('playOne');
+
       this.ball.lastTouched = paddle.Id;
       paddleHit = true;
     }
@@ -215,6 +221,7 @@ export class Pong {
       }
     }
     if (pt) {
+      server.to(roomName).emit('playTwo');
 
       switch(pt.d) {
         case 'left':
@@ -256,10 +263,10 @@ export class Pong {
 		  }
     }
     if (this.ball.right < 0)
-      this.goal(1, player1, player2);
+      this.goal(1, player1, player2, server, roomName);
     if (this.ball.left
        > this.width)
-      this.goal(0, player1, player2);
+      this.goal(0, player1, player2, server, roomName);
   }
 
   touched(powerUp: PowerUp, player0: Player, player1: Player, pos: any)
@@ -299,11 +306,12 @@ export class Pong {
     return { nx: (x2-x), ny: (y2-y), x: x2, y: y2, dx: dx2, dy: dy2 };
   }
 
-  goal(pos: number, player1: Player, player2: Player)
+  goal(pos: number, player1: Player, player2: Player, server: any, roomName: string)
   {
     if (!((pos === 0 && player2.empowered === PowerUpType.BLUE) || (pos === 1 && player1.empowered === PowerUpType.BLUE))) // If the loser is enchanted
       this.scores[pos] += 1;
-    
+    server.to(roomName).emit('playThree');
+
     this.reset(pos, player1, player2);
   }
 

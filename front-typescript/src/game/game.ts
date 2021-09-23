@@ -126,9 +126,18 @@ class Pong {
   fn: Function;
   enemy_id: number;
   ratio: number;
-
+  audios: any [];
   constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number, map: any, ratio: number)
   {
+    this.audios = [
+      new Audio(process.env.REACT_APP_API_URL + "/audio/paddle_sound.mp3"),
+      new Audio(process.env.REACT_APP_API_URL + "/audio/wall_sound.mp3"),
+      new Audio(process.env.REACT_APP_API_URL + "/audio/score_sound.mp3")
+    ]
+    this.audios[0].load();
+    this.audios[1].load();
+    this.audios[2].load();
+
     this._canvas = canvas as HTMLCanvasElement;
     this._context = this._canvas.getContext('2d');
     this.ball = new Ball(ratio);
@@ -234,6 +243,9 @@ class Pong {
     //     console.log(message);
     //     this.ball.pos = message;
     // })
+    this.socket.on('playOne', () => this.audios[0].play())
+    this.socket.on('playTwo', () => this.audios[1].play())
+    this.socket.on('playThree', () => this.audios[2].play())
     this.socket.on('endGame', (abandoned: string) => {
       if (this._context !== null)
       {
@@ -251,7 +263,7 @@ class Pong {
     this.socket.on('getPosition', (position: number) => {
       this.players[this.enemy_id].pos.y = position * this.ratio;
     })
-    this.socket.on('getBallPosition', (position: Vec) => {
+    this.socket.on('getBallPosition', (position: Vec, changeX: boolean, changeY: boolean) => {
       this.ball.pos.x = position.x * this.ratio;
       this.ball.pos.y = position.y * this.ratio;
     })

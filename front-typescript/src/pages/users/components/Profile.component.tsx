@@ -11,6 +11,7 @@ import GameHistory from "./gameHistory.component";
 
 import "./usersList.styles.scss";
 import { User } from "../../../App.types";
+import { profile } from "console";
 
 interface NameRouteParams {
   paramName?: string
@@ -79,7 +80,7 @@ const Profile: React.FC<IProfilePageProps> = ({
 }) => {
   
   const { paramName } = useParams<NameRouteParams>();
-  const [profile_user, setProfileUser] = useState(user);
+  const [profile_user, setProfileUser] = useState<User | null>(null as User | null);
   const [qrModal, setQrModal] = useState(false);
 
   // useCallback to prevent infinite state updates
@@ -97,7 +98,7 @@ const Profile: React.FC<IProfilePageProps> = ({
 
   return (
     <div className="account-page">
-      {user ? (
+      {user ? (profile_user ? (
         <div>
           <UserAvatar user={(profile_user as User)} />
           <Scores
@@ -136,7 +137,8 @@ const Profile: React.FC<IProfilePageProps> = ({
           <Achievements user={(profile_user as User)} authToken={authToken} setUser={setUser}/>
           <GameHistory user={user} authToken={authToken} />
         </div>
-      ) : (
+      ) : ( <h1>This user does not exist</h1>
+        )) : (
         <h1>You are not connected ...</h1>
       )}
     </div>

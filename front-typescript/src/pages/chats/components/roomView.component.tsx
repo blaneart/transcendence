@@ -87,7 +87,7 @@ async function getAmAdmin(authToken: string, roomName: string): Promise<boolean 
 const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
-  const [socket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":2083", {
+  const [socket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
     auth: {
       token: authToken
     }

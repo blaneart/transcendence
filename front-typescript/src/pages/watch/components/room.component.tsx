@@ -5,7 +5,7 @@ import GameHeader from '../../game/components/game-header/game-header.component'
 import { Link, useParams } from 'react-router-dom';
 import './end-watch-menu.styles.scss';
 
-const ENDPOINT = process.env.REACT_APP_BACKEND_BASE + ":2081";
+const ENDPOINT = process.env.REACT_APP_BACKEND_BASE + ":" + process.env.REACT_APP_PORT_ONE;
 
 const Room = () => {
     const watcher = useRef<Watcher|null>(null);

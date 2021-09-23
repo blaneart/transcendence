@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Switch,
   Route,
@@ -58,12 +58,13 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse | null> 
 async function updateStatus(
   setUser: Function,
   authToken: string,
+  prevStatus: number
 ) {
-  let newStatus = 1;
+  let newStatus = (prevStatus === 0) ? 1 : 0;
   const data = {
     value: newStatus,
   };
-
+  console.log('updateStatus newStatus =', newStatus);
   const response = await fetch(process.env.REACT_APP_API_URL + "/account/setStatus", {
     method: "POST",
     headers: {
@@ -125,7 +126,7 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
   {
     setUser(authResponse.user);
     setAuthToken(authResponse.access_token);
-    updateStatus(setUser, authResponse.access_token);
+    updateStatus(setUser, authResponse.access_token, 0);
     // Save token in browser state
     localStorage.setItem("pongToken", authResponse.access_token);
   }
@@ -293,7 +294,16 @@ function App() {
     );
     if (localStoragePongToken)
       setAuthToken(localStoragePongToken);
-  }, []);
+      return () => {
+        if (user)
+        {
+          window.addEventListener("before unload", function(e) {
+            updateStatus(setUser, authToken, 1);
+          })
+
+        }
+      }
+  }, [authToken, user]);
 
   // On auth token change, re-retreive user state
   useEffect(() => {
@@ -315,7 +325,6 @@ function App() {
 
   }, [search, history]);
 
-
   let difficulty = { number: 4 };
 
   var initSettings = {} as Settings;
@@ -324,7 +333,6 @@ function App() {
 
   return (
     <div className="App">
-      {/* <Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /> */}
       <Router history={history}>
 
       {!user ? <RouteGuest authToken={authToken} 
@@ -336,76 +344,6 @@ function App() {
         setSettings={setSettings} bannedHandler={bannedHandler} history={history}/>
       }
       </Router>
-
-      {/* <Switch>
-        <Route exact path="/">
-          <Menu user={user} />
-        </Route>
-        <Route path="/playbots">
-          <Map history={history} />
-        </Route>
-        <Route exact path="/game-settings">
-          <GameSettings settings={settings} setSettings={setSettings} />
-        </Route>
-        <Route path="/offline">
-          <Difficulty difficultyLvl={difficulty} />
-          <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={maps} />
-        </Route>
-        <Route path="/cheats">
-          <FakeUserCreator setAuthToken={setAuthToken} setUser={setUser} />
-        </Route>
-      </Switch>
-      {authToken !== "" ? */}
-{/* 
-        <Switch>
-            <Route exact path="/play">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
-            </Watchdog>
-          </Route>
-          <Route exact path="/play/:gameRoomName/:userId">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
-            </Watchdog>
-          </Route>
-          <Route path="/chats">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              {user ? <Chats authToken={authToken} setAuthToken={setAuthToken} setUser={setUser} userId={user.id} gameSettings={settings} /> : <p>Please log in</p>}
-            </Watchdog>
-          </Route>
-          <Route path="/users">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              {user ? <Users user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in</p>}
-            </Watchdog>
-          </Route>
-          <Route path="/friends">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              {user ? <Friends user={user} setUser={setUser} authToken={authToken} setAuthToken={setAuthToken} /> : <p>Please log in !</p>}
-            </Watchdog>
-          </Route>
-          <Route path="/adminPanel">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              {user ? <AdminPanel user={user} authToken={authToken}
-              /> : <p>Please log in !</p>}
-            </Watchdog>
-          </Route>
-          <Route exact path="/watch">
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              <Watch />
-            </Watchdog>
-          </Route>
-          <Route
-            exact
-            path="/watch/:room"
-          >
-            <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-              <Room />
-            </Watchdog>
-          </Route> */}
-
-        {/* </Switch> */}
-        {/* : <p></p> */}
-      {/* } */}
     </div >
   );
 }

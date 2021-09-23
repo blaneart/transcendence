@@ -31,7 +31,6 @@ export class GameService {
     .join('users as winner', 'winner.id', '=', 'games.winner_id')
     .join('users as loser', 'loser.id', '=', 'games.loser_id');
 
-    console.log('games', games);
     return games;
   }
 

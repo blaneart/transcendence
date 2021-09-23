@@ -14,7 +14,7 @@ const GameComponent: React.FC<IGameProps> = ({
   authToken,
 }) => {
   const cardColor: string = game && user && game.winner === user.name ? "green" : "red";
-  const cardClass = `flex flex-col py-3 items-center bg-${cardColor}-800 bg-opacity-75 rounded-lg shadow-lg text-white px-4`;
+  const cardClass = `flex flex-col py-3 items-center bg-${cardColor}-800 bg-opacity-75 mb-2 rounded-lg shadow-lg text-white px-4`;
   return (game ?
     <div className={cardClass}>
       

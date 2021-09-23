@@ -8,113 +8,41 @@ interface IMenuProps {
     user?: User | null;
 }
 
-interface IMenuState{ 
-        title: string,
-        linkUrl: string,
-        id: number
-}
-
 const Menu: React.FC<IMenuProps> = ({ user }) => {
-    let sections: IMenuState[] = user ? [
-        {
-            title: "PLAY ONLINE",
-            linkUrl: 'play',
-            id: 1
-        },
-        {
-            title: "PLAY BOTS",
-            linkUrl: 'playbots',
-            id: 2
-        },
-        {
-            title: "WATCH",
-            linkUrl: 'watch',
-            id: 9
-        },
-        {
-            title: "GAME SETTINGS",
-            linkUrl: 'game-settings',
-            id: 3
-        },
-        {
-            title: "CHATS",
-            linkUrl: 'chats',
-            id: 4
-        },
-        {
-            title: "ACCOUNT",
-            linkUrl: 'users/' + user.name,
-            id: 5
-        },
-        {
-            title: "USERS",
-            linkUrl: 'users',
-            id: 6
-        },
-        {
-            title: "Friends",
-            linkUrl: 'friends',
-            id: 7
-        },
-        {
-            title: "RULESET",
-            linkUrl: 'ruleset',
-            id: 10
-        },
-        {
-          title: "CHEATS",
-          linkUrl: 'cheats',
-          id: 8
-        },
-    ] : [
-        {
-            title: "PLAY BOTS",
-            linkUrl: 'playbots',
-            id: 1
-        },
-        {
-            title: "GAME SETTINGS",
-            linkUrl: 'game-settings',
-            id: 2
-        },
-        {
-            title: "RULESET",
-            linkUrl: 'ruleset',
-            id: 3
-        },
-        {
-            title: "CHEATS",
-            linkUrl: 'cheats',
-            id: 4
-        }
-    ]
 
-    if (user && (user.owner || user.admin)) {
-      if (sections.length === 10)
-      {
-        sections.push(
+    if (user)
+    {
+      return (
+        <div className="menu">
+          <MenuItem title="PLAY ONLINE" linkUrl='play' key="1" />
+          <MenuItem title="PLAY BOTS" linkUrl='playbots' key="2" />
+          <MenuItem title="WATCH" linkUrl='watch' key="9" />
+          <MenuItem title="GAME SETTINGS" linkUrl='game-settings' key="3" />
+          <MenuItem title="CHATS" linkUrl='chats' key="4" />
+          <MenuItem title="ACCOUNT" linkUrl={`users/${user.name}`} key="5" />
+          <MenuItem title="USERS" linkUrl='users' key="6" />
+          <MenuItem title="Friends" linkUrl='friends' key="7" />
+          <MenuItem title="RULESET" linkUrl='ruleset' key="10" />
+          <MenuItem title="CHEATS" linkUrl='cheats' key="8" />
           {
-            title: 'ADMIN PANEL',
-            linkUrl: 'adminPanel',
-            id: 10
+            user.owner || user.admin
+            ? <MenuItem title="ADMIN PANEL" linkUrl='adminPanel' key="11" />
+            : null
           }
-        );
-      }
-      
+        </div>
+      );
     }
-
-    const renderMenuList = (): JSX.Element[] => {
-        return sections.map(({id, ...otherSectionsProps}) => {
-            return(
-            <MenuItem key={id} {...otherSectionsProps} />
-        ) ;
-    })
+    else
+    {
+      return (
+        <div className="menu">
+          <MenuItem key="2" title="PLAY BOTS" linkUrl='playbots'/>
+          <MenuItem key="3" title="GAME SETTINGS" linkUrl='game-settings'/>
+          <MenuItem key="10" title="RULESET" linkUrl='ruleset'/>
+          <MenuItem key="8" title="CHEATS" linkUrl='cheats'/>
+        </div>
+      )
     }
-    return (
-         <div className='menu'>
-                {renderMenuList()}
-            </div>
-        );
 }
 
 export default Menu;

@@ -31,7 +31,7 @@ const RuleSet: React.FC<IRuleSetProps> = ({
 
     return (
     <div className="flex items-center justify-center h-screen space-x-40" >
-      <img src={leftArray} className="w-10" onClick={()=> {
+      <img src={leftArray} alt="Previous rulecet button" className="w-10" onClick={()=> {
           counter.current = counter.current === 0 ?  max_c : counter.current - 1;
           setFiller(rules[counter.current])}}/>
     <div className="w-8/12 h-4/6 bg-black rounded-lg text-center border border-white-800 border-solid">
@@ -61,7 +61,7 @@ const RuleSet: React.FC<IRuleSetProps> = ({
     <p>The green one elongates your paddle for some time</p>
     <p>The blue one doesn't allow the enemy to score on that play</p> */}
   </div>
-  <img src={rightArray} className="w-10" onClick={()=> {
+  <img src={rightArray} alt="Next ruleset button" className="w-10" onClick={()=> {
           counter.current = counter.current === max_c ?  0 : counter.current + 1;
           setFiller(rules[counter.current])}}/>
 

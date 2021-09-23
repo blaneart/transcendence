@@ -15,13 +15,13 @@ const EndGameMenu: React.FC<IButtonProps> = ({result, ...changeGameState}) => {
 
         // <div className='end-game-menu'>
         <div className='game end'>
-            <h1 className="end-header">{(result === 'won' || result === "gotAbandoned") ? "YOU WON!" : "YOU LOST!"}</h1>
-            {result === 'gotAbandoned' ? <p className='end-text'>Your opponent has disconnected (or abandoned the game)</p> : null}
-            <button className='element end-button' {...changeGameState}>RESTART</button>
+            <h1 className="text-6xl">{(result === 'won' || result === "gotAbandoned") ? "YOU WON!" : "YOU LOST!"}</h1>
+            {result === 'gotAbandoned' ? <p className='text-xl'>Your opponent has disconnected (or abandoned the game)</p> : null}
+            <button className='text-3xl' {...changeGameState}>RESTART</button>
             
 
-            <div className='element end-button'>
-                  <Link  to="/">BACK TO THE MENU</Link>
+            <div className='text-5xl'>
+                  <Link  to="/"><span className="text-2xl">BACK TO THE MENU</span></Link>
             </div>
 
         </div>

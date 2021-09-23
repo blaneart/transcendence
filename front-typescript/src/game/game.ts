@@ -127,6 +127,7 @@ class Pong {
   enemy_id: number;
   ratio: number;
   audios: any [];
+  isSound: boolean;
   constructor(fn: Function, canvas: HTMLElement, authToken: string, socket: Socket, id: number, map: any, ratio: number)
   {
     this.audios = [
@@ -158,6 +159,7 @@ class Pong {
     console.log('map', map);
     this.curr_map = map.map;
     this.powerups = map.powerup;
+    this.isSound = map.sounds;
 	  this.curr_powerUp = new PowerUp(ratio);
 
     if (this.curr_map === 1)
@@ -243,9 +245,12 @@ class Pong {
     //     console.log(message);
     //     this.ball.pos = message;
     // })
-    this.socket.on('playOne', () => this.audios[0].play())
-    this.socket.on('playTwo', () => this.audios[1].play())
-    this.socket.on('playThree', () => this.audios[2].play())
+    if (this.isSound)
+    {
+      this.socket.on('playOne', () => this.audios[0].play())
+      this.socket.on('playTwo', () => this.audios[1].play())
+      this.socket.on('playThree', () => this.audios[2].play())
+    }
     this.socket.on('endGame', (abandoned: string) => {
       if (this._context !== null)
       {

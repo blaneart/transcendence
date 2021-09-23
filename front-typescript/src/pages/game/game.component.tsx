@@ -197,7 +197,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       if (canvas !== null && isGameEnded === 'game')
       {
         canvas.style.opacity = '1';
-        pong.current = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps}, ratio);
+        pong.current = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps, sounds: gameSettings.sounds}, ratio);
           console.log(id)
 
           canvas.addEventListener('mousemove', mouseTracker);

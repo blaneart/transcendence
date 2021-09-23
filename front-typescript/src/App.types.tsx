@@ -19,4 +19,5 @@ export interface Settings {
   ranked: Boolean;
   maps: number;
   powerUps: Boolean;
+  sounds: Boolean;
 }

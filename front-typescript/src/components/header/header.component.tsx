@@ -51,7 +51,8 @@ const Header: React.FC<IHeaderProps> = ({authToken, user, logoutHandler, setUser
         {
             user ? 
             <div className='option-right'>
-            <CustomButton isLogged={1} onClick={async () => {await Click(authToken, user, setUser, setAuthToken, logoutHandler);}} avatar_name={user.avatar} realAvatar={user.realAvatar}>SIGN OUT</CustomButton>
+            <CustomButton isLogged={1} onClick={async () => {await Click(authToken, user, setUser, setAuthToken, logoutHandler);}}
+             avatar_name={user.realAvatar ? user.avatar : (user.id42 + "")} realAvatar={user.realAvatar} >SIGN OUT</CustomButton>
             </div>
             :
             <div className='option-right'><Login/></div>

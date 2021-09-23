@@ -126,8 +126,8 @@ export class ProfileService {
       .insert({
         name: newName,
         id42: Math.ceil(Math.random()*-1000), // a negative number to distinguish
-        avatar: newName + "",
-        status: 1
+        status: 1,
+        realAvatar: 0
       });
     return response[0];
   }

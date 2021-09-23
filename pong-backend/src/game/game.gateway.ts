@@ -339,15 +339,19 @@ export class GameGateway implements OnGatewayInit {
       this.saveAndUpdate(roomName,
         this.rooms[roomName].players[playerid].userId,
         this.rooms[roomName].players[playerid].elo,
+        this.rooms[roomName].players[playerid].socketId,
         this.rooms[roomName].players[1 - playerid].userId,
         this.rooms[roomName].players[1 - playerid].elo,
+        this.rooms[roomName].players[1 - playerid].socketId,
         this.rooms[roomName].scores[1]);
     else
       this.saveAndUpdate(roomName,
         this.rooms[roomName].players[1 - playerid].userId,
         this.rooms[roomName].players[1 - playerid].elo,
+        this.rooms[roomName].players[1 - playerid].socketId,
         this.rooms[roomName].players[playerid].userId, 
         this.rooms[roomName].players[playerid].elo,
+        this.rooms[roomName].players[playerid].socketId,
         this.rooms[roomName].scores[0]);
 
     this.server.emit('changeScore', this.rooms[roomName].scores)
@@ -373,7 +377,7 @@ export class GameGateway implements OnGatewayInit {
     return (mmr);
   }
 
-  saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, loser_id: number, loser_elo: number, loser_score: number)
+  saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, winner_socket: string, loser_id: number, loser_elo: number,loser_socket: string,  loser_score: number)
   {
     this.gameService.saveGame(winner_id, loser_id, loser_score, winner_elo, loser_elo, this.rooms[roomName].settings);
     this.profileService.updateUserById(winner_id, {status: 1});
@@ -383,6 +387,8 @@ export class GameGateway implements OnGatewayInit {
       let newMmrs = this.getNewMmr(winner_elo, loser_elo);
       this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
       this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
+      this.server.to(winner_socket).emit('eloChange', winner_elo);
+      this.server.to(loser_socket).emit('eloChange' , loser_elo);
     }
   }
 

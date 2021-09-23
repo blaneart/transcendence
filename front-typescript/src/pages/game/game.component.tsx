@@ -109,7 +109,29 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         let tmp = {} as FrontSettings; tmp.maps = map; tmp.powerUps = powerUps;
         setFrontSettings(tmp);
       })
-
+      socket.on('eloChange', (newEloUser) => {
+        
+        if (user)
+        {
+          let user_wins = newEloUser > user.elo ? user.wins + 1 : user.wins;
+        setUser({
+          id: user.id,
+          name: user.name,
+          id42: user.id42,
+          avatar: user.avatar,
+          games: user.games + 1,
+          elo: newEloUser,
+          wins: user_wins,
+          twofa: user.twofa,
+          twofaSecret: user.twofaSecret,
+          realAvatar: user.realAvatar,
+          status: user.status,
+          owner: user.owner,
+          banned: user.banned,
+          admin: user.admin,
+        });
+      }
+      })
       socket.on('ready', () => {
         setReady(true);
       })
@@ -133,30 +155,30 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       pong.current.end();
     }
     
-    async function updateGameStats(result: string, authToken: string){
-      if (user)
-      {
-        var data = {
-          value: user.id,
-        }
-        const response = await fetch(process.env.REACT_APP_API_URL + "/userById", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify(data),
-        });
+    function updateGameStats(result: string, authToken: string){
+      // if (user)
+      // {
+      //   var data = {
+      //     value: user.id,
+      //   }
+      //   const response = await fetch(process.env.REACT_APP_API_URL + "/userById", {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       'Authorization': `Bearer ${authToken}`
+      //     },
+      //     body: JSON.stringify(data),
+      //   });
 
-        document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
+      //   document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
         
-        if (!response.ok)
-          return null;
+      //   if (!response.ok)
+      //     return null;
         
-        const jsonData = await response.json();
-        const userUpdate = jsonData as User;
-        setUser(userUpdate);
-      }
+      //   const jsonData = await response.json();
+      //   const userUpdate = jsonData as User;
+      //   setUser(userUpdate);
+      // }
 
       setIsGameEnded(result);
       return null;

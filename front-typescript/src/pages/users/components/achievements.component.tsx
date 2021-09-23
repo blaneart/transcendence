@@ -6,13 +6,13 @@ var achivs = [
     id: 0,
     name: "Welcome aboard",
     description: "Registered on the website",
-    image: "/achievements/parrot.png" 
+    image: "/achievements/parrot.png"
   },
   {
     id: 1,
     name: "Grab your towel!",
     description: "Connected through 42 API",
-    image: "/achievements/swimming.png", 
+    image: "/achievements/swimming.png",
   },
   {
     id: 2,
@@ -22,7 +22,7 @@ var achivs = [
   }
 ]
 
-async function getAchievements(user_id: number, authToken: string) {
+async function getAchievementIds(user_id: number, authToken: string): Promise<number[] | null> {
   const response = await fetch(`${process.env.REACT_APP_API_URL}/profile/${user_id}/achievements/`, {
     method: 'GET',
     headers: {
@@ -34,37 +34,41 @@ async function getAchievements(user_id: number, authToken: string) {
     return null;
   const jsonData = await response.json();
   const ach_ids = jsonData.map((element: any) => element.achievement_id);
-  const achs = ach_ids.map((id: any) => achivs[id]);
-  console.log(achs);
-  return achs;
+  return ach_ids;
 }
 
 
-interface AchievementsProps
-{
+interface AchievementsProps {
   user: User;
   authToken: string;
   setUser: Function;
 }
 
-const Achievements = ({user, authToken, setUser }: AchievementsProps) => {
-  const [achievements, setAchievements] = useState([]);
+const Achievements = ({ user, authToken, setUser }: AchievementsProps) => {
+  const [achievementIds, setAchievementIds] = useState<number[]>([]);
 
   useEffect(() => {
-    getAchievements(user.id, authToken).then(res => res !== null ? setAchievements(res) : null);
+    getAchievementIds(user.id, authToken).then(res => res !== null && setAchievementIds(res));
   }, [user.id, authToken]);
-  
+
+  if (!achievementIds.length)
+    return(<div></div>);
+
   return (
     <div>
-        <p>Achievements</p>
-        {achievements.map((a: any) => <div>
-            <img className="achievement_img" src={a.image} alt="achievement"></img>
-            <p className="achievement_title">{a.name}</p>
-            <p className="achievement_description">{a.description}</p>
-          <p>
-          </p>
-        </div>)}
-        
+      <p>Achievements</p>
+      {
+        achivs.map(achievement => achievementIds.includes(achievement.id) &&
+          <div key={achievement.id}>
+            <img className="achievement_img" src={achievement.image} alt="achievement"></img>
+            <p className="achievement_title">{achievement.name}</p>
+            <p className="achievement_description">{achievement.description}</p>
+            <p>
+            </p>
+          </div>
+        )
+      }
+
     </div>
   );
 }

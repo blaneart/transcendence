@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import { User } from '../users.types';
+import MessageAvatar from "../../chats/components/messageAvatar.component";
+import { useHistory } from "react-router-dom";
 
 interface IUserProps {
   id1: number;
@@ -10,47 +12,49 @@ interface IUserProps {
 
 async function getFriend(id1: number, id2: number, authToken: string): Promise<boolean | null> {
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/exist/${id1}/${id2}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
-    if (!response.ok)
-      return null;
-    const jsonData = await response.json();
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/exist/${id1}/${id2}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
+  if (!response.ok)
+    return null;
+  const jsonData = await response.json();
 
-    return jsonData as boolean;
+  return jsonData as boolean;
 }
 
 async function addFriend(id1: number, id2: number, authToken: string) {
 
-    await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
 }
 
 async function removeFriend(id1: number, id2: number, authToken: string) {
-    
-    await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+
+  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
 }
 
 const UserComponent: React.FC<IUserProps> = ({
   id1,
   user,
   authToken,
-  }) => {
+}) => {
+
+  let history = useHistory();
 
   const [friend, setFriend] = useState<boolean>(false);
 
@@ -77,24 +81,40 @@ const UserComponent: React.FC<IUserProps> = ({
     refreshFriend();
   }, [friend, refreshFriend]);
 
+  const linkHandler = (e: Event | undefined, link: string) => {
+    if (!e) var e = window.event;
+    e!.cancelBubble = true;
+    if (e?.stopPropagation) e!.stopPropagation();
+    history.push(link);
+  }
+
+  // This is highly ironic. If you're reading this, please have a fantastic day.
+  const handlerHandler = (e: Event | undefined, handlerFunction: Function) => {
+    if (!e) var e = window.event;
+    e!.cancelBubble = true;
+    if (e?.stopPropagation) e!.stopPropagation();
+    handlerFunction();
+  }
+
   return (
     id1 !== user.id ?
-    <div>
-      <Link to={`/users/${user.name}`}>
-        <div style={{display: 'inline-block'}}>
-        {user.name}
-        <div className='image'
-          style={{
-          backgroundImage: (user.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${user.avatar})` : `url(https://source.boringavatars.com/beam/150/${(user.id42 + "")})`)
-        }}
-        />
+    // <div onClick={to={`/users/${user.name}`}}>
+      <div onClick={(e) => linkHandler(e as unknown as Event, `/users/${user.name}`)}>
+      <div className="flex flex-row bg-purple-900 bg-opacity-50 hover:bg-opacity-75 text-black px-4 shadow rounded-lg py-2 mb-2 items-center">
+        <div className="flex-1 flex flex-row">
+        
+          <div className="flex flex-row flex-1 items-center">
+              <MessageAvatar user={user} />
+              <p className="px-4 text-white text-xl ">{user.name}</p>
+          </div>
         </div>
-      </Link>
-      {friend ? (<button onClick={(e) => handleUnfriend(id1, user.id, authToken)}>Unfriend</button>)
-      : <button onClick={(e) => handleBefriend(id1, user.id, authToken)} >Befriend</button>}
-      <Link to={`/chats/dms/` + user.name}>{"  "} DM {" "}</Link>
-    </div>
-    : <p></p>
+        {friend ? (<button className="px-8 mr-2 bg-red-400 rounded-lg text-red-800 py-2 font-bold text-lg border-4 border-solid hover:bg-red-500 hover:text-white border-red-500" onClick={(e) => handlerHandler(e as unknown as Event, ()=>handleUnfriend(id1, user.id, authToken))}>Unfriend</button>)
+          : <button className="px-8 mr-2 bg-green-400 rounded-lg text-green-800 py-2 font-bold text-lg border-4 border-solid hover:bg-green-500 hover:text-white border-green-500" onClick={(e) => handlerHandler(e as unknown as Event, ()=>handleBefriend(id1, user.id, authToken))} >Befriend</button>}
+
+        <div onClick={(e) => linkHandler(e as unknown as Event, `/chats/dms/` + user.name)}><div className="font-ok px-8 bg-blue-400 rounded-lg text-blue-800 hover:bg-blue-500 hover:text-white py-2 font-bold text-lg border-4 border-solid border-blue-500">Direct message</div></div>
+      </div>
+      </div>
+      : <p></p>
   );
 }
 

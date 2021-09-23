@@ -45,15 +45,15 @@ const UsersList: React.FC<IUsersListProps> = ({
   useEffect(() => {
     // On setup, we update the users
     refreshUsers();
-  }, [users, refreshUsers]); // We don't really reupdate.
+  }, [refreshUsers]); // We don't really reupdate.
 
   return ( authToken !== "" && user_logged ? (
-    <div>
-      <h2>Users: </h2>
+  <div className="bg-black bg-opacity-75 py-10 px-10 rounded-xl shadow-lg">
+      <h2 className="text-center font-xl">Users </h2>
+      <div className="flex flex-col">
       {users.map((user) =>
-      <div className='friend' key={user.id}>
-        <UserComponent id1={user_logged.id} user={user} authToken={authToken} />
-      </div>)}
+        <UserComponent id1={user_logged.id} key={user.id} user={user} authToken={authToken} />)}
+      </div>
 
     </div>) : <div>Please Log !</div>
   );

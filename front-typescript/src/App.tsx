@@ -255,13 +255,13 @@ const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
           {user ? <AdminPanel user={user} authToken={authToken} /> : <p>Please log in !</p>}
         </Watchdog>
       </Route>
-      <Route path="/watch">
+      <Route exact path="/watch">
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
           <Watch />
         </Watchdog>
       </Route>
       <Route
-        path="/watch/:room"
+        exact path="/watch/:room"
       >
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
           <Room />

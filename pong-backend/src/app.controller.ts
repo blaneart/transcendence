@@ -44,7 +44,6 @@ export class AppController {
     return this.appService.getHello();
   }
 
-
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
   @Post('userByName')
   async getUserByName(@Body() body: getUserByNameDto) {

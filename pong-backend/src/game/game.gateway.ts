@@ -13,6 +13,10 @@ var uuid = require('uuid');
 
 // import Ball from './game/game';
 
+const PORT_ONE = process.env.PORT_ONE ? parseInt(process.env.PORT_ONE) : 3002;
+
+console.log("PORT_ONE", PORT_ONE);
+
 export class Player {
   name: string;
   userId: number;
@@ -81,7 +85,7 @@ async function findAsyncSequential<T>(
   return undefined;
 }
 
-@WebSocketGateway(2081, { cors: true })
+@WebSocketGateway(PORT_ONE, { cors: true })
 export class GameGateway implements OnGatewayInit {
   rooms = {};
   constructor(private readonly gameService: GameService, private readonly profileService: ProfileService){}

@@ -7,7 +7,7 @@ import { io, Socket } from 'socket.io-client';
 import { User, Settings } from "../../App.types";
 import { useParams } from 'react-router-dom';
 
-const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":2081";
+const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_ONE;
 
 export interface IGameProps {
   user?: User | null,

@@ -44,7 +44,6 @@ export class AppController {
     return this.appService.getHello();
   }
 
-
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
   @Post('userByName')
   async getUserByName(@Body() body: getUserByNameDto) {
@@ -113,7 +112,7 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @Post('account/setStatus')
   async setStatus(@Request() req, @Body() body: setStatusDto) {
-    console.log('status changed');
+    console.log('status changed ->', body.value);
     const response = await this.profileService.updateUserById(
       req.user.id, {
       status: body.value,

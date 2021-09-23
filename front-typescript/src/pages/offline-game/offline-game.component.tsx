@@ -5,7 +5,6 @@ import EndGameMenu from '../../components/end-game-menu/end-game-menu.component'
 import '../../components/difficulty-lvl/difficulty-lvl.scss'
 import './offline-game.styles.scss';
 
-
 interface IGameProps {
 
   authToken: string,
@@ -50,9 +49,11 @@ async function  updateGameStats(result: string, authToken: string) {
 
     return (
       <div className='gameoffline'>
-        <canvas id="forCanvas" width={800} height={600}></canvas>
-        { isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
-        }
+        <div id="custom-border" className="w-12/12 border border-white-800 border-solid border-custom">
+          <canvas id="forCanvas" width={800} height={600}></canvas>
+          { isGameEnded !== 'game' && <EndGameMenu result={isGameEnded} onClick={restartGame}/>
+          }
+        </div>
       </div>
     );
 }

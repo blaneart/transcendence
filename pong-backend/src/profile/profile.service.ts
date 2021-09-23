@@ -80,6 +80,8 @@ export class ProfileService {
   async getUserById(id: number)
   {
     const response = await db('users').where({ id: id }).select('*');
+    if (!response.length)
+      return null;
     return response[0];
   }
 
@@ -121,14 +123,23 @@ export class ProfileService {
 
   async createFakeUser(newName: string)
   {
+    let tryId = Math.ceil(Math.random()*-100000);
+
+    while (await this.getUserById(tryId) !== null)
+    {
+      // console.log('yay');
+      tryId = Math.ceil(Math.random()*-100000);
+    }
     // Insert a new fake user
     const response = await db('users').returning('*')
       .insert({
         name: newName,
-        id42: Math.ceil(Math.random()*-1000), // a negative number to distinguish
+        id42: tryId, // a negative number to distinguish
         status: 1,
         realAvatar: 0
       });
+    this.achievementService.addAchievement(response[0].id, 0);
+
     return response[0];
   }
 }

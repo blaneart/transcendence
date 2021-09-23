@@ -11,7 +11,6 @@ import GameHistory from "./gameHistory.component";
 
 import "./usersList.styles.scss";
 import { User } from "../../../App.types";
-import { profile } from "console";
 
 interface NameRouteParams {
   paramName?: string
@@ -43,9 +42,11 @@ async function toggleTwofa(
   });
   if (!response.ok)
     return null;
-  const jsonData = await response.json();
-  console.log(jsonData);
+
+    const jsonData = await response.json();
+
   const userUpdate = jsonData as User;
+
   setUser(userUpdate);
   if (data.value === true) {
     setQrModal(true);
@@ -72,6 +73,27 @@ async function getUserByName( authToken: string, name: string): Promise<User | n
   return jsonData as User;
 }
 
+async function getGameNumbers( authToken: string, id: number): Promise<number[]>
+{
+  const data = {
+    id: id,
+  };
+  const response = await fetch(process.env.REACT_APP_API_URL + "/gameNumbers", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok)
+    return [0,0,0];
+
+  const jsonData = await response.json();
+
+  return jsonData as number[];
+}
+
 const Profile: React.FC<IProfilePageProps> = ({
   user,
   setUser,
@@ -81,6 +103,7 @@ const Profile: React.FC<IProfilePageProps> = ({
   
   const { paramName } = useParams<NameRouteParams>();
   const [profile_user, setProfileUser] = useState<User | null>(null as User | null);
+  const [gameNumbers, setGameNumbers] = useState<number[]>([0,0,0]);
   const [qrModal, setQrModal] = useState(false);
 
   // useCallback to prevent infinite state updates
@@ -96,15 +119,33 @@ const Profile: React.FC<IProfilePageProps> = ({
     refreshUsers();
   }, [profile_user, refreshUsers]); // We don't really reupdate.
 
+
+  // useCallback to prevent infinite state updates
+  const refreshGameNumbers = useCallback(() => {
+    // Get all users from the backend and add them to state
+    if (profile_user)
+      getGameNumbers(authToken, profile_user.id).then(newGameNumbers => {
+        setGameNumbers(newGameNumbers);
+    });
+  }, [authToken, profile_user]);
+
+  useEffect(() => {
+    // On setup, we update the users
+    refreshGameNumbers();
+  }, [refreshGameNumbers]); // We don't really reupdate.
+
   return (
     <div className="account-page">
-      {user ? (profile_user ? (
+      {user ?
+      (profile_user ? (
         <div>
           <UserAvatar user={(profile_user as User)} />
           <Scores
-            wins={(profile_user as User).wins}
-            games={(profile_user as User).games}
-            loses={(profile_user as User).games - (profile_user as User).wins}
+            wins={gameNumbers[0]}
+            games={gameNumbers[1]}
+            losses={gameNumbers[2]}
+            // games={() => getNumberOfGames((profile_user as User))}
+            // losses={() => getNumberOfLosses((profile_user as User))}
           />
           <h1>{paramName} ({(profile_user as User).elo})</h1>
           {user.name === paramName ? (
@@ -131,16 +172,17 @@ const Profile: React.FC<IProfilePageProps> = ({
                 <p>{user.twofaSecret}</p>
               </div>
             </Modal>
-            <AvatarUpload user={(profile_user as User)} authToken={authToken} setUser={setUser} />
+            <AvatarUpload user={user} authToken={authToken} setUser={setUser} />
           </div>)
           : (<h1>You can't modify this user</h1>)}
           <Achievements user={(profile_user as User)} authToken={authToken} setUser={setUser}/>
-          <GameHistory user={user} authToken={authToken} />
+          <GameHistory user={(profile_user as User)} authToken={authToken} />
         </div>
-      ) : ( <h1>This user does not exist</h1>
-        )) : (
-        <h1>You are not connected ...</h1>
-      )}
+      ) :
+      (<h1>This user does not exist</h1>)
+      )
+      :
+      <h1>You are not connected ...</h1>}
     </div>
   );
 };

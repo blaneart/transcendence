@@ -85,7 +85,7 @@ const UserComponent: React.FC<IUserProps> = ({
         {user.name}
         <div className='image'
           style={{
-          backgroundImage: (user.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${user.avatar})` : `url(https://source.boringavatars.com/beam/150/${user.avatar})`)
+          backgroundImage: (user.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${user.avatar})` : `url(https://source.boringavatars.com/beam/150/${(user.id42 + "")})`)
         }}
         />
         </div>

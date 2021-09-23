@@ -49,9 +49,11 @@ const FriendList: React.FC<IFriendsListProps> = ({
     <div>
       <h2>Friends: </h2>
       {friends && friends.length ? friends.map((friend) =>
+        
         <div className='friend' key={friend}>
           <Friend id1={user_logged.id} id2={friend} authToken={authToken} />
-        </div>) : <p>NON</p>}
+        </div>) : <p>No friends :(</p>
+        }
 
     </div>)
     :

@@ -22,23 +22,7 @@ export class GameService {
     return new_game[0];
   }
 
-  // const response = await db('blocklist').where({blockerID: blockerID})
-  // .join('users', 'users.id', '=', 'blocklist.blockedID') // Join to users for username
-  // .select('blocklist.blockedID', 'users.name');
-
-// knex.select('*').from('users').join('accounts', function() {
-//   this.on('accounts.id', '=', 'users.account_id').orOn('accounts.owner_id', '=', 'users.id')
-// })
-
   async getGamesById(userid: number) {
-    // const games = await db('games')
-    // .where({ winner_id: userid })
-    // .orWhere({ loser_id: userid })
-    // .join('users', function() {
-    //   this.on('games.winner_id', '=', 'users.id' ).orOn('games.loser_id', '=', 'users.id')
-    // })
-    // .select('*');
-
     const games = await db('games')
     .where({ winner_id: userid })
     .orWhere({ loser_id: userid })
@@ -49,11 +33,43 @@ export class GameService {
 
     console.log('games', games);
     return games;
+  }
 
+  async getNumberOfGames(userid: number) {
+    let gameNumbers: number[] = [0, 0, 0];
 
-    // .select('title', 'author1', 'author2')
-    // .from('books')
-    // .join('authors as author1', 'books.author_name', '=', 'author1.name')
-    // .join('authors as author2', 'books.author_name', '=', 'author2.name')
+    const cWins = await db('games')
+    .where({ winner_id: userid })
+    .count();
+    gameNumbers[0] = cWins[0].count
+    
+    const cGames = await db('games')
+    .where({ winner_id: userid })
+    .orWhere({ loser_id: userid })
+    .count();
+    gameNumbers[1] = cGames[0].count
+
+    const cLosses = await db('games')
+    .where({ loser_id: userid })
+    .count();
+    gameNumbers[2] = cLosses[0].count
+
+    return gameNumbers;
+  }
+
+  async getNumberOfWins(userid: number) {
+    const wins = await db('games')
+    .where({ winner_id: userid })
+    .count();
+
+    return wins[0].count;
+  }
+
+  async getNumberOfLosses(userid: number) {
+    const losses = await db('games')
+    .where({ loser_id: userid })
+    .count();
+
+    return losses[0].count;
   }
 }

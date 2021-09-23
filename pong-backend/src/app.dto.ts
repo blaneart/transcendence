@@ -78,3 +78,9 @@ export class saveGameDto {
   @IsNumber()
   loserScore: number
 }
+
+export class getNumberOfGamesDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id: number
+}

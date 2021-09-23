@@ -186,8 +186,8 @@ const Profile: React.FC<IProfilePageProps> = ({
               // losses={() => getNumberOfLosses((profile_user as User))}
               />
 
-              <Achievements user={(profile_user as User)} authToken={authToken} setUser={setUser} />
               <GameHistory user={(profile_user as User)} authToken={authToken} />
+              <Achievements user={(profile_user as User)} authToken={authToken} setUser={setUser} />
             </div>
           </div>
         ) :

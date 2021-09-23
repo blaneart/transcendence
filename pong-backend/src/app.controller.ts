@@ -21,7 +21,7 @@ import { ProfileService } from './profile/profile.service';
 import { AchievementService } from './achievement/achievement.service';
 import { GameService } from './game/game.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { fakeUserBodyDto, fakeUserParamDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto, setEloDto, saveGameDto } from './app.dto';
+import { getNumberOfGamesDto, fakeUserBodyDto, fakeUserParamDto, getUserByIdDto, getUserByNameDto, setGamesDto, setNameDto, setStatusDto, setEloDto, saveGameDto } from './app.dto';
 import path from 'path';
 
 const multer = require('multer');
@@ -67,12 +67,18 @@ export class AppController {
   }
 
   @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
-  @Get('games')
-  async getGames(@Request() req) {
-    const games = await this.gameService.getGamesById(req.user.id);
+  @Post('games')
+  async getGames(@Body() body: getNumberOfGamesDto) {
+    const games = await this.gameService.getGamesById(body.id);
     return games;
   }
 
+  @UseGuards(JwtAuthGuard) // Checks JWT AND 2FA (if on)
+  @Post('gameNumbers')
+  async getNumberOfGames(@Body() body: getNumberOfGamesDto) {
+    const numberOfGames = await this.gameService.getNumberOfGames(body.id);
+    return numberOfGames;
+  }
   @UseGuards(JwtAuthGuard)
   @Post('account/setName')
   async setName(@Request() req, @Body() body: setNameDto) {

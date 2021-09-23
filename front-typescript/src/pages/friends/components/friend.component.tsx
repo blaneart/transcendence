@@ -86,7 +86,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
         {friendUser.name}
         <div className='image'
           style={{
-          backgroundImage: (friendUser.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${friendUser.avatar})` : `url(https://source.boringavatars.com/beam/150/${friendUser.avatar})`)
+          backgroundImage: (friendUser.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${friendUser.avatar})` : `url(https://source.boringavatars.com/beam/150/${(friendUser.id42 + "")})`)
         }}
         />
         </div>

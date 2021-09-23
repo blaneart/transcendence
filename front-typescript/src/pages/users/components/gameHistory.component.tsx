@@ -6,18 +6,21 @@ import './usersList.styles.scss';
 import './friend.styles.scss';
 
 interface IGameHistoryProps {
-  user?: User | null;
+  user: User;
   authToken: string;
 }
 
-async function getGames(authToken: string): Promise<Game[] | null> {
-
-  const response = await fetch(process.env.REACT_APP_API_URL + "/games", {
-    method: "GET",
+async function getGames(authToken: string, id: number): Promise<Game[] | null> {
+    const data = {
+      id: id
+    };
+    const response = await fetch(process.env.REACT_APP_API_URL + "/games", {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
+    body: JSON.stringify(data),
   });
   if (!response.ok)
     return null;
@@ -30,21 +33,21 @@ const GameHistory: React.FC<IGameHistoryProps> = ({
   user,
   authToken,
   }) => {
-
-  const [games, setGames] = useState<Game[]>([]);
+    const [games, setGames] = useState<Game[]>([]);
 
   const refreshGames = useCallback(() => {
-    getGames(authToken).then(newGames => {
+
+    getGames(authToken, user.id).then(newGames => {
       if (newGames === null)
         return;
       setGames(newGames);
-    });
-  }, [authToken]);
+      });
+  }, [authToken, user.id]);
 
-  useEffect(() => {
+    useEffect(() => {
     // On setup, we update the games
     refreshGames();
-  }, [refreshGames]); // We don't really reupdate.
+  }, [user, refreshGames]); // We don't really reupdate.
   
   return ( games.length ?
     (<div>

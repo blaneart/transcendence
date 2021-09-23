@@ -13,7 +13,9 @@ export class FriendDuoController {
   async AddFriend(@Request() request, @Param('id1', ParseIntPipe) id1: number, @Param('id2', ParseIntPipe) id2: number)
   {
     // Create the duo using the service
-    return await this.friendDuoService.createDuo(id1, id2);
+    if (id1 != id2)
+      return await this.friendDuoService.createDuo(id1, id2);
+    return ;
   }
 
   @UseGuards(JwtAuthGuard)

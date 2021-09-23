@@ -131,7 +131,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     if (pong.current)
     {
       pong.current.end();
-      setIsGameEnded('game');
     }
     
     async function updateGameStats(result: string, authToken: string){
@@ -170,7 +169,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       let d_pos = pong.current!.players[id].pos.y - old_pos;
       socket.emit('playerPos', pong.current!.players[id].pos.y / pong.current!.ratio, d_pos / pong.current!.ratio);
     }
-    setIsGameEnded('game')
     if (ready)
     {
       let canvas = document.getElementById('forCanvas');
@@ -228,6 +226,7 @@ useEffect(() => {
          {
            setReady(false);
            setRestart(true)
+           setIsGameEnded('game');
            socket.emit('leaveRoom');
         }
         }/> 

@@ -41,7 +41,7 @@ const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId,
   useEffect(() => {
     // Update the block list
     updateBlockList();
-  });
+  }, []);
 
   const updateBlockList = () => {
     // Get all the blocked users

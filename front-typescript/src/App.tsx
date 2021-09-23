@@ -130,7 +130,7 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
     setAuthToken(authResponse.access_token);
     updateStatus(setUser, authResponse.access_token, 0);
     // Save token in browser state
-    localStorage.setItem("pongToken", authResponse.access_token);
+    sessionStorage.setItem("pongToken", authResponse.access_token);
   }
 }
 
@@ -159,7 +159,7 @@ async function getMe(authToken: string): Promise<User | null> {
 
 function logoutHandler() {
   return function () {
-    localStorage.removeItem("pongToken");
+    sessionStorage.removeItem("pongToken");
   };
 }
 
@@ -279,7 +279,7 @@ function App() {
   const { search } = useLocation();
 
   const completeLogOut = () => {
-    localStorage.removeItem("pongToken");
+    sessionStorage.removeItem("pongToken");
     setUser(null);
     setAuthToken("");
   }
@@ -291,11 +291,11 @@ function App() {
 
   // Retreive local user storage
   useEffect(() => {
-    const localStoragePongToken: string | null = localStorage.getItem(
+    const sessionStoragePongToken: string | null = sessionStorage.getItem(
       "pongToken"
     );
-    if (localStoragePongToken)
-      setAuthToken(localStoragePongToken);
+    if (sessionStoragePongToken)
+      setAuthToken(sessionStoragePongToken);
       return () => {
         if (user)
         {

@@ -63,11 +63,9 @@ const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToke
     getMe(json.access_token).then((me) => {
       // Set user state
       setUser(me);
-      // Save persistent user state
-      localStorage.setItem("pongUser", JSON.stringify(me));
     });
     // Save persistent token state
-    localStorage.setItem("pongToken", json.access_token);
+    sessionStorage.setItem("pongToken", json.access_token);
   }
 
   return <div>

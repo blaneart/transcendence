@@ -40,7 +40,6 @@ async function updateName(
     setProfileUser(userUpdated);
 
     history.push('/users/' + userUpdated.name);
-    localStorage.setItem("pongUser", JSON.stringify(userUpdated));
 }
 
 const ChangeNameButton: React.FC<ICNBProps> = ({

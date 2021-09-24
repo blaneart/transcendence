@@ -156,12 +156,17 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
 
             <p>Sounds</p>
             <div className="flex flex-row">
-                  <button className={buttonSoundClassYes} onClick={()=>setSettings({
+                  <button className={buttonSoundClassYes} onClick={()=>
+                  {
+                      if (navigator.userAgent.indexOf("Safari") != -1)
+                        alert('Sounds do not work in your browser, sorry:(')
+                      else
+                        setSettings({
                         ranked: settings.ranked,
                         maps: settings.maps,
                         powerUps: settings.powerUps,
                         sounds: true
-                  })}>ON</button>
+                  })}}>ON</button>
                   <button className={buttonSoundClassNo} onClick={()=>setSettings({
                         ranked: settings.ranked,
                         maps: settings.maps,

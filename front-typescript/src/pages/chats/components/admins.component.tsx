@@ -100,4 +100,4 @@ const Admins: React.FC<AdminsProps> = ({authToken, socket, room}) => {
   </div>);
 };
 
-export default Admins
+export default Admins;

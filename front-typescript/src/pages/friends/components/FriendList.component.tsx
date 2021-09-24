@@ -46,13 +46,13 @@ const FriendList: React.FC<IFriendsListProps> = ({
   }, [refreshFriends]);
 
   return ( authToken !== "" && user_logged ? (
-    <div>
-      <h2>Friends: </h2>
+    <div className="bg-black bg-opacity-75 px-10 py-10 rounded-xl shadow-lg">
+      <h2 className="text-center font-xl">Friends</h2>
       {friends && friends.length ? friends.map((friend) =>
         
-        <div className='friend' key={friend}>
+        <div className='flex flex-col' key={friend}>
           <Friend id1={user_logged.id} id2={friend} authToken={authToken} />
-        </div>) : <p>No friends :(</p>
+        </div>) : <p className="text-center font-lg">No friends :(</p>
         }
 
     </div>)

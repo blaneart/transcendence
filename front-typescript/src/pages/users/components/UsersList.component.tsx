@@ -48,8 +48,8 @@ const UsersList: React.FC<IUsersListProps> = ({
   }, [refreshUsers]); // We don't really reupdate.
 
   return ( authToken !== "" && user_logged ? (
-  <div className="bg-black bg-opacity-75 py-10 px-10 rounded-xl shadow-lg">
-      <h2 className="text-center font-xl">Users </h2>
+  <div className="bg-black bg-opacity-75 px-10 py-10 rounded-xl shadow-lg">
+      <h2 className="text-center font-xl">Users</h2>
       <div className="flex flex-col">
       {users.map((user) =>
         <UserComponent id1={user_logged.id} key={user.id} user={user} authToken={authToken} />)}

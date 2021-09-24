@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
 import { User } from '../users.types';
+import { useHistory } from "react-router-dom";
+import MessageAvatar from "../../chats/components/messageAvatar.component";
 
 interface IFriendProps {
   id1: number;
@@ -9,8 +10,7 @@ interface IFriendProps {
 }
 
 
-async function getFriendById(id2: number, authToken: string): Promise<User | null>
-{
+async function getFriendById(id2: number, authToken: string): Promise<User | null> {
   const data = {
     value: id2,
   };
@@ -42,16 +42,18 @@ async function addBackFriend(id1: number, id2: number, authToken: string, setBoo
 
 async function removeFriend(id1: number, id2: number, authToken: string, setBool: Function) {
   setBool(false);
-    await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
+  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  });
 }
 
 const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
+
+  let history = useHistory();
 
   const [friendUser, setFriend] = useState<User>();
   const [bool, setBool] = useState<Boolean>(true);
@@ -78,24 +80,46 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
     // On setup, we update the friend
     refreshFriend();
   }, [refreshFriend]);
+
+
+  const linkHandler = (e: Event | undefined, link: string) => {
+    if (!e) var e = window.event;
+    e!.cancelBubble = true;
+    if (e?.stopPropagation) e!.stopPropagation();
+    history.push(link);
+  }
+
+  // This is highly ironic. If you're reading this, please have a fantastic day.
+  const handlerHandler = (e: Event | undefined, handlerFunction: Function) => {
+    if (!e) var e = window.event;
+    e!.cancelBubble = true;
+    if (e?.stopPropagation) e!.stopPropagation();
+    handlerFunction();
+  }
   return (
     friendUser ?
-    <div>
-      <Link to={`/users/${friendUser.name}`}>
-        <div style={{display: 'inline-block'}}>
-        {friendUser.name}
-        <div className='image'
-          style={{
-          backgroundImage: (friendUser.realAvatar ? `url(${process.env.REACT_APP_API_URL}/static/${friendUser.avatar})` : `url(https://source.boringavatars.com/beam/150/${(friendUser.id42 + "")})`)
-        }}
-        />
+      <div>
+        <div onClick={(e) => linkHandler(e as unknown as Event, `/users/${friendUser.name}`)}>
+          <div className="flex flex-row bg-purple-900 bg-opacity-50 hover:bg-opacity-75 text-black px-4 shadow rounded-lg py-2 mb-2 items-center">
+            <div className="flex flex-1 flex-row items-center">
+              <MessageAvatar user={friendUser} />
+              <p className="text-white px-4 text-xl">{friendUser.name}</p>
+            </div>
+            {bool ? <button className="px-8 py-2 mr-2 bg-red-400 rounded-lg text-red-800 text-lg font-bold border-4 border-red-500 border-solid hover:bg-red-500 hover:text-white" onClick={(e) => handlerHandler(e as unknown as Event, () => handleUnfriend(id1, friendUser.id, authToken, setBool))}>Unfriend</button> 
+           : <button className="px-8 py-2 mr-2 bg-green-400 rounded-lg text-green-800 text-lg font-bold border-4 border-green-500 border-solid hover:bg-green-500 hover:text-white" onClick={(e) => handlerHandler(e as unknown as Event, () => handleAddBackFriend(id1, friendUser.id, authToken, setBool))}>Add Back</button>}
+            <div onClick={(e) => linkHandler(e as unknown as Event, `/chats/dms/${friendUser.name}`)}>
+              <div className="font-ok font-bold px-8 py-2 bg-blue-400 text-lg text-blue-800 hover:bg-blue-500 hover:text-white rounded-lg border-4 border-solid border-blue-500">
+              Direct message
+              </div>
+            </div>
+          </div>
+
         </div>
-      </Link>
-      {bool ? <button onClick={(e) => handleUnfriend(id1, friendUser.id, authToken, setBool)}>Unfriend</button> 
-      : <button onClick={(e) => handleAddBackFriend(id1, friendUser.id, authToken, setBool)}>Add Back</button>}
-      <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
-      {friendUser.status === 0 ? <p>Offline</p> : friendUser.status === 1 ? <p>Online</p> : <p>In a game</p>}
-    </div>
+
+      </div>
+      //   <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
+      //   {friendUser.status === 0 ? <p>Offline</p> : friendUser.status === 1 ? <p>Online</p> : <p>In a game</p>}
+      // </div>
       : <p>Not Found</p>
   );
 }

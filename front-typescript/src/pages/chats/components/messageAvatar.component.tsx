@@ -1,11 +1,16 @@
 import Avatar from "boring-avatars";
 import React from "react";
-import { UserPublic } from "../chats.types";
-// import { MessageType } from "../chats.types";
+
+interface MessageAvatarUser
+{
+  id42: number;
+  avatar: string;
+  realAvatar: boolean;
+}
 
 interface MessageAvatarProps {
   // message: MessageType
-  user: UserPublic
+  user: MessageAvatarUser
 }
 
 const MessageAvatar: React.FC<MessageAvatarProps> = ({ user }) => {

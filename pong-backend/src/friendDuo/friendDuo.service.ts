@@ -34,12 +34,12 @@ export class FriendDuoService {
     let friendsArray = await db('friendDuos')
     .where({ friend1: id1 })
     .orWhere({ friend2: id1 })
-    .select('friend2');
+    .select('*');
 
     if (!friendsArray.length) {
       return friendsArray;
     }
-    return friendsArray.map((elem) => elem.friend2);
+    return friendsArray.map((elem) => (elem.friend1 != id1 ? elem.friend1 : elem.friend2));
   }
 
   //Find the id of the duo in our database

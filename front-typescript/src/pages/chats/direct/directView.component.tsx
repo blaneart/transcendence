@@ -21,7 +21,7 @@ interface DirectRouteParams {
 const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings }) => {
 
   const { target } = useParams<DirectRouteParams>();
-  const [socket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
+  const [socket, setSocket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
     auth: {
       token: authToken
     }
@@ -67,6 +67,18 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings
         return [newMessage];
       });
     });
+
+    socket.on("disconnect", (reason) => {
+      // If our socket has disconnected not because we wanted it to
+      if (reason !== "io client disconnect") {
+        // Reconnect
+        setSocket(io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
+          auth: {
+            token: authToken
+          }
+        }));
+      }
+    })
 
     // Ask to add us to this room and send us the initial messages.
     socket.emit("requestJoinDm", target);

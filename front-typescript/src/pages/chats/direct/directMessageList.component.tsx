@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { DirectMessageUpdate } from "../chats.types";
 import DirectMessageComponent from "./directMessage.component";
@@ -38,12 +38,9 @@ interface BlockedUserEntry {
 const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId, authToken, socket, gameRoomName, gameSettings }) => {
   const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
 
-  useEffect(() => {
-    // Update the block list
-    updateBlockList();
-  }, []);
 
-  const updateBlockList = () => {
+
+  const updateBlockList = useCallback(() => {
     // Get all the blocked users
     getBlockList(authToken).then((users) => {
 
@@ -59,7 +56,12 @@ const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId,
 
       });
     });
-  }
+  }, [authToken]);
+
+  useEffect(() => {
+    // Update the block list
+    updateBlockList();
+  }, [updateBlockList]);
 
   return (
     <div className="border bg-gray-900 text-gray-300 border-gray-600 rounded-t-lg border-solid px-4 py-4">

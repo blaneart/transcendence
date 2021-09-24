@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link } from 'react-router-dom';
 import { User } from '../users.types';
 import MessageAvatar from "../../chats/components/messageAvatar.component";
 import { useHistory } from "react-router-dom";
@@ -82,7 +81,7 @@ const UserComponent: React.FC<IUserProps> = ({
   }, [friend, refreshFriend]);
 
   const linkHandler = (e: Event | undefined, link: string) => {
-    if (!e) var e = window.event;
+    if (!e) e = window.event;
     e!.cancelBubble = true;
     if (e?.stopPropagation) e!.stopPropagation();
     history.push(link);
@@ -90,7 +89,7 @@ const UserComponent: React.FC<IUserProps> = ({
 
   // This is highly ironic. If you're reading this, please have a fantastic day.
   const handlerHandler = (e: Event | undefined, handlerFunction: Function) => {
-    if (!e) var e = window.event;
+    if (!e) e = window.event;
     e!.cancelBubble = true;
     if (e?.stopPropagation) e!.stopPropagation();
     handlerFunction();

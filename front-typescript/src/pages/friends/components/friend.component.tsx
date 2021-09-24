@@ -83,7 +83,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
 
 
   const linkHandler = (e: Event | undefined, link: string) => {
-    if (!e) var e = window.event;
+    if (!e) e = window.event;
     e!.cancelBubble = true;
     if (e?.stopPropagation) e!.stopPropagation();
     history.push(link);
@@ -91,7 +91,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
 
   // This is highly ironic. If you're reading this, please have a fantastic day.
   const handlerHandler = (e: Event | undefined, handlerFunction: Function) => {
-    if (!e) var e = window.event;
+    if (!e) e = window.event;
     e!.cancelBubble = true;
     if (e?.stopPropagation) e!.stopPropagation();
     handlerFunction();

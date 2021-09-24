@@ -15,7 +15,7 @@ async function createUsers() {
       t.boolean('twofa').defaultTo(false);
       t.string('twofaSecret', 32);
       t.boolean('realAvatar').defaultTo(false);
-      t.integer('status').defaultTo(0);
+      t.integer('status').defaultTo(1);
       t.boolean('owner').defaultTo(false);
       t.boolean('banned').defaultTo(false);
       t.boolean('admin').defaultTo(false);

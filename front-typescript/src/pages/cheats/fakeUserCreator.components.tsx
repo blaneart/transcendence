@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Socket } from "socket.io-client";
 import { User } from '../../App.types';
 
 
@@ -6,6 +7,7 @@ interface FakeUserCreatorProps {
   loggedIn: number | undefined
   setAuthToken: Function
   setUser: Function
+  statusSocket: Socket
 }
 
 
@@ -29,7 +31,7 @@ async function getMe(authToken: string): Promise<User | null> {
 }
 
 
-const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToken, setUser }) => {
+const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToken, setUser, statusSocket}) => {
   const [newName, setNewName] = useState<string>();
 
   const submitHandler = async (e: any) => {
@@ -62,17 +64,19 @@ const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToke
     setAuthToken(json.access_token);
     getMe(json.access_token).then((me) => {
       // Set user state
+      statusSocket.emit('setUserId', me?.id);
       setUser(me);
     });
     // Save persistent token state
     sessionStorage.setItem("pongToken", json.access_token);
   }
 
-  return <div>
-    <p>Fake user creator. Use with caution</p>
-    <form onSubmit={submitHandler}>
+  return <div className= "flex flex-col bg-">
+    <p className="text-center font-xl">Fake user creator</p>
+    <p className="text-center font-xl">Use with caution</p>
+    <form className="text-center" onSubmit={submitHandler}>
       <input type="text" name="" id="" onChange={(e) => setNewName(e.target.value)} />
-      <input type="submit" value="Send" />
+      <input className="cursor-pointer" type="submit" value="Send" />
     </form>
   </div>
 };

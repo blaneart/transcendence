@@ -202,14 +202,13 @@ export class AppController {
     }
 
     // puts your status to 0 if you are already logged in
-    if (body.id !== 0)
-    {
-      console.log('status = 0');
-      await this.profileService.updateUserById(
-        body.id, {
-        status: 0,
-      });
-    }
+    // if (body.id !== 0)
+    // {
+    //   await this.profileService.updateUserById(
+    //     body.id, {
+    //     status: 0,
+    //   });
+    // }
     // Create a new user
     const newUser = await this.profileService.createFakeUser(param.newName);
     // Add this user to JWT

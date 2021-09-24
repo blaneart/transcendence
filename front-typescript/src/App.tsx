@@ -81,7 +81,6 @@ async function updateStatus(
 
     const jsonData = await response.json();
     const userUpdated = jsonData as User;
-
     setUser(userUpdated);
   }
 }
@@ -123,12 +122,12 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
       alert('Wrong or expired code. Try again.');
       return;
     }
-
   }
 
   if (authResponse) {
-    setUser(authResponse.user);
     socket.emit("setUserId", authResponse.user?.id)
+
+    setUser(authResponse.user);
     setAuthToken(authResponse.access_token);
     updateStatus(setUser, authResponse.access_token, 0);
     // Save token in browser state
@@ -177,10 +176,11 @@ interface IGuest {
   setSettings: React.Dispatch<React.SetStateAction<Settings>>
   bannedHandler: Function
   history: any
+  statusSocket: Socket
 }
 
 const RouteGuest: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
-  setAuthToken, setUser, setSettings, history }) => {
+  setAuthToken, setUser, setSettings, history, statusSocket }) => {
   return (
     <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
       <Route exact path="/">
@@ -197,7 +197,7 @@ const RouteGuest: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
         <Ruleset user={user} />
       </Route>
       <Route exact path="/cheats">
-        <FakeUserCreator loggedIn={0} setAuthToken={setAuthToken} setUser={setUser} />
+        <FakeUserCreator loggedIn={0} setAuthToken={setAuthToken} setUser={setUser} statusSocket={statusSocket} />
       </Route>
       <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings} /></Route>
     </Switch>  </>);
@@ -206,7 +206,7 @@ const RouteGuest: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
 
 
 const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
-  setAuthToken, setUser, setSettings, bannedHandler, history }) => {
+  setAuthToken, setUser, setSettings, bannedHandler, history, statusSocket }) => {
   return (
     <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
       <Route exact path="/">
@@ -220,7 +220,7 @@ const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
         <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={settings} />
       </Route>
       <Route path="/cheats">
-        <FakeUserCreator loggedIn={user?.id} setAuthToken={setAuthToken} setUser={setUser} />
+        <FakeUserCreator loggedIn={user?.id} setAuthToken={setAuthToken} setUser={setUser} statusSocket={statusSocket} />
       </Route>
       <Route path="/play">
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
@@ -283,9 +283,9 @@ function App() {
   const [socket] = useState<Socket>(() => {
     const initialState = io(ENDPOINT,
         {
-          auth: {
-            token: authToken
-          }
+          // auth: {
+          //   token: authToken
+          // }
         });
     return initialState;
   });
@@ -313,11 +313,9 @@ function App() {
   // Add an effect on unload
   useEffect(() => {
     return () => {
-      if (user) {
         socket.disconnect();
-      }
     }
-  }, [socket, user]);
+  }, [socket]);
 
   // On auth token change, re-retreive user state
   useEffect(() => {
@@ -351,11 +349,11 @@ function App() {
 
         {!user ? <RouteGuest authToken={authToken}
           user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
-          setSettings={setSettings} bannedHandler={bannedHandler} history={history} />
+          setSettings={setSettings} bannedHandler={bannedHandler} history={history} statusSocket={socket} />
           :
           <RouteAuth authToken={authToken}
             user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
-            setSettings={setSettings} bannedHandler={bannedHandler} history={history} />
+            setSettings={setSettings} bannedHandler={bannedHandler} history={history} statusSocket={socket} />
         }
       </Router>
     </div >

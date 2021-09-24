@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards, Request, Body, HttpException, HttpStatus } from "@nestjs/common";
+import { Controller, Post, Get, UseGuards, Request, Body, HttpException, HttpStatus } from "@nestjs/common";
 import { AchievementService } from "src/achievement/achievement.service";
 import { ProfileService } from "src/profile/profile.service";
 import { AuthService } from "./auth.service";
@@ -34,8 +34,18 @@ export class AuthController {
     if (!user)
       throw new HttpException("Bad user", HttpStatus.BAD_REQUEST);
 
+    const isTwofaOn = await this.authService.isUserTwofa(user.id);
+    
+    if (isTwofaOn === false)
+      throw new HttpException("User doesn't have 2FA on", HttpStatus.BAD_REQUEST);
+
+    const secret = await this.authService.getUserTwofa(user.id);
+    
+    if (!secret)
+      throw new HttpException("User doesn't have 2FA on", HttpStatus.BAD_REQUEST);
+
     // Validate the token
-    const ret = twofactor.verifyToken(user.twofaSecret, body.code);
+    const ret = twofactor.verifyToken(secret, body.code);
     if (ret && ret.delta === 0) {
       return this.authService.loginAndTwofa(user);
     }
@@ -47,28 +57,29 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('set2fa')
   async set2fa(@Request() req, @Body() body: Set2FADTO) {
-    // Update the user in our database
-    const response = await this.profileService.updateUserById(req.user.id, {
-      twofa: body.value,
-    });
     // If we're turning 2FA on, create and save the new secret
     if (body.value === true) {
       // Create the new secret
       const newSecret = twofactor.generateSecret({
         name: 'Transcendence',
-        account: response.name,
+        account: req.user.name,
       });
       // Save it to the database
-      const responseSecret = await this.profileService.updateUserById(
-        req.user.id,
-        { twofaSecret: newSecret.secret },
-      );
+      await this.authService.addUserTwofa(req.user.id, newSecret.secret);
+
       // Add 2FA achievement
       if (!this.achievementService.achievementExists(req.user.id, 2))
         this.achievementService.addAchievement(req.user.id, 2);
 
-      return (this.authService.loginAndTwofa(responseSecret));
+      return ({resp: await this.authService.loginAndTwofa(req.user), secret: newSecret.secret});
     }
-    return response as UserPublic;
+    this.authService.removeUserTwofa(req.user.id);
+    return req.user as UserPublic;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my2fa')
+  async getmy2fa(@Request() req) {
+    return this.authService.isUserTwofa(req.user.id);
   }
 }

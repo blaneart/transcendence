@@ -3,10 +3,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { jwtConstants } from './constants';
 import { ProfileService } from '../profile/profile.service';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private profileService: ProfileService) {
+  constructor(private profileService: ProfileService, private readonly authService: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -20,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return null;
     if (thisUser.banned)
       return null;
-    if (thisUser.twofa) // we check the actual 2fa state, not jwt
+    if (await this.authService.isUserTwofa(thisUser.id)) // we check the actual 2fa state, not jwt
     {
       if (payload.twofaSuccess)
         return thisUser;

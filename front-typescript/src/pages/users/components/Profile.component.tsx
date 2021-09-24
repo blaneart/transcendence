@@ -24,14 +24,15 @@ interface IProfilePageProps {
 }
 
 async function toggleTwofa(
-  user: User,
-  setUser: Function,
   authToken: string,
   setQrModal: Function,
   setAuthToken: Function,
+  twofa: boolean,
+  setTwofa: Function,
+  setTwofaSecret: Function,
 ) {
   const data = {
-    value: user.twofa ? false : true, // toggle to the inverse of the actual value
+    value: twofa ? false : true, // toggle to the inverse of the actual value
   };
   const response = await fetch(process.env.REACT_APP_API_URL + "/auth/set2fa", {
     method: "POST",
@@ -45,13 +46,15 @@ async function toggleTwofa(
     return null;
 
   const resp = await response.json();
+
   if (data.value === true) {
-    setAuthToken(resp.access_token);
-    setUser(resp.user);
+    setAuthToken(resp.resp.access_token);
+    setTwofa(true);
+    setTwofaSecret(resp.secret);
     setQrModal(true);
   }
   else {
-    setUser(resp);
+    setTwofa(false);
   }
 }
 
@@ -94,6 +97,22 @@ async function getGameNumbers(authToken: string, id: number): Promise<number[]> 
   return jsonData as number[];
 }
 
+async function getMyTwofa(authToken: string): Promise<boolean | null>
+{
+  const response = await fetch(process.env.REACT_APP_API_URL + "/auth/my2fa", {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`
+    },
+  });
+  if (!response.ok)
+    return null;
+  const jsonData = await response.json();
+
+  return jsonData as boolean;
+}
+
 const Profile: React.FC<IProfilePageProps> = ({
   user,
   setUser,
@@ -105,6 +124,8 @@ const Profile: React.FC<IProfilePageProps> = ({
   const [profile_user, setProfileUser] = useState<User | null>(null as User | null);
   const [gameNumbers, setGameNumbers] = useState<number[]>([0, 0, 0]);
   const [qrModal, setQrModal] = useState(false);
+  const [twofa, setTwofa] = useState<boolean>(false);
+  const [twofaSecret, setTwofaSecret] = useState<string>("");
 
   // useCallback to prevent infinite state updates
   const refreshUsers = useCallback(() => {
@@ -119,6 +140,13 @@ const Profile: React.FC<IProfilePageProps> = ({
     refreshUsers();
   }, [refreshUsers]); // We don't really reupdate.
 
+  const refreshTwofa = useCallback(() => {
+    getMyTwofa(authToken).then(response => response !== null && setTwofa(response));
+  }, [authToken]);
+
+  useEffect(() => {
+    refreshTwofa();
+  }, [refreshTwofa]);
 
   // useCallback to prevent infinite state updates
   const refreshGameNumbers = useCallback(() => {
@@ -134,7 +162,7 @@ const Profile: React.FC<IProfilePageProps> = ({
     refreshGameNumbers();
   }, [refreshGameNumbers]); // We don't really reupdate.
 
-  let color = user && user.twofa ? "red" : "green";
+  let color = user && twofa ? "red" : "green";
   let buttonClass = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${color}-500 bg-${color}-300 text-${color}-900 font-bold hover:bg-${color}-500 hover:text-white border-${color}-500`;
 
   return (
@@ -152,24 +180,24 @@ const Profile: React.FC<IProfilePageProps> = ({
                     <ChangeNameForm user={user} setUser={setUser} setProfileUser={setProfileUser} authToken={authToken} />
                   </div>
                   <div className="flex flex-row items-center justify-center">
-                    <p className="items-center text-gray-200 text-opacity-50 ">2FA enabled: </p>{user.twofa === true ? <span className="px-2 py-1 ml-1 bg-green-500 rounded px-3 text-white text-xs">Yes</span> : <span className="px-2 py-1 ml-1 bg-red-500 rounded px-3 text-white text-xs">NO</span>}
+                    <p className="items-center text-gray-200 text-opacity-50 ">2FA enabled: </p>{twofa === true ? <span className="px-2 py-1 ml-1 bg-green-500 rounded px-3 text-white text-xs">Yes</span> : <span className="px-2 py-1 ml-1 bg-red-500 rounded px-3 text-white text-xs">NO</span>}
                   </div>
                   <button className={buttonClass}
-                    onClick={(e) => toggleTwofa(user, setUser, authToken, setQrModal, setAuthToken)}
+                    onClick={(e) => toggleTwofa(authToken, setQrModal, setAuthToken, twofa, setTwofa, setTwofaSecret)}
                   >
-                    {user.twofa ? "Disable 2FA" : "Enable 2FA"}
+                    {twofa ? "Disable 2FA" : "Enable 2FA"}
                   </button>
                   <Modal show={qrModal} handleClose={() => setQrModal(false)}>
                     <div className="px-5 py-3">
                     <p className="twofa-text">Save this qr-code in your auth app: </p>
                     <div className="twofa-code">
                       <img
-                        alt='twofa-img' src={`https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/Transcendence:${user.name}%3Fsecret=${user.twofaSecret}%26issuer=Transcendence`}
+                        alt='twofa-img' src={`https://chart.googleapis.com/chart?chs=166x166&chld=L|0&cht=qr&chl=otpauth://totp/Transcendence:${user.name}%3Fsecret=${twofaSecret}%26issuer=Transcendence`}
                       ></img>
                     </div>
                     <div className="twofa-secret">
                       <p>Secret (backup in your password manager)</p>
-                      <p>{user.twofaSecret}</p>
+                      <p>{twofaSecret}</p>
                     </div>
                     </div>
                   </Modal>

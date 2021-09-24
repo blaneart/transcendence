@@ -122,8 +122,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
           games: user.games + 1,
           elo: newEloUser,
           wins: user_wins,
-          twofa: user.twofa,
-          twofaSecret: user.twofaSecret,
           realAvatar: user.realAvatar,
           status: user.status,
           owner: user.owner,

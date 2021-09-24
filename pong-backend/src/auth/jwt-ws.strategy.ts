@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { jwtConstants } from './constants';
 import { ProfileService } from '../profile/profile.service';
 import { Socket } from 'socket.io';
+import { AuthService } from './auth.service';
 
 function extractFromSocketQuery(request: Socket): string | null {
   if (!request.handshake.auth.token)
@@ -13,7 +14,7 @@ function extractFromSocketQuery(request: Socket): string | null {
 
 @Injectable()
 export class JwtWsStrategy extends PassportStrategy(Strategy, "jwt-ws") {
-  constructor(private profileService: ProfileService) {
+  constructor(private profileService: ProfileService, private readonly authService: AuthService) {
     super({
       jwtFromRequest: extractFromSocketQuery,
       ignoreExpiration: false,
@@ -27,7 +28,7 @@ export class JwtWsStrategy extends PassportStrategy(Strategy, "jwt-ws") {
       return null;
     if (thisUser.banned)
       return null
-    if (thisUser.twofa) // we check the actual 2fa state, not jwt
+    if (await this.authService.isUserTwofa(thisUser.id)) // we check the actual 2fa state, not jwt
     {
       if (payload.twofaSuccess)
         return thisUser;

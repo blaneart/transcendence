@@ -12,8 +12,6 @@ async function createUsers() {
       t.string('avatar', 100).defaultTo('TyomaRules');
       t.integer('id42').unique(); // mustn't be able to sign up twice
       t.integer('elo').defaultTo(100);
-      t.boolean('twofa').defaultTo(false);
-      t.string('twofaSecret', 32);
       t.boolean('realAvatar').defaultTo(false);
       t.integer('status').defaultTo(1);
       t.boolean('owner').defaultTo(false);
@@ -215,6 +213,18 @@ async function createMyRooms() {
     }
 }
 
+async function createTwofa() {
+  const exists = await db.schema.hasTable('twofa');
+    if (!exists) {
+      await db.schema.createTable('twofa', function(t) {
+        t.increments('id').primary();
+        t.integer('user_id');
+        t.string('secret', 32);
+        t.unique(['user_id']); // only one record per user
+      });
+    }
+}
+
 const dbHost = process.env.DB_HOST || "127.0.0.1"
 console.log(`Will be connecting to database at: ${dbHost}`)
 const dbPort = process.env.DB_PORT || "8001"
@@ -243,7 +253,8 @@ export const db = knex({
     .then(() => createAdmins())
     .then(() => createDirects())
     .then(() => createDirectMessages())
-    .then(() => createMyRooms());
+    .then(() => createMyRooms())
+    .then(() => createTwofa());
 
 
 @Controller('signin')

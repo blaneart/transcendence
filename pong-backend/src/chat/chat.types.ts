@@ -58,8 +58,6 @@ interface User {
   avatar: string;
   games: number;
   wins: number;
-  twofa: boolean;
-  twofaSecret: string;
   realAvatar: boolean
   status: number;
   elo: number;

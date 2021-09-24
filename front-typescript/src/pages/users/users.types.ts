@@ -15,12 +15,6 @@ export interface User {
   admin: boolean;
 }
 
-export interface Settings {
-  ranked: Boolean;
-  maps: number;
-  powerUps: Boolean;
-}
-
 export interface Game {
   id: number;
   winner: string;
@@ -28,5 +22,7 @@ export interface Game {
   loserScore: number;
   winner_elo: number;
   loser_elo: number;
-  settings: Settings;
+  ranked: Boolean;
+  maps: number;
+  powerUps: Boolean;
 }

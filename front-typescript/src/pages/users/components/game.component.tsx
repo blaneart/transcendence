@@ -29,8 +29,12 @@ const GameComponent: React.FC<IGameProps> = ({
           <span className="text-sm text-gray-400 text-opacity-75 px-1"> ({game.loser_elo})</span>
         </div>
       </div>
-      <div className="text-xs text-opacity-50 text-gray-100">unranked</div>
-    </div>
+      <div className="flex flex-row">
+      <div className="text-xs text-opacity-50 text-gray-100 px-1 border-0 border-r-2 border-solid border-gray-500 border-opacity-50">{game.ranked ? "Ranked" : "Unranked"}</div>
+      <div className="text-xs text-opacity-50 text-gray-100 px-1 border-0 border-r-2 border-solid border-gray-500 border-opacity-50">Map {game.maps + 1}</div>
+      <div className="text-xs text-opacity-50 text-gray-100 px-1">PowerUps {game.powerUps ? "On" : "Off"}</div>
+      </div>
+      </div>
     : <div></div>
   );
 }

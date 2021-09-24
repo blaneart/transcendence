@@ -12,8 +12,6 @@ async function createUsers() {
       t.string('avatar', 100).defaultTo('TyomaRules');
       t.integer('id42').unique(); // mustn't be able to sign up twice
       t.integer('elo').defaultTo(100);
-      t.integer('games').defaultTo(0);
-      t.integer('wins').defaultTo(0);
       t.boolean('twofa').defaultTo(false);
       t.string('twofaSecret', 32);
       t.boolean('realAvatar').defaultTo(false);
@@ -37,12 +35,6 @@ async function createAchievements() {
         t.unique(['user_id', 'achievement_id']);
       });
     }
-}
-
-interface Settings {
-  ranked: Boolean;
-  maps: number;
-  powerUps: Boolean;
 }
 
 async function createGames() {

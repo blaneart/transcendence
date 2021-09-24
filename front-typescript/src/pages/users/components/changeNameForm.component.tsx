@@ -1,5 +1,4 @@
 import React, { FormEvent, useState } from "react";
-import ChangeNameButton from "./changeNameButton.component";
 import { User } from "../../../App.types";
 import { History } from 'history';
 import { useHistory } from "react-router-dom";
@@ -60,9 +59,14 @@ const ChangeNameForm: React.FC<ICNFProps> = ({
     console.log("newName", newName)
     if (!newName)
       setNewName("");
-    if (newName === "")
+    if (newName === "" || newName === user.name || newName.length > 100)
     {
-      alert("No empty name please");
+      if (newName === "")
+        alert("No empty name please")
+      else if (newName === user.name)
+        alert("Please type in a different username than your own");
+      else
+        alert("Please write a name with less than 100 characters");
       return null;
     }
     const data = {
@@ -83,6 +87,11 @@ const ChangeNameForm: React.FC<ICNFProps> = ({
     const jsonData = await response.json();
     const userUpdated = jsonData as User;
 
+    if (userUpdated === user)
+    {
+      alert("This username is already used");
+      return null;
+    }
     setUser(userUpdated);
     setProfileUser(userUpdated);
 

@@ -39,9 +39,9 @@ const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToke
     
     if (!newName)
       setNewName("");
-    if (newName === "")
+    if (newName === "" || newName.length > 100)
     {
-      alert("No empty name please");
+      newName === "" ? alert("No empty name please") : alert("Please write a name with less than 100 characters");
       return null;
     }
     const data = {

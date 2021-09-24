@@ -12,7 +12,7 @@ interface IUsersListProps {
   setAuthToken: React.Dispatch<React.SetStateAction<string>>;
 }
 
-async function getUsers(authToken: string): Promise<User[] | null> {
+async function getUsers(authToken: string, userId: number): Promise<User[] | null> {
 
   const response = await fetch(process.env.REACT_APP_API_URL + "/users", {
     method: "GET",
@@ -35,12 +35,12 @@ const UsersList: React.FC<IUsersListProps> = ({
   const [users, setUsers] = useState<User[]>([(user_logged as User),]);
 
   const refreshUsers = useCallback(() => {
-    getUsers(authToken).then(newUsers => {
+    if (user_logged) getUsers(authToken, user_logged.id).then(newUsers => {
       if (newUsers === null)
         return;
       setUsers(newUsers);
     });
-  }, [authToken]);
+  }, [authToken, user_logged]);
 
   useEffect(() => {
     // On setup, we update the users
@@ -51,8 +51,7 @@ const UsersList: React.FC<IUsersListProps> = ({
   <div className="bg-black bg-opacity-75 px-10 py-10 rounded-xl shadow-lg">
       <h2 className="text-center font-xl">Users</h2>
       <div className="flex flex-col">
-      {users.map((user) =>
-        <UserComponent id1={user_logged.id} key={user.id} user={user} authToken={authToken} />)}
+      {users.map((user) => <UserComponent id1={user_logged.id} key={user.id} user={user} authToken={authToken} />)}
       </div>
 
     </div>) : <div>Please Log !</div>

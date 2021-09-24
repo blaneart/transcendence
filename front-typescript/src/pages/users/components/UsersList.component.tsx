@@ -40,7 +40,7 @@ const UsersList: React.FC<IUsersListProps> = ({
         return;
       setUsers(newUsers);
     });
-  }, [authToken]);
+  }, [authToken, user_logged]);
 
   useEffect(() => {
     // On setup, we update the users

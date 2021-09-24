@@ -10,11 +10,12 @@ interface MessageTextProps {
   socket: Socket
   userId: number
   gameSettings: Settings,
+  authToken: string
 }
 
 
 
-const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, gameSettings }) => {
+const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, gameSettings, authToken }) => {
 
 
   return (
@@ -26,7 +27,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
         </div>
         <div className="tooltip">
         <div className="tooltiptext shadow-lg">
-            <UserTooltip message={message} socket={socket} userId={userId} gameSettings={gameSettings}/>
+            <UserTooltip message={message} socket={socket} userId={userId} gameSettings={gameSettings} authToken={authToken}/>
         </div>
         <a href={`/users/${message.name}/`} className="px-2">{message.name}: </a>
         </div>

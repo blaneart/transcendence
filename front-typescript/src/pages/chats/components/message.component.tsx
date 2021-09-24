@@ -100,7 +100,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
   // Else, show the message
   return (
     <div className="flex flex-row py-2">
-      <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings}/>
+      <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} authToken={authToken}/>
       {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
       <> 
       <button onClick={() => {

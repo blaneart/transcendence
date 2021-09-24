@@ -45,7 +45,7 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
   let meIn = -1;
   return (<div className="flex flex-row py-2">
     {/* <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message} */}
-    <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} />
+    <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} authToken={authToken}/>
     {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
     {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
       <> 

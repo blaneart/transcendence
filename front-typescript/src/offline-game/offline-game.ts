@@ -108,11 +108,12 @@ class Offline_Pong {
   audios: any [];
   ratio: number;
   borderElem: any;
-
+  isSound: boolean;
   constructor(fn: Function, canvas: HTMLElement, authToken: string, difficultyBot: any, map: any, ratio: number)
   {
     this.last_score = -1;
 	  this.curr_map = map.maps;
+    this.isSound = map.sounds;
 	  this.powerups = map.powerUps;
     this._canvas = canvas as HTMLCanvasElement;
     this.borderElem = document.getElementById("custom-border");
@@ -129,6 +130,7 @@ class Offline_Pong {
     this.ball.vel.x = 0;
     this.ball.vel.y = 0;
     this.animation = 0;
+
     this.audios = [
       new Audio(process.env.REACT_APP_API_URL + "/audio/paddle_sound.mp3"),
       new Audio(process.env.REACT_APP_API_URL + "/audio/wall_sound.mp3"),
@@ -137,6 +139,7 @@ class Offline_Pong {
     this.audios[0].load();
     this.audios[1].load();
     this.audios[2].load();
+
     this.players = [
       new Player(-1, this.ratio),
       new Player(difficultyBot.number + 1, this.ratio),
@@ -220,7 +223,8 @@ class Offline_Pong {
     if (player.left < ball.right && player.right > ball.left &&
         player.top < ball.bottom && player.bottom > ball.top)
     {
-      this.audios[0].play();
+      if (this.isSound)
+        this.audios[0].play();
       ball.vel.x = -ball.vel.x;
 		  if (player.botDifficulty < 0)
       {
@@ -252,7 +256,8 @@ class Offline_Pong {
     if (obstacle.left < ball.right && obstacle.right > ball.left &&
         obstacle.top < ball.bottom && obstacle.bottom > ball.top)
     {
-      this.audios[1].play();
+      if (this.isSound)
+        this.audios[1].play();
 			if (ball.vel.y < 0)
 			{
 				if (left >= 0)
@@ -517,7 +522,8 @@ class Offline_Pong {
     }
     if (this.ball.right <= 0 || this.ball.left >= this._canvas.width)
     {
-      this.audios[2].play();
+      if (this.isSound)
+        this.audios[2].play();
       let playerId = this.ball.vel.x < 0 ? 1 : 0;
       if (this.players[playerId ? 0 : 1].empowered !== 1 && this.players[playerId ? 0 : 1].empowered !== 4 && this.players[playerId ? 0 : 1].empowered !== 5)
       {
@@ -528,7 +534,8 @@ class Offline_Pong {
     }
     if (this.ball.top < 0 || this.ball.bottom > this._canvas.height)
     {
-      this.audios[1].play();
+      if (this.isSound)
+        this.audios[1].play();
       this.ball.vel.y = -this.ball.vel.y;
       if (this.ball.top < 0)
         this.ball.pos.y = 0;

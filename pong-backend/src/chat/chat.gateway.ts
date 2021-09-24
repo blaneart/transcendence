@@ -227,12 +227,13 @@ export class ChatGateway {
     // Restrict the room in our database
     this.chatService.restrictRoom(attempt.roomName, attempt.password);
 
-    // Kick all the users from the room
-    this.server.to(room.name).emit("kickedOut");
-    this.server.socketsLeave(room.name);
+    this.server.to(room.name).emit("error", "This room is now private :)");
+    // // Kick all the users from the room
+    // this.server.to(room.name).emit("kickedOut");
+    // this.server.socketsLeave(room.name);
 
-    // Delete all participations from the database
-    this.chatService.deleteAllParticipations(room);
+    // // Delete all participations from the database
+    // this.chatService.deleteAllParticipations(room);
   }
 
   // Ban a user

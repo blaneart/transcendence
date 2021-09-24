@@ -53,7 +53,7 @@ const UserTooltip: React.FC<UserTooltipProps> = ({ message, socket, userId, game
     <MessageAvatar user={message.sender} />
 
     <p className=""><a className="text-black font-normal underline" href={`/users/${message.sender.name}`}>{message.sender.name}</a></p>
-    <p className="mt-0 leading-normal">Games: {message.sender.games} <br />
+    <p className="mt-0 leading-normal">Games: {gameNumbers ? gameNumbers[1] : null} <br />
       Wins: {gameNumbers ? gameNumbers[0] : null}<br />
       Losses: {gameNumbers ? gameNumbers[2] : null}<br /></p>
     {userId === message.senderID ? null : <GameInvite socket={socket} ranked={true} enemy={message.sender} gameSettings={gameSettings} />}

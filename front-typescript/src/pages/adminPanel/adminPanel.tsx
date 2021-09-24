@@ -112,7 +112,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
             <MessageAvatar user={member} /><p className="px-4 text-xl">{member.name}</p>
             </div>
             {
-              member.owner ? <p>Proud owner</p> : member.id === user.id ? <p>Your Honour</p> : <button onClick={() => handleDemote(member.id)} className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-red-300 font-bold border-solid border-red-400 hover:text-red-800 hover:bg-red-400 border-3 text-red-600 shadow-lg">Demote</button>
+              member.owner ? <p>Proud owner</p> : member.id === user.id ? <p>Your Honour</p> : <button onClick={() => handleDemote(member.id)}
+              className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-red-400 font-bold border-solid border-red-500 hover:bg-red-500 border-3 text-red-600 hover:text-red-800 hover:border-red-600 shadow-lg">Demote</button>
             }
 
           </div>
@@ -128,8 +129,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
             <div className="flex-1 flex flex-row items-center">
             <MessageAvatar user={user} /><p className="px-4 text-xl">{user.name}</p>
             </div>
-            <button onClick={() => handleBan(user.id)} className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-red-300 font-bold border-solid border-red-400 hover:bg-red-400 border-3 text-red-600 hover:text-red-800 shadow-lg">Ban</button>
-            <button onClick={() => handlePromote(user.id)} className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-green-300 font-bold border-solid border-green-500 hover:bg-green-500 border-3 text-green-600 hover:text-green-800 shadow-lg">Promote</button>
+            <button onClick={() => handleBan(user.id)} className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-red-400 font-bold border-solid border-red-500 hover:bg-red-500 border-3 text-red-600 hover:text-red-800 hover:border-red-600 shadow-lg">Ban</button>
+            <button onClick={() => handlePromote(user.id)} className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-green-400 font-bold border-solid border-green-500 hover:bg-green-500 border-3 text-green-600 hover:text-green-800 hover:border-green-600 shadow-lg">Promote</button>
           </div>
         </div>)}
       </div>
@@ -141,7 +142,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
           <div className="px-4 flex flex-1 flex-row items-center ">
             <MessageAvatar user={user} /><p className="px-4 text-xl">{user.name}</p>
           </div>
-          <button onClick={() => handleForgive(user.id)} className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-green-300 font-bold border-solid border-green-500 hover:bg-green-500 border-3 text-green-600 hover:text-green-800 shadow-lg">Forgive</button>
+          <button onClick={() => handleForgive(user.id)} className="cursor-pointer py-4 px-10 text-xl bg-white rounded-lg bg-green-400 font-bold border-solid border-green-500 hover:bg-green-500 border-3 text-green-600 hover:text-green-800 hover:border-green-600 shadow-lg">Forgive</button>
         </div></div> : null)}
       </div>
     </div>: <p>Restricted area.</p>}</>

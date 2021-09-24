@@ -138,7 +138,6 @@ const Profile: React.FC<IProfilePageProps> = ({
   let color = user && user.twofa ? "red" : "green";
   let buttonClass = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${color}-500 bg-${color}-300 text-${color}-900 font-bold hover:bg-${color}-500 hover:text-white border-${color}-500`;
 
-
   return (
     <div className="account-page py-10">
       {user ?
@@ -162,6 +161,7 @@ const Profile: React.FC<IProfilePageProps> = ({
                     {user.twofa ? "Disable 2FA" : "Enable 2FA"}
                   </button>
                   <Modal show={qrModal} handleClose={() => setQrModal(false)}>
+                    <div className="px-5 py-3">
                     <p className="twofa-text">Save this qr-code in your auth app: </p>
                     <div className="twofa-code">
                       <img
@@ -171,6 +171,7 @@ const Profile: React.FC<IProfilePageProps> = ({
                     <div className="twofa-secret">
                       <p>Secret (backup in your password manager)</p>
                       <p>{user.twofaSecret}</p>
+                    </div>
                     </div>
                   </Modal>
                   <AvatarUpload user={user} authToken={authToken} setUser={setUser} />

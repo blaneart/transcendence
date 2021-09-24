@@ -10,8 +10,8 @@ interface ISettingsProps {
 
 const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
     const [colorRank, setColorRank] = useState({
-        yes: "red",
-        no: "red"
+        on: "red",
+        off: "red"
     });
     const [colorMap, setColorMap] = useState({
         map1: "red",
@@ -19,51 +19,51 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
         map3: "red"
     })
     const [colorPower, setColorPower] = useState({
-        yes: "red",
-        no: "red"
+        on: "red",
+        off: "red"
 
     })
     const [colorSound, setColorSound] = useState({
-        yes: "red",
-        no: "red"
+        on: "red",
+        off: "red"
 
     })
     useEffect(() => {
         if (settings.ranked)
             setColorRank({
-                yes: "green",
-                no: "red"
+                on: "green",
+                off: "red"
             })
         else
             setColorRank({
-                yes: "red",
-                no: "green"}
+                on: "red",
+                off: "green"}
                 )
 
     }, [settings.ranked])
     useEffect(() => {
         if (settings.sounds)
             setColorSound({
-                yes: "green",
-                no: "red"
+                on: "green",
+                off: "red"
             })
         else
             setColorSound({
-                yes: "red",
-                no: "green"}
+                on: "red",
+                off: "green"}
                 )
 
     }, [settings.sounds])
     useEffect(() => {
         if (settings.powerUps)
             setColorPower({
-                yes: "green",
-                no: "red"
+                on: "green",
+                off: "red"
             })
         else
             setColorPower({
-                yes: "red",
-                no: "green"}
+                on: "red",
+                off: "green"}
                 )
 
     }, [settings.powerUps])
@@ -80,7 +80,7 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
             map1: "red",
             map2: "green",
             map3: "red"
-        })       
+        })
         else
             setColorMap({
                 map1: "red",
@@ -88,36 +88,37 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
                 map3: "green"
             })
     }, [settings.maps])
-    let buttonRankClassYes = `px-6 py-2 rounded-lg border-1 border-solid border-${colorRank.yes}-500 bg-${colorRank.yes}-300 text-${colorRank.yes}-900 font-bold`;
-    let buttonRankClassNo = `px-6 py-2 rounded-lg border-1 border-solid border-${colorRank.no}-500 bg-${colorRank.no}-300 text-${colorRank.no}-900 font-bold`;
-    let buttonSoundClassYes = `px-6 py-2 rounded-lg border-1 border-solid border-${colorSound.yes}-500 bg-${colorSound.yes}-300 text-${colorSound.yes}-900 font-bold`;
-    let buttonSoundClassNo = `px-6 py-2 rounded-lg border-1 border-solid border-${colorSound.no}-500 bg-${colorSound.no}-300 text-${colorSound.no}-900 font-bold`;
-    let buttonPowerClassYes = `px-6 py-2 rounded-lg border-1 border-solid border-${colorPower.yes}-500 bg-${colorPower.yes}-300 text-${colorPower.yes}-900 font-bold`;
-    let buttonPowerClassNo = `px-6 py-2 rounded-lg border-1 border-solid border-${colorPower.no}-500 bg-${colorPower.no}-300 text-${colorPower.no}-900 font-bold`;
-    let buttonMapClass1 = `px-6 py-2 rounded-lg border-1 border-solid border-${colorMap.map1}-500 bg-${colorMap.map1}-300 text-${colorMap.map1}-900 font-bold`;
-    let buttonMapClass2 = `px-6 py-2 rounded-lg border-1 border-solid border-${colorMap.map2}-500 bg-${colorMap.map2}-300 text-${colorMap.map2}-900 font-bold`;
-    let buttonMapClass3 = `px-6 py-2 rounded-lg border-1 border-solid border-${colorMap.map3}-500 bg-${colorMap.map3}-300 text-${colorMap.map3}-900 font-bold`;
+    let buttonRankClassOn = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorRank.on}-400 bg-${colorRank.on}-300 hover:border-${colorRank.on}-600 hover:bg-${colorRank.on}-400 text-${colorRank.on}-600 font-bold hover:text-${colorRank.on}-800 border-${colorRank.on}-500`;
+    let buttonRankClassOff = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorRank.off}-400 bg-${colorRank.off}-300 hover:border-${colorRank.off}-600 hover:bg-${colorRank.off}-400 text-${colorRank.off}-600 font-bold hover:text-${colorRank.off}-800 border-${colorRank.off}-500`;
+    let buttonSoundClassOn = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorSound.on}-400 bg-${colorSound.on}-300 hover:border-${colorSound.on}-600 hover:bg-${colorSound.on}-400 text-${colorSound.on}-600 font-bold hover:text-${colorSound.on}-800 border-${colorSound.on}-500`;
+    let buttonSoundClassOff = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorSound.off}-400 bg-${colorSound.off}-300 hover:border-${colorSound.off}-600 hover:bg-${colorSound.off}-400 text-${colorSound.off}-600 font-bold hover:text-${colorSound.off}-800 border-${colorSound.off}-500`;
+    let buttonPowerClassOn = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorPower.on}-400 bg-${colorPower.on}-300 hover:border-${colorPower.on}-600 hover:bg-${colorPower.on}-400 text-${colorPower.on}-600 font-bold hover:text-${colorPower.on}-800 border-${colorPower.on}-500`;
+    let buttonPowerClassOff = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorPower.off}-400 bg-${colorPower.off}-300 hover:border-${colorPower.off}-600 hover:bg-${colorPower.off}-400 text-${colorPower.off}-600 font-bold hover:text-${colorPower.off}-800 border-${colorRank.off}-500`;
+    let buttonMapClass1 = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorMap.map1}-400 bg-${colorMap.map1}-300 hover:border-${colorMap.map1}-600 hover:bg-${colorMap.map1}-400 text-${colorMap.map1}-600 font-bold hover:text-${colorMap.map1}-800 border-${colorMap.map1}-500`;
+    let buttonMapClass2 = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorMap.map2}-400 bg-${colorMap.map2}-300 hover:border-${colorMap.map2}-600 hover:bg-${colorMap.map2}-400 text-${colorMap.map2}-600 font-bold hover:text-${colorMap.map2}-800 border-${colorMap.map2}-500`;
+    let buttonMapClass3 = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${colorMap.map3}-400 bg-${colorMap.map3}-300 hover:border-${colorMap.map3}-600 hover:bg-${colorMap.map3}-400 text-${colorMap.map3}-600 font-bold hover:text-${colorMap.map3}-800 border-${colorMap.map3}-500`;
+    let pClass = `text-center font-xl`;
 
     return (
-        <div>
-            <p>Ranked</p>
-            <div className="flex flex-row">
-                  <button className={buttonRankClassYes} onClick={()=>setSettings({
+        <div className="bg-black bg-opacity-75 px-10 py-10 rounded-xl shadow-lg">
+            <p className={pClass}>Ranked</p>
+            <div className="flex flex-row justify-center">
+                  <button className={buttonRankClassOn} onClick={()=>setSettings({
                         ranked: true,
                         maps: settings.maps,
                         powerUps: settings.powerUps,
                         sounds: settings.sounds
-                  })}>YES</button>
-                  <button className={buttonRankClassNo} onClick={()=>setSettings({
+                  })}>ON</button>
+                  <button className={buttonRankClassOff} onClick={()=>setSettings({
                         ranked: false,
                         maps: settings.maps,
                         powerUps: settings.powerUps,
                         sounds: settings.sounds
-                  })}>NO</button>
+                  })}>OFF</button>
             </div>
 
-            <p>Maps</p>
-            <div className="flex flex-row">
+            <p className={pClass}>Maps</p>
+            <div className="flex flex-row justify-center">
                   <button className={buttonMapClass1} onClick={()=>setSettings({
                         ranked: settings.ranked,
                         maps: 0,
@@ -138,27 +139,27 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
                   })}>3</button>
             </div>
 
-            <p>powerUps</p>
-            <div className="flex flex-row">
-                  <button className={buttonPowerClassYes} onClick={()=>setSettings({
+            <p className={pClass}>powerUps</p>
+            <div className="flex flex-row justify-center">
+                  <button className={buttonPowerClassOn} onClick={()=>setSettings({
                         ranked: settings.ranked,
                         maps: settings.maps,
                         powerUps: true,
                         sounds: settings.sounds
-                  })}>YES</button>
-                  <button className={buttonPowerClassNo} onClick={()=>setSettings({
+                  })}>ON</button>
+                  <button className={buttonPowerClassOff} onClick={()=>setSettings({
                         ranked: settings.ranked,
                         maps: settings.maps,
                         powerUps: false,
                         sounds: settings.sounds
-                  })}>NO</button>
+                  })}>OFF</button>
             </div>
 
-            <p>Sounds</p>
-            <div className="flex flex-row">
-                  <button className={buttonSoundClassYes} onClick={()=>
+            <p className={pClass}>Sounds</p>
+            <div className="flex flex-row justify-center">
+                  <button className={buttonSoundClassOn} onClick={()=>
                   {
-                      if (navigator.userAgent.indexOf("Safari") != -1)
+                      if (navigator.userAgent.indexOf("Safari") !== -1)
                         alert('Sounds do not work in your browser, sorry:(')
                       else
                         setSettings({
@@ -167,7 +168,7 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
                         powerUps: settings.powerUps,
                         sounds: true
                   })}}>ON</button>
-                  <button className={buttonSoundClassNo} onClick={()=>setSettings({
+                  <button className={buttonSoundClassOff} onClick={()=>setSettings({
                         ranked: settings.ranked,
                         maps: settings.maps,
                         powerUps: settings.powerUps,

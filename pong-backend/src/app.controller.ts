@@ -202,14 +202,6 @@ export class AppController {
       throw new HttpException("User already exists", HttpStatus.CONFLICT);
     }
 
-    // puts your status to 0 if you are already logged in
-    // if (body.id !== 0)
-    // {
-    //   await this.profileService.updateUserById(
-    //     body.id, {
-    //     status: 0,
-    //   });
-    // }
     // Create a new user
     const newUser = await this.profileService.createFakeUser(param.newName);
     // Add this user to JWT

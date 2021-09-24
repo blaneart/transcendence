@@ -6,8 +6,6 @@ export interface User {
   games: number;
   elo: number;
   wins: number;
-  twofa: boolean;
-  twofaSecret: string;
   realAvatar: boolean;
   status: number;
   owner: boolean;

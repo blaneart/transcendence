@@ -136,7 +136,7 @@ const Profile: React.FC<IProfilePageProps> = ({
   }, [refreshGameNumbers]); // We don't really reupdate.
 
   let color = user && user.twofa ? "red" : "green";
-  let buttonClass = `px-6 py-2 rounded-lg border-1 border-solid border-${color}-500 bg-${color}-300 text-${color}-900 font-bold`;
+  let buttonClass = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${color}-500 bg-${color}-300 text-${color}-900 font-bold hover:bg-${color}-500 hover:text-white border-${color}-500`;
 
 
   return (
@@ -182,10 +182,7 @@ const Profile: React.FC<IProfilePageProps> = ({
                 wins={gameNumbers[0]}
                 games={gameNumbers[1]}
                 losses={gameNumbers[2]}
-              // games={() => getNumberOfGames((profile_user as User))}
-              // losses={() => getNumberOfLosses((profile_user as User))}
               />
-
               <GameHistory user={(profile_user as User)} authToken={authToken} />
               <Achievements user={(profile_user as User)} authToken={authToken} setUser={setUser} />
             </div>

@@ -61,7 +61,7 @@ const ChangeNameButton: React.FC<ICNBProps> = ({
     }
     
     return (
-    <button type="button" className="py-2 mx-1 hover:bg-opacity-100 px-4 rounded-lg bg-white bg-opacity-75 text-black font-bold border-0 shadow-lg" onClick={HandleClick}>Submit</button>
+    <button type="button" className="cursor-pointer py-2 mx-1 hover:bg-opacity-100 px-4 rounded-lg bg-white bg-opacity-75 text-black font-bold border-0 shadow-lg" onClick={HandleClick}>Submit</button>
     );
 };
 

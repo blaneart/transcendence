@@ -221,7 +221,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
 
       // Re-check if we're unmuted after minutes pass
       setTimeout(() => {
-        getMuted(authToken, roomName).then((isMuted) => isMuted ? setMuted(isMuted) : null);
+        getMuted(authToken, roomName).then((isMuted) => isMuted !== null && setMuted(isMuted));
       }, minutes * 60 * 1000);
     })
 

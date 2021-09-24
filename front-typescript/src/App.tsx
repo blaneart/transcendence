@@ -18,7 +18,7 @@ import { User, Settings } from "./App.types";
 import OfflineGame from "./pages/offline-game/offline-game.component";
 import "./App.scss";
 import Difficulty from "./components/difficulty-lvl/difficulty-lvl.component";
-import FakeUserCreator from "./pages/chats/components/fakeUserCreator.components";
+import FakeUserCreator from "./pages/cheats/fakeUserCreator.components";
 import Watch from "./pages/watch/watch.component";
 import Room from "./pages/watch/components/room.component";
 import Ruleset from "./pages/ruleset/ruleset.component";

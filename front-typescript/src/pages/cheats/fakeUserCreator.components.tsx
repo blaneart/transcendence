@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { User } from '../../../App.types';
+import { User } from '../../App.types';
 
 
 interface FakeUserCreatorProps {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { io, Socket } from "socket.io-client";
 import Composer from "./composer.component";
@@ -35,7 +35,13 @@ async function getRoom(authToken: string, roomName: string): Promise<Room | null
       },
     });
   if (!response.ok)
+  {
+    if (response.status === 404)
+    {
+      alert('Room not found :(');
+    }
     return null;
+  }
   return await response.json() as Room;
 }
 
@@ -102,9 +108,13 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
   const [gameRoomName, setGameRoomName] = useState<string>('no room');
 
 
+  const updateRoom = useCallback(() => {
+    getRoom(authToken, roomName).then((update) => update !== null ? setRoom(update) : history.replace('/chats'));
+  }, [authToken, roomName]);
+
   useEffect(() => {
     // Get the current room instance
-    getRoom(authToken, roomName).then((update) => update !== null ? setRoom(update) : null);
+    updateRoom();
 
     // Find out if we're muted
     getMuted(authToken, roomName).then(async (isMuted) => {
@@ -245,6 +255,10 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       history.replace(`/play/${gameRoomName}/${userId}`);
     })
 
+    socket.on("updateRoomStatus", (update: boolean) => {
+      updateRoom();
+    });
+
     socket.on("disconnect", (reason) => {
       // If our socket has disconnected not because we wanted it to
       if (reason !== "io client disconnect") {
@@ -262,7 +276,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       socket.disconnect();
     };
 
-  }, [roomName, socket, authToken, history, userId]); // We only re-run setup if room name or socket change
+  }, [roomName, socket, authToken, history, userId, updateRoom]); // We only re-run setup if room name or socket change
   // (In other words, we don't.)
 
   let amOwner = false;

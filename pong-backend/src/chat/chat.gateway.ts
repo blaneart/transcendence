@@ -225,15 +225,35 @@ export class ChatGateway {
       throw new WsException("You have to own the room to make it private");
 
     // Restrict the room in our database
-    this.chatService.restrictRoom(attempt.roomName, attempt.password);
+    const newRoom = await this.chatService.restrictRoom(attempt.roomName, attempt.password);
 
     this.server.to(room.name).emit("error", "This room is now private :)");
-    // // Kick all the users from the room
-    // this.server.to(room.name).emit("kickedOut");
-    // this.server.socketsLeave(room.name);
+    this.server.to(room.name).emit("updateRoomStatus", newRoom.restricted);
+  }
 
-    // // Delete all participations from the database
-    // this.chatService.deleteAllParticipations(room);
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('unrestrictRoom')
+  async handleUnrestrict(client: AuthenticatedSocket, roomName: string) {
+    // Manually validate room name
+    if (!roomName || roomName === "")
+      throw new WsException("Bad request");
+
+    // Find the room
+    const room = await this.chatService.findRoomByName(roomName);
+
+    // Ensure the room exists
+    if (!room)
+      throw new WsException("Room not found");
+
+    // Ensure the sender owns the room
+    if (room.ownerID !== client.user.id)
+      throw new WsException("You have to own the room to make it public");
+
+    // Restrict the room in our database
+    const newRoom = await this.chatService.unrestrictRoom(roomName);
+
+    this.server.to(room.name).emit("error", "This room is now without password");
+    this.server.to(room.name).emit("updateRoomStatus", newRoom.restricted);
   }
 
   // Ban a user

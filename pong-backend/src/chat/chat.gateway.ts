@@ -116,7 +116,7 @@ export class ChatGateway {
     if (response !== true)
     {
       // Kick the person out
-      this.server.to(client.id).emit('kickedOut');
+      this.server.to(client.id).emit('wrongPassword');
       throw new WsException("Wrong password");
     }
 
@@ -227,12 +227,13 @@ export class ChatGateway {
     // Restrict the room in our database
     this.chatService.restrictRoom(attempt.roomName, attempt.password);
 
-    // Kick all the users from the room
-    this.server.to(room.name).emit("kickedOut");
-    this.server.socketsLeave(room.name);
+    this.server.to(room.name).emit("error", "This room is now private :)");
+    // // Kick all the users from the room
+    // this.server.to(room.name).emit("kickedOut");
+    // this.server.socketsLeave(room.name);
 
-    // Delete all participations from the database
-    this.chatService.deleteAllParticipations(room);
+    // // Delete all participations from the database
+    // this.chatService.deleteAllParticipations(room);
   }
 
   // Ban a user
@@ -254,6 +255,14 @@ export class ChatGateway {
     // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
       throw new WsException("Incorrect number of minutes");
+
+    // Ensure the user is not already banned
+    const alreadyBanned = await this.chatService.isBanned(data.userId, room.id);
+    if (alreadyBanned === true)
+    {
+      this.server.to(client.id).emit('error', "This user is already banned, sorry.");
+      throw new WsException("This user is already banned");
+    }
 
     // Create a ban record in our database
     const response = await this.chatService.banUser(data.userId, room.id, data.minutes);
@@ -290,6 +299,16 @@ export class ChatGateway {
     // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
       throw new WsException("Incorrect number of minutes");
+
+
+    // Ensure the user is not already muted
+    const alreadyMuted = await this.chatService.isMuted(data.userId, room.id);
+
+    if (alreadyMuted === true)
+    {
+      this.server.to(client.id).emit('error', 'This user is already muted, sorry');
+      throw new WsException("This user is already muted");
+    }
 
     // Add a mute record to our database
     const mutedUntil = await this.chatService.muteUser(data.userId, room.id, data.minutes);

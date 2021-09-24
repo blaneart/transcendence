@@ -71,15 +71,13 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
       <div className="px-4 flex-1">
         <h2>My rooms</h2>
         {rooms.map((room) => room.fav ?
-          <div className="">
             <RoomLink key={room.id} authToken={authToken} room={room} onDelete={refreshRooms} userId={userId} />
-          </div>
           : null)}
         <h2 className="mb-2">Rooms: </h2>
         <p className="text-sm mt-1">Click to join </p>
         {rooms.map((room) => room.fav 
         ? null
-        : <div onClick={() => addRoom(authToken, room.id, refreshRooms)} className="bg-gray-400 bg-opacity-25 shadow-lg rounded-lg hover:bg-opacity-50">
+        : <div key={room.id} onClick={() => addRoom(authToken, room.id, refreshRooms)} className="bg-gray-400 bg-opacity-25 shadow-lg rounded-lg hover:bg-opacity-50">
           <p className="px-4 py-3">{room.name}</p>
         </div>)}
         <CreateRoom authToken={authToken} onCreate={refreshRooms} />

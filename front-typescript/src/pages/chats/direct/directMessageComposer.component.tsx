@@ -9,7 +9,7 @@ interface DirectMessageComposerProps {
 }
 
 const DirectMessageComposer: React.FC<DirectMessageComposerProps> = ({ socket, interlocutor }) => {
-  const [messageText, setMessageText] = useState<string>();
+  const [messageText, setMessageText] = useState<string>("");
 
   // Handle sending a message
   const sendMessage = async (event: any) => {

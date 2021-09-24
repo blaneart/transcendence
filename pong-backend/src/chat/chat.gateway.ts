@@ -192,7 +192,7 @@ export class ChatGateway {
       throw new WsException("You have to own this room to delete it.");
 
     // Kick all the users from the room
-    this.server.to(room.name).emit("kickedOut");
+    this.server.to(room.name).emit("roomDeleted");
     this.server.socketsLeave(room.name);
 
     // Delete the room from the database

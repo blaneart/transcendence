@@ -110,7 +110,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
 
   const updateRoom = useCallback(() => {
     getRoom(authToken, roomName).then((update) => update !== null ? setRoom(update) : history.replace('/chats'));
-  }, [authToken, roomName]);
+  }, [authToken, roomName, history]);
 
   useEffect(() => {
     // Get the current room instance
@@ -187,6 +187,13 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
     // When we get kicked out of the room, we have to return to the chat screen.
     socket.on("kickedOut", () => {
       alert("You were kicked out of this room");
+      socket.disconnect();
+      history.replace("/chats/");
+    })
+
+    // When the room gets deleted, we get kicked out
+    socket.on("roomDeleted", () => {
+      alert("This room has been deleted");
       socket.disconnect();
       history.replace("/chats/");
     })

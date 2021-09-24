@@ -13,7 +13,7 @@ export class ChatService {
   async createRoom(name: string, creatorId: number) {
     // Create a new room in the database
     const new_room = await db('room').returning('*').insert({ name: name, ownerID: creatorId });
-    
+
     // Add new room to favourites
     await db('my_rooms')
       .returning('*')
@@ -24,7 +24,7 @@ export class ChatService {
 
   // Delete a room
   async deleteRoom(roomID: number) {
-    const response = await db('room').where({id: roomID}).del();
+    const response = await db('room').where({ id: roomID }).del();
     return response;
   }
 
@@ -34,7 +34,7 @@ export class ChatService {
       .join('users', 'users.id', '=', 'room.ownerID')
       .leftJoin('my_rooms', function () {
         this.on('my_rooms.roomID', '=', 'room.id')
-        .andOn('my_rooms.userID', '=', userID)
+          .andOn('my_rooms.userID', '=', userID)
       })
       .select('room.id', 'room.name', 'room.ownerID', 'room.restricted', 'users.name as owner_name', 'my_rooms.userID as fav');
     // Return all of the rooms
@@ -125,8 +125,7 @@ export class ChatService {
   }
 
   // Get all the messages from the database and transform them to ChatMessageUpdates
-  async getRoomMessageUpdates(roomName: string)
-  {
+  async getRoomMessageUpdates(roomName: string) {
     // Get the messages from the backend
     const messages = await this.getRoomMessages(roomName);
     // Transform them
@@ -159,8 +158,7 @@ export class ChatService {
   }
 
   // Restrict a room with a password
-  async restrictRoom(roomName: string, newPassword: string)
-  {
+  async restrictRoom(roomName: string, newPassword: string) {
     // Find the room
     const room = await this.findRoomByName(roomName);
 
@@ -168,13 +166,22 @@ export class ChatService {
     const hash = await bcrypt.hash(newPassword, saltRounds);
 
     // Restrict the room and save the hash to the database
-    const response = await db('room').where({id: room.id}).update({restricted: true, hash: hash});
+    const response = await db('room').returning('*').where({ id: room.id }).update({ restricted: true, hash: hash });
+    return response[0];
+  }
+
+  // Unrestrict a room
+  async unrestrictRoom(roomName: string) {
+    // Find the room
+    const room = await this.findRoomByName(roomName);
+
+    // Unrestrict the room
+    const response = await db('room').returning('*').where({ id: room.id }).update({ restricted: false });
     return response[0];
   }
 
   // Check an attempt to login to a room
-  async loginToRoom(roomName: string, attemptedPassword: string) : Promise<boolean>
-  {
+  async loginToRoom(roomName: string, attemptedPassword: string): Promise<boolean> {
     // Find the room
     const room = await this.findRoomByName(roomName);
 
@@ -183,97 +190,85 @@ export class ChatService {
   }
 
   // Check a password against a room's saved hash
-  async checkPassword(room: Room, attemptedPassword: string) : Promise<boolean>
-  {
+  async checkPassword(room: Room, attemptedPassword: string): Promise<boolean> {
     // Compare the hash of the attempted password to the saved hash
     return await bcrypt.compare(attemptedPassword, room.hash);
   }
 
-  async checkUserJoined(room: Room, user_id: number): Promise<boolean>
-  {
+  async checkUserJoined(room: Room, user_id: number): Promise<boolean> {
     // Find a corresponding participation entry
-    const participation = await db('participants').where({roomID: room.id, userID: user_id}).select('*');
+    const participation = await db('participants').where({ roomID: room.id, userID: user_id }).select('*');
 
     // Ensure such entry exists
-    if (!participation.length)
-    {
+    if (!participation.length) {
       return false;
     }
     return true;
   }
 
   // Log user out of all rooms
-  async leaveAllRooms(user_id: number)
-  {
+  async leaveAllRooms(user_id: number) {
     // Remove all participation entries from our database
-    const response = await db('participants').where({userID: user_id}).del();
+    const response = await db('participants').where({ userID: user_id }).del();
     return response[0];
   }
 
   // Log all users out from a room
-  async deleteAllParticipations(room: Room)
-  {
+  async deleteAllParticipations(room: Room) {
     // Delete all participation entries linked to this room from our database
-    const response = await db('participants').where({roomID: room.id}).del();
+    const response = await db('participants').where({ roomID: room.id }).del();
     return response[0];
   }
 
   // Get a room entry from our database
-  async getRoom(roomName: string)
-  {
+  async getRoom(roomName: string) {
     // Find a corresponding room
-    const response = await db('room').where({ 'room.name': roomName})
+    const response = await db('room').where({ 'room.name': roomName })
       .join('users', 'users.id', '=', 'room.ownerID') // Join to users for username
       .select('room.id', 'room.name', 'room.ownerID', 'room.restricted', 'users.name as owner_name')
     return response[0];
   }
 
   // Add a block entry for a given pair of users
-  async blockUser(blockerID: number, blockedID: number)
-  {
+  async blockUser(blockerID: number, blockedID: number) {
     // Insert a block entry to the database
     const response = await db('blocklist').returning('*').insert({ blockerID: blockerID, blockedID: blockedID });
     return response[0];
   }
 
   // Get all block pairs from our database
-  async getBlockList(blockerID: number)
-  {
+  async getBlockList(blockerID: number) {
     // Get all corresponding block entries
-    const response = await db('blocklist').where({blockerID: blockerID})
+    const response = await db('blocklist').where({ blockerID: blockerID })
       .join('users', 'users.id', '=', 'blocklist.blockedID') // Join to users for username
       .select('blocklist.blockedID', 'users.name');
     return response;
   }
 
   // Ban a user in a given room
-  async banUser(userId: number, roomId: number, minutes: number)
-  {
+  async banUser(userId: number, roomId: number, minutes: number) {
     // Calculate the ban end date
     const now = new Date();
     const banEnd = new Date(now.getTime() + minutes * 1000 * 60);
-    
+
     // Create a record in our database
-    const response = await db('banlist').returning('*').insert({userID: userId, roomID: roomId, until: banEnd});
+    const response = await db('banlist').returning('*').insert({ userID: userId, roomID: roomId, until: banEnd });
     return response[0];
   }
 
   // Remove the ban record from our database
-  async removeBan(userId: number, roomId: number)
-  {
-    const response = await db('banlist').where({userID: userId, roomID: roomId}).del();
+  async removeBan(userId: number, roomId: number) {
+    const response = await db('banlist').where({ userID: userId, roomID: roomId }).del();
     return response[0];
   }
 
   // Find out if a user is banned in a given chat
-  async isBanned(userId: number, roomId: number): Promise<boolean>
-  {
+  async isBanned(userId: number, roomId: number): Promise<boolean> {
     // Find the corresponding record
-    const response = await db('banlist').where({userID: userId, roomID: roomId}).select('*');
-    
+    const response = await db('banlist').where({ userID: userId, roomID: roomId }).select('*');
+
     // If such a record exists
-    if (response.length)
-    {
+    if (response.length) {
       // If it is still in effect, return true
       const now = new Date()
       if (response[0].until.getTime() > now.getTime())
@@ -286,33 +281,29 @@ export class ChatService {
   }
 
   // Mute a user in a given room for a given number of minutes
-  async muteUser(userId: number, roomId: number, minutes: number)
-  {
+  async muteUser(userId: number, roomId: number, minutes: number) {
     // Calculate the mute end date
     const now = new Date();
     const banEnd = new Date(now.getTime() + minutes * 1000 * 60);
 
     // Create the DB record
-    const response = await db('mutelist').returning('*').insert({userID: userId, roomID: roomId, until: banEnd});
+    const response = await db('mutelist').returning('*').insert({ userID: userId, roomID: roomId, until: banEnd });
     return banEnd;
   }
 
   // Remove a mute record from our database
-  async removeMute(userId: number, roomId: number)
-  {
-    const response = await db('mutelist').where({userID: userId, roomID: roomId}).del();
+  async removeMute(userId: number, roomId: number) {
+    const response = await db('mutelist').where({ userID: userId, roomID: roomId }).del();
     return response[0];
   }
 
   // Find out if a user is muted in a room
-  async isMuted(userId: number, roomId: number): Promise<boolean>
-  {
+  async isMuted(userId: number, roomId: number): Promise<boolean> {
     // Find the corresponding record
-    const response = await db('mutelist').where({userID: userId, roomID: roomId}).select('*');
-    
+    const response = await db('mutelist').where({ userID: userId, roomID: roomId }).select('*');
+
     // If such record exists
-    if (response.length)
-    {
+    if (response.length) {
       // And is still in effect, return true
       const now = new Date()
       if (response[0].until.getTime() > now.getTime())
@@ -325,14 +316,12 @@ export class ChatService {
   }
 
   // Find out until which date a user is muted in the room
-  async getMutedUntil(userId: number, roomId: number): Promise<Date | null>
-  {
+  async getMutedUntil(userId: number, roomId: number): Promise<Date | null> {
     // Find the corresponding record
-    const response = await db('mutelist').where({userID: userId, roomID: roomId}).select('*');
-    
+    const response = await db('mutelist').where({ userID: userId, roomID: roomId }).select('*');
+
     // If the record exists
-    if (response.length)
-    {
+    if (response.length) {
       // If it is still in vigor, return when it ends
       const now = new Date()
       if (response[0].until.getTime() > now.getTime())
@@ -346,28 +335,25 @@ export class ChatService {
   }
 
   // Create admin 
-  async addAdmin(userId: number, roomId: number)
-  {
+  async addAdmin(userId: number, roomId: number) {
     // Creat the record in the database
-    const response = await db('admins').returning('*').insert({userID: userId, roomID: roomId});
+    const response = await db('admins').returning('*').insert({ userID: userId, roomID: roomId });
     return response;
   }
 
   // Check if a user is an admin in a given room
-  async isAdmin(userId: number, roomId: number): Promise<boolean>
-  {
+  async isAdmin(userId: number, roomId: number): Promise<boolean> {
     // Get the value from the DB
-    const response = await db('admins').where({userID: userId, roomID: roomId}).select('*');
+    const response = await db('admins').where({ userID: userId, roomID: roomId }).select('*');
     if (response.length)
       return true;
     return false;
   }
 
   // Get all admins saved in our database
-  async getAllAdmins(roomId: number)
-  {
+  async getAllAdmins(roomId: number) {
     // Get all admin instances
-    const response = await db('admins').where({roomID: roomId})
+    const response = await db('admins').where({ roomID: roomId })
       .join('users', 'users.id', '=', 'admins.userID').select('admins.id', 'admins.userID', 'users.name');
     return response
   }
@@ -380,27 +366,24 @@ export class ChatService {
   }
 
   // Get all direct conversations for a given user
-  async getAllDirects(userId: number)
-  {
+  async getAllDirects(userId: number) {
     // Find the direct conversation instances
-    const directs = await db('directs').where({userA: userId}).orWhere({userB: userId}).select('*');
+    const directs = await db('directs').where({ userA: userId }).orWhere({ userB: userId }).select('*');
     return directs;
   }
 
   // Find an instance of direct conversation between user A and user B
-  async findDirect(userAId: number, userBId: number): Promise<Direct | null>
-  {
+  async findDirect(userAId: number, userBId: number): Promise<Direct | null> {
     // Find the direct conversation instance
-    const direct = await db('directs').where({userA: userAId, userB: userBId})
-      .orWhere({userA: userBId, userB: userAId}).select('*');
+    const direct = await db('directs').where({ userA: userAId, userB: userBId })
+      .orWhere({ userA: userBId, userB: userAId }).select('*');
     return direct[0] as Direct;
   }
 
   // Get all direct messages up to this moment in a given direct conversation
-  async getAllDirectMessages(directId: number)
-  {
+  async getAllDirectMessages(directId: number) {
     // Find the message instances
-    const messages = await db('directmessages').where({directID: directId})
+    const messages = await db('directmessages').where({ directID: directId })
       .join('users', 'users.id', '=', 'directmessages.senderID')
       .select(
         'directmessages.id', 'directmessages.message', 'directmessages.senderID', 'directmessages.type', 'directmessages.receiverId',
@@ -410,8 +393,7 @@ export class ChatService {
 
   // Get all direct messages up to this moment in a given direct conversation
   // plus wrap in sender information
-  async getAllDirectUpdates(directId: number)
-  {
+  async getAllDirectUpdates(directId: number) {
     // First, get all the messages from the database
     const messages = await this.getAllDirectMessages(directId);
     // Second, map messages into updates
@@ -444,23 +426,20 @@ export class ChatService {
   }
 
   // Save a newly sent direct message to our database
-  async sendDirectMessage(directId: number, senderId: number, message: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null)
-  {
+  async sendDirectMessage(directId: number, senderId: number, message: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null) {
     // Create the message instance
     const response = await db('directmessages').returning('*')
       .insert({ directID: directId, senderID: senderId, message: message, type: type, receiverId: receiverId });
     return response[0]
   }
 
-  async removeRoomFromFavs(roomID: number, userID: number)
-  {
+  async removeRoomFromFavs(roomID: number, userID: number) {
     const response = await db('my_rooms').where({ roomID: roomID, userID: userID }).delete();
 
     return response;
   }
 
-  async addRoom(roomID: number, userID: number)
-  {
+  async addRoom(roomID: number, userID: number) {
     // Add the room to favourites
     const response = await db('my_rooms')
       .returning('*')

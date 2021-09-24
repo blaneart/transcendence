@@ -31,6 +31,12 @@ const RoomAdminPanel: React.FC<RoomAdminPanelParams> = ({ authToken, room, userI
     socket.emit('restrictRoom', { roomName: room.name, password: pass });
   }
 
+  // Emit an event to make the room password-protected
+  const handleUnrestrict = () => {
+    // Emit an event for the backend
+    socket.emit('unrestrictRoom', room.name);
+  }
+
   return (
     <div className="border bg-gray-900 text-gray-300 border-gray-600 rounded-l-lg border-solid md:border-r-0 px-4 py-4">
       <h3 className="mt-2 text-xxl">Options</h3>
@@ -43,6 +49,16 @@ const RoomAdminPanel: React.FC<RoomAdminPanelParams> = ({ authToken, room, userI
           <StyledButton onClick={handleRestrict}>{room.restricted ? "Change room password" : "Make room private"}</StyledButton>
         </div>
       </div>
+      {
+          room.restricted ?
+          <div className="flex flex-row">
+            <div className="px-2 py-2 flex-1">
+              <StyledButton onClick={handleUnrestrict}>Make room public</StyledButton>
+            </div>
+          </div>
+            : null
+        }
+
 
       <Admins authToken={authToken} room={room} socket={socket} />
     </div>

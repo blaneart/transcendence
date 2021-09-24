@@ -116,7 +116,7 @@ export class ChatGateway {
     if (response !== true)
     {
       // Kick the person out
-      this.server.to(client.id).emit('kickedOut');
+      this.server.to(client.id).emit('wrongPassword');
       throw new WsException("Wrong password");
     }
 

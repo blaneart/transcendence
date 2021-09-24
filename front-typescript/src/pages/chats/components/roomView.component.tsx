@@ -111,7 +111,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       // Set the state
       if (isMuted === null)
         return;
-      
+
       setMuted(isMuted);
 
       // Setup the re-check once (if) we get un-muted
@@ -159,8 +159,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
     socket.on("newInvite", (msg, gameRoomName) => {
       const newMessage = msg as MessageType; // we receive a single update
       setMessages((oldMessages) => {
-        if (userId === newMessage.receiverId || userId === newMessage.senderID)
-        {
+        if (userId === newMessage.receiverId || userId === newMessage.senderID) {
           console.log('gameRoomName', gameRoomName)
           setGameRoomName(gameRoomName);
         }
@@ -170,7 +169,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
           return [...oldMessages, newMessage];
         }
         // If this is the first message, we have to set the state to an array
-        
+
         return [newMessage];
       });
     });
@@ -178,6 +177,13 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
     // When we get kicked out of the room, we have to return to the chat screen.
     socket.on("kickedOut", () => {
       alert("You were kicked out of this room");
+      socket.disconnect();
+      history.replace("/chats/");
+    })
+
+    // When the password is wrong, you get kicked out
+    socket.on("wrongPassword", () => {
+      alert("The password is wrong, sorry :( Please try again");
       socket.disconnect();
       history.replace("/chats/");
     })
@@ -234,15 +240,14 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
     socket.on("error", (msg) => alert(msg));
 
     // Game invitation stuff by ablanar and thervieu
-    
+
     socket.on("challengeAccepted", (gameRoomName) => {
       history.replace(`/play/${gameRoomName}/${userId}`);
     })
 
     socket.on("disconnect", (reason) => {
       // If our socket has disconnected not because we wanted it to
-      if (reason !== "io client disconnect")
-      {
+      if (reason !== "io client disconnect") {
         // Reconnect
         setSocket(io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
           auth: {
@@ -264,18 +269,18 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
   if (room)
     amOwner = room.ownerID === userId;
 
-    return (
+  return (
     <div>
 
       <h2 className="text-center">Room: {roomName}</h2>
       <div className="md:flex md:flex-row">
-          {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room}
-                                                   userId={userId} socket={socket} /> : null}
+        {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room}
+          userId={userId} socket={socket} /> : null}
         <div className="flex-1 flex flex-col">
           <div className="flex-1">
             {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room}
-                      socket={socket} amAdmin={amAdmin} amOwner={amOwner}
-                      gameRoomName={gameRoomName} gameSettings={gameSettings} /> : null}
+              socket={socket} amAdmin={amAdmin} amOwner={amOwner}
+              gameRoomName={gameRoomName} gameSettings={gameSettings} /> : null}
           </div>
           <div>
             <Composer socket={socket} roomName={roomName} muted={muted} amOwner={amOwner} />

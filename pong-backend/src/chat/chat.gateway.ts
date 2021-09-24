@@ -1,18 +1,31 @@
-import { SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from "@nestjs/websockets";
+import { SubscribeMessage, WebSocketGateway, WebSocketServer, WsException} from "@nestjs/websockets";
 import { Server } from "socket.io";
 import { ChatService } from "./chat.service";
-import { UseGuards, Logger } from "@nestjs/common";
+import { UseGuards, Logger, UseFilters, WsExceptionFilter, UnauthorizedException } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
 import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSocket, ChatMessageType } from "./chat.types";
 import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
 import { LoginAttempt, DirectMessage, BanRequest, ChatMessage } from "./chat.dto";
 import { Settings } from "http2";
+
+
+import { Catch, ArgumentsHost } from '@nestjs/common';
+import { BaseWsExceptionFilter } from '@nestjs/websockets';
+
 var uuid = require('uuid');
 
 
 const PORT_TWO = process.env.PORT_TWO ? parseInt(process.env.PORT_TWO) : 3003;
 
+@Catch(UnauthorizedException)
+export class UnauthorizedChatFilter extends BaseWsExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    console.log(host.switchToWs().getClient().emit('unauthorized'));
+  }
+}
+
+@UseFilters(new UnauthorizedChatFilter())
 @WebSocketGateway(PORT_TWO, { cors: true })
 export class ChatGateway {
   constructor (private readonly chatService: ChatService, private readonly profileService: ProfileService) {}
@@ -580,53 +593,4 @@ export class ChatGateway {
       this.handleChatGameInvite(client, roomName, enemyId);
     }
   }
-
-// Ban a user
-@UseGuards(JwtWsAuthGuard)
-@SubscribeMessage('banUserWebsite')
-async banUserFromWebsite(client: AuthenticatedSocket, id: number) {
-  
-  // Manually verify user input
-  if (!id || id < 0)
-    throw new WsException("The id is incorrect");
-
-  if (!client.user.owner && !client.user.admin)
-  {
-    throw new WsException("You have to be admin in order to do this");
-  }
-
-  // Find the user in question
-  const theUser = await this.profileService.getUserById(id);
-  if (!theUser)
-    throw new WsException("User not found");
-  
-  await this.chatService.leaveAllRooms(theUser.id);
-
-  for (let socket of await this.server.fetchSockets())
-  {
-    console.log("Got socket: ");
-    if (socket.data.user.id === theUser.id)
-    {
-      // Make this user leave all rooms
-      for (let room in socket.rooms)
-      {
-        console.log("Making him leave " + room);
-        socket.leave(room);
-      }
-    }
-  }
-  // if (client.user)
-  // Kick the user out from the room
-  // const socketsInTheRoom =  await this.server.in(room.name).fetchSockets()
-  // for (let socket of socketsInTheRoom)
-  // {
-  //   if (socket.data.user && socket.data.user.id === data.userId )
-  //   {
-  //     this.server.to(socket.id).emit("banned");
-  //     socket.leave(room.name);
-  //   }
-  // }
-}
-
-
 }

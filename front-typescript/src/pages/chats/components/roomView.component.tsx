@@ -212,6 +212,13 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       history.replace("/chats/");
     })
 
+    // When we get kicked out of the website, we get back to the main page and 
+    // log out
+    socket.on("unauthorized", () => {
+      socket.disconnect();
+      history.replace("/");
+    })
+
     // When the backend asks us for password
     socket.on("loginRequest", () => {
 

@@ -87,7 +87,7 @@ async function getAmAdmin(authToken: string, roomName: string): Promise<boolean 
 const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => {
 
   const { roomName } = useParams<RoomRouteParams>();
-  const [socket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
+  const [socket, setSocket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
     auth: {
       token: authToken
     }
@@ -118,7 +118,6 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       if (isMuted) {
         // Get the time when we're going to be unmuted
         const mutedUntil = new Date(await getMutedUntil(authToken, roomName));
-        console.log(typeof mutedUntil);
         if (mutedUntil) {
           // Calculate how many ms it is going to take
           const now = new Date();
@@ -240,6 +239,18 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       history.replace(`/play/${gameRoomName}/${userId}`);
     })
 
+    socket.on("disconnect", (reason) => {
+      // If our socket has disconnected not because we wanted it to
+      if (reason !== "io client disconnect")
+      {
+        // Reconnect
+        setSocket(io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
+          auth: {
+            token: authToken
+          }
+        }));
+      }
+    })
 
     // On component unmount, disconnect socket
     return function cleanup() {

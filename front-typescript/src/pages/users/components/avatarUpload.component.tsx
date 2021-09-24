@@ -1,7 +1,7 @@
 import { User } from "../../../App.types";
 
 
-async function uploadHandler(authToken: string, setUser: Function) {
+async function uploadHandler(authToken: string, setUser: Function, onSet: Function) {
   var input: HTMLInputElement | null = document.querySelector('input[type="file"]')
 
   if (!input || !input.files)
@@ -24,12 +24,12 @@ async function uploadHandler(authToken: string, setUser: Function) {
     return alert("Error while uploading avatar. Sorry.");
   const jsonData = await response.json();
   const userUpdate = jsonData as User;
-
   setUser(userUpdate);
+  onSet();
   // alert('Im clicked');
 }
 
-async function removeHandler(authToken: string, setUser: Function) {
+async function removeHandler(authToken: string, setUser: Function, onSet: Function) {
   
   const response = await fetch(process.env.REACT_APP_API_URL + "/removeAvatar", {
     method: 'POST',
@@ -43,8 +43,8 @@ async function removeHandler(authToken: string, setUser: Function) {
 
   const jsonData = await response.json();
   const userUpdate = jsonData as User;
-
   setUser(userUpdate);
+  onSet();
   // alert('Im clicked');
 }
 
@@ -54,20 +54,21 @@ interface AvatarProps
   user: User;
   authToken: string;
   setUser: Function;
+  onSet: Function;
 }
 
-const AvatarUpload = ({user, authToken, setUser }: AvatarProps) => {
+const AvatarUpload = ({user, authToken, setUser, onSet }: AvatarProps) => {
   return (
     <div className="file-uploader">
     
         <p>Avatar upload</p>
         {
           user.realAvatar ? 
-            <button onClick={() => {removeHandler(authToken, setUser)}}>Remove your avatar</button>
+            <button onClick={() => {removeHandler(authToken, setUser, onSet)}}>Remove your avatar</button>
           :
           <div>
             <input type="file"/>
-            <button onClick={() => {uploadHandler(authToken, setUser)}}>Upload</button>
+            <button onClick={() => {uploadHandler(authToken, setUser, onSet)}}>Upload</button>
           </div>
         }
             

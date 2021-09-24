@@ -108,7 +108,6 @@ const Profile: React.FC<IProfilePageProps> = ({
 
   // useCallback to prevent infinite state updates
   const refreshUsers = useCallback(() => {
-    console.log('RefreshUsers');
     // Get all users from the backend and add them to state
     getUserByName(authToken, (paramName as string)).then(user_ => {
       setProfileUser(user_);
@@ -174,7 +173,7 @@ const Profile: React.FC<IProfilePageProps> = ({
                     </div>
                     </div>
                   </Modal>
-                  <AvatarUpload user={user} authToken={authToken} setUser={setUser} />
+                  <AvatarUpload user={user} authToken={authToken} setUser={setUser} onSet={refreshUsers}/>
                 </div>)
                 : (<h1>You can't modify this user</h1>)}
             </div>

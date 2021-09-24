@@ -581,4 +581,52 @@ export class ChatGateway {
     }
   }
 
+// Ban a user
+@UseGuards(JwtWsAuthGuard)
+@SubscribeMessage('banUserWebsite')
+async banUserFromWebsite(client: AuthenticatedSocket, id: number) {
+  
+  // Manually verify user input
+  if (!id || id < 0)
+    throw new WsException("The id is incorrect");
+
+  if (!client.user.owner && !client.user.admin)
+  {
+    throw new WsException("You have to be admin in order to do this");
+  }
+
+  // Find the user in question
+  const theUser = await this.profileService.getUserById(id);
+  if (!theUser)
+    throw new WsException("User not found");
+  
+  await this.chatService.leaveAllRooms(theUser.id);
+
+  for (let socket of await this.server.fetchSockets())
+  {
+    console.log("Got socket: ");
+    if (socket.data.user.id === theUser.id)
+    {
+      // Make this user leave all rooms
+      for (let room in socket.rooms)
+      {
+        console.log("Making him leave " + room);
+        socket.leave(room);
+      }
+    }
+  }
+  // if (client.user)
+  // Kick the user out from the room
+  // const socketsInTheRoom =  await this.server.in(room.name).fetchSockets()
+  // for (let socket of socketsInTheRoom)
+  // {
+  //   if (socket.data.user && socket.data.user.id === data.userId )
+  //   {
+  //     this.server.to(socket.id).emit("banned");
+  //     socket.leave(room.name);
+  //   }
+  // }
+}
+
+
 }

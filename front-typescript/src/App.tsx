@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Switch,
   Route,
@@ -64,8 +64,7 @@ async function updateStatus(
   const data = {
     value: newStatus,
   };
-  if (authToken && authToken !== "")
-  {
+  if (authToken && authToken !== "") {
     const response = await fetch(process.env.REACT_APP_API_URL + "/account/setStatus", {
       method: "POST",
       headers: {
@@ -74,13 +73,13 @@ async function updateStatus(
       },
       body: JSON.stringify(data),
     });
-  
+
     if (!response.ok)
       return;
-  
+
     const jsonData = await response.json();
     const userUpdated = jsonData as User;
-  
+
     setUser(userUpdated);
   }
 }
@@ -124,8 +123,7 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
     }
   }
 
-  if (authResponse)
-  {
+  if (authResponse) {
     setUser(authResponse.user);
     setAuthToken(authResponse.access_token);
     updateStatus(setUser, authResponse.access_token, 0);
@@ -164,49 +162,48 @@ function logoutHandler() {
 }
 
 
-interface IGuest
-{
+interface IGuest {
   user: User | undefined | null,
   settings: Settings,
   difficulty: any,
   authToken: string,
   setAuthToken: React.Dispatch<React.SetStateAction<string>>,
-  setUser: React.Dispatch<React.SetStateAction<User | null| undefined>>,
+  setUser: React.Dispatch<React.SetStateAction<User | null | undefined>>,
   setSettings: React.Dispatch<React.SetStateAction<Settings>>
   bannedHandler: Function
   history: any
 }
 
-const RouteGuest: React.FC<IGuest> = ({user, settings, difficulty, authToken,
-     setAuthToken, setUser, setSettings, history}) => {
+const RouteGuest: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
+  setAuthToken, setUser, setSettings, history }) => {
   return (
-  <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
-    <Route exact path="/">
-      <Menu user={user} />
-    </Route>
-    <Route exact path="/game-settings">
-      <GameSettings settings={settings} setSettings={setSettings} />
-    </Route>
-    <Route exact path="/playbots">
-      <Difficulty difficultyLvl={difficulty} />
-      <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={settings} />
-    </Route>
-    <Route exact path="/ruleset">
-      <Ruleset user={user}/>
-    </Route>
-    <Route exact path="/cheats">
-      <FakeUserCreator loggedIn={0} setAuthToken={setAuthToken} setUser={setUser} />
-    </Route>
-    <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings} /></Route>
-  </Switch>  </>);
+    <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
+      <Route exact path="/">
+        <Menu user={user} />
+      </Route>
+      <Route exact path="/game-settings">
+        <GameSettings settings={settings} setSettings={setSettings} />
+      </Route>
+      <Route exact path="/playbots">
+        <Difficulty difficultyLvl={difficulty} />
+        <OfflineGame authToken={authToken} difficultyLvl={difficulty} map={settings} />
+      </Route>
+      <Route exact path="/ruleset">
+        <Ruleset user={user} />
+      </Route>
+      <Route exact path="/cheats">
+        <FakeUserCreator loggedIn={0} setAuthToken={setAuthToken} setUser={setUser} />
+      </Route>
+      <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings} /></Route>
+    </Switch>  </>);
 }
 
 
 
-const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
-  setAuthToken, setUser, setSettings, bannedHandler, history}) => {
+const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
+  setAuthToken, setUser, setSettings, bannedHandler, history }) => {
   return (
-  <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
+    <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
       <Route exact path="/">
         <Menu user={user} />
       </Route>
@@ -267,8 +264,8 @@ const RouteAuth: React.FC<IGuest> = ({user, settings, difficulty, authToken,
           <Room />
         </Watchdog>
       </Route>
-      <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings}  /></Route>
-    </Switch></> );
+      <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings} /></Route>
+    </Switch></>);
 }
 
 function App() {
@@ -296,15 +293,17 @@ function App() {
     );
     if (sessionStoragePongToken)
       setAuthToken(sessionStoragePongToken);
-      return () => {
-        if (user)
-        {
-          window.addEventListener("before unload", function(e) {
-            updateStatus(setUser, authToken, 1);
-          })
+  }, []);
 
-        }
+  // Add an effect on unload
+  useEffect(() => {
+    return () => {
+      if (user) {
+        window.addEventListener("before unload", function (e) {
+          updateStatus(setUser, authToken, 1);
+        })
       }
+    }
   }, [authToken, user]);
 
   // On auth token change, re-retreive user state
@@ -337,14 +336,14 @@ function App() {
     <div className="App">
       <Router history={history}>
 
-      {!user ? <RouteGuest authToken={authToken} 
-        user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
-      setSettings={setSettings} bannedHandler={bannedHandler} history={history}/>
-      :
-      <RouteAuth authToken={authToken} 
-        user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
-        setSettings={setSettings} bannedHandler={bannedHandler} history={history}/>
-      }
+        {!user ? <RouteGuest authToken={authToken}
+          user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
+          setSettings={setSettings} bannedHandler={bannedHandler} history={history} />
+          :
+          <RouteAuth authToken={authToken}
+            user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
+            setSettings={setSettings} bannedHandler={bannedHandler} history={history} />
+        }
       </Router>
     </div >
   );

@@ -96,6 +96,7 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
     if (e?.stopPropagation) e!.stopPropagation();
     handlerFunction();
   }
+  let str = (friendUser && friendUser.status === 0) ? "Offline" : (friendUser && friendUser.status === 1) ? "Online" : "In a game"
   return (
     friendUser ?
       <div>
@@ -112,14 +113,21 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
               Direct message
               </div>
             </div>
+            {friendUser.status == 0 ? 
+            <p className="px-5 py-2 text-lg text-red-800 bg-red-400 rounded-lg border-4 border-solid border-red-600" >
+                Offline
+            </p> : friendUser.status == 1 ?
+            <p className="px-5 py-2 text-lg text-yellow-800 bg-yellow-400 rounded-lg border-4 border-solid border-yellow-600" >
+                In a game
+            </p> :
+            <p className="px-5 py-2 text-lg text-green-800 bg-green-400 rounded-lg border-4 border-solid border-green-600" >
+                Online
+            </p>}
           </div>
 
         </div>
 
       </div>
-      //   <Link to={`/chats/dms/` + friendUser.name}>{"  "} DM {" "}</Link>
-      //   {friendUser.status === 0 ? <p>Offline</p> : friendUser.status === 1 ? <p>Online</p> : <p>In a game</p>}
-      // </div>
       : <p>Not Found</p>
   );
 }

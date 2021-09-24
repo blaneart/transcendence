@@ -27,7 +27,8 @@ export interface DirectMessageUpdate {
 
 export enum ChatMessageType {
   TEXT = 0,
-  GAME_INVITE
+  GAME_INVITE,
+  GAME_INVITE_EXPIRED
 }
 
 // The update we send to frontend to show messages

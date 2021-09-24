@@ -21,7 +21,8 @@ export interface UserPublic {
 
 export enum ChatMessageType {
   TEXT = 0,
-  GAME_INVITE
+  GAME_INVITE,
+  GAME_INVITE_EXPIRED
 }
 
 // This is the front-end message: the sender, and the text.

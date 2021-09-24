@@ -105,11 +105,13 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
       <> 
       <button onClick={() => {
         socket.emit('acceptGame', message.senderID, message.id, gameRoomName);
+        socket.emit('rejectGame', message.id);
         history.replace(`/play/${gameRoomName}/${meIn}`);
+
       }} >accept</button>
       <button onClick={() =>{
-        console.log('gameRoomName', gameRoomName);
-        socket.emit('rejectGame', message.senderID);
+        console.log('gameRoomName', message.id);
+        socket.emit('rejectGame', message.id);
       }}>reject</button> 
       </>
       : null}

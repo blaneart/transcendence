@@ -75,7 +75,8 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
     <div className={mainClasses}>
       <h5 className="text-xl mt-2 mb-4">Messages</h5>
       {messages?.filter((msg) => {
-      if (msg.type !== ChatMessageType.GAME_INVITE || msg.senderID === userId  || msg.receiverId === userId)
+        console.log('msg type', msg.type, 'msg.receiverId', msg.receiverId, 'msg.senderID', msg.senderID, 'userID', userId);
+      if (msg.type === ChatMessageType.TEXT || msg.senderID === userId  || msg.receiverId === userId)
         return msg
       return null
     })

@@ -447,4 +447,10 @@ export class ChatService {
 
     return response[0];
   }
+
+  async updateMessageById(mId: number, updates: any)
+  {
+    const response = await db('message').returning('*').where({id: mId}).update(updates);
+    return response[0];
+  }
 }

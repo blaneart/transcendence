@@ -471,6 +471,7 @@ export class ChatGateway {
   async handleChatGameInvite(client: AuthenticatedSocket, roomName: string, enemyId: number)
   {
 
+
     const room = await this.chatService.findRoomByName(roomName);
 
     // Ensure room exists
@@ -487,13 +488,13 @@ export class ChatGateway {
     {
       throw new WsException("You must log in the room to write in it");
     }
-
+    console.log(enemyId);
     // Ensure the user is not muted
     if (await this.chatService.isMuted(client.user.id, room.id))
       throw new WsException("You are muted");
 
     // Save the new message to our database
-    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "invited you for a game",  ChatMessageType.GAME_INVITE, enemyId[0]);
+    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "invited you for a game",  ChatMessageType.GAME_INVITE, enemyId);
 
     // Get the sender info for the update
     const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
@@ -506,19 +507,18 @@ export class ChatGateway {
       senderID: client.user.id,
       sender: senderUser,
       type: ChatMessageType.GAME_INVITE,
-      receiverId: enemyId[0]
+      receiverId: enemyId
     };
 
-    console.log(enemyId);
+    console.log('client.user.id,', client.user.id,);
     // Send the update to all other clients, including the sender
     this.server.to(roomName).emit("newInvite", newMessage, uuid.v4());
 
-    this.server.to(client.id).emit('lel');
   }
 
   async handleDirectGameInvite(client: AuthenticatedSocket, roomName: string, enemyId: number)
   {
-    const directConvo = await this.chatService.findDirect(client.user.id, enemyId[0]);
+    const directConvo = await this.chatService.findDirect(client.user.id, enemyId);
 
     // Ensure room exists
     if (!directConvo)
@@ -528,7 +528,7 @@ export class ChatGateway {
 
     // Save the new message to our database
     // const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "keklol");
-    const savedMessage = await this.chatService.sendDirectMessage(directConvo.id, client.user.id, 'game invite', ChatMessageType.GAME_INVITE, enemyId[0]);
+    const savedMessage = await this.chatService.sendDirectMessage(directConvo.id, client.user.id, 'game invite', ChatMessageType.GAME_INVITE, enemyId);
 
     // Get the sender info for the update
     const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
@@ -540,7 +540,7 @@ export class ChatGateway {
       senderID: client.user.id,
       sender: client.user as UserPublic,
       type: ChatMessageType.GAME_INVITE,
-      receiverId: enemyId[0]
+      receiverId: enemyId
     }
 
     // Send the update to other side
@@ -572,15 +572,26 @@ export class ChatGateway {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('rejectGame')
-  rejectGame(client: AuthenticatedSocket)
+  async rejectGame(client: AuthenticatedSocket, messageid: number)
   {
-    
+    console.log('messageid: ', messageid)
+    let roomName = this.getRoomNameBySocket(client);
+    const update: ChatMessageUpdate[] = await this.chatService.getRoomMessageUpdates(roomName);
+    let objIndex = update.findIndex((obj => obj.id == messageid));
+
+    //Log object to Console.
+    //Update object's name property.
+    update[objIndex].type = ChatMessageType.GAME_INVITE_EXPIRED;
+    console.log('message: ', update[objIndex])
+    this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
+    this.server.to(client.id).emit("initialMessages", update);
   }
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('sendGameInvitation')
-  async sendGameInvite(client: AuthenticatedSocket, enemyId: number, gameSettings: Settings)
+  async sendGameInvite(client: AuthenticatedSocket, enemyId: number)
   {
+    console.log('enemyid', enemyId);
     const roomName: string = this.getRoomNameBySocket(client);
     if (roomName.startsWith('direct_'))
     {

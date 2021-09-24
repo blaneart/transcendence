@@ -12,7 +12,7 @@ interface gameInviteProps {
     gameSettings: Settings
 }
 
-const GameInvite: React.FC<gameInviteProps> = ({ socket, enemy, ranked, gameSettings }) => {
+const GameInvite: React.FC<gameInviteProps> = ({ socket, enemy }) => {
 
     let history = useHistory();
     
@@ -22,7 +22,7 @@ const GameInvite: React.FC<gameInviteProps> = ({ socket, enemy, ranked, gameSett
         history.replace(`/play/${roomName}/${meIn}`)
     });
     const InvitePlayer = () => {
-        socket.emit('sendGameInvitation', enemy.id, ranked, gameSettings);
+        socket.emit('sendGameInvitation', enemy.id);
     }
 
     return (

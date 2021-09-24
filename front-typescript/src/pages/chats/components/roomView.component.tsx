@@ -231,6 +231,9 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
         setAmAdmin(true);
     })
 
+    // If we get an error, show it
+    socket.on("error", (msg) => alert(msg));
+
     // Game invitation stuff by ablanar and thervieu
     
     socket.on("challengeAccepted", (gameRoomName) => {

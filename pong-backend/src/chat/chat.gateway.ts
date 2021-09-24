@@ -255,6 +255,14 @@ export class ChatGateway {
     if (data.minutes <= 0 || isNaN(data.minutes))
       throw new WsException("Incorrect number of minutes");
 
+    // Ensure the user is not already banned
+    const alreadyBanned = await this.chatService.isBanned(data.userId, room.id);
+    if (alreadyBanned === true)
+    {
+      this.server.to(client.id).emit('error', "This user is already banned, sorry.");
+      throw new WsException("This user is already banned");
+    }
+
     // Create a ban record in our database
     const response = await this.chatService.banUser(data.userId, room.id, data.minutes);
 
@@ -290,6 +298,16 @@ export class ChatGateway {
     // Ensure the number of minutes is correct
     if (data.minutes <= 0 || isNaN(data.minutes))
       throw new WsException("Incorrect number of minutes");
+
+
+    // Ensure the user is not already muted
+    const alreadyMuted = await this.chatService.isMuted(data.userId, room.id);
+
+    if (alreadyMuted === true)
+    {
+      this.server.to(client.id).emit('error', 'This user is already muted, sorry');
+      throw new WsException("This user is already muted");
+    }
 
     // Add a mute record to our database
     const mutedUntil = await this.chatService.muteUser(data.userId, room.id, data.minutes);

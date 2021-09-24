@@ -143,7 +143,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
      socket.on('won', function(result: string, authToken: string) {
       socket.emit('leaveRoom');
     })
-  }, [restart, user, gameRoomName, userId, gameSettings, socket]);
+  }, [restart, user, gameRoomName, userId, gameSettings, socket, setUser]);
 
 
 
@@ -215,7 +215,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       else if (canvas)
         canvas.style.opacity = '0.5';
     }
-}, [ready, authToken, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user, isGameEnded]);
+}, [ready, authToken, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user, isGameEnded, gameSettings.sounds]);
 
 
 /* willUnmount game destruction */

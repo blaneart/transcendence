@@ -159,8 +159,8 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings}) => {
             <div className="flex flex-row justify-center">
                   <button className={buttonSoundClassOn} onClick={()=>
                   {
-                      if (navigator.userAgent.indexOf("Safari") != -1)
-                        alert('Sounds do offt work in your browser, sorry:(')
+                      if (navigator.userAgent.indexOf("Safari") !== -1)
+                        alert('Sounds do not work in your browser, sorry:(')
                       else
                         setSettings({
                         ranked: settings.ranked,

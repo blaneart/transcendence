@@ -317,12 +317,18 @@ function App() {
     }
   }, [socket]);
 
+
+
   // On auth token change, re-retreive user state
   useEffect(() => {
+    const emitAndSetUser = (me: User) => {
+      socket.emit('setUserId', me.id);
+      setUser(me);
+    }
     // If getMe fails (we're banned), log out
     if (authToken && authToken !== "")
-      getMe(authToken).then((me: User | null) => me ? setUser(me) : completeLogOut());
-  }, [authToken]);
+      getMe(authToken).then((me: User | null) => me ? emitAndSetUser(me) : completeLogOut());
+  }, [authToken, socket]);
 
   // On redirect, perform 42 login if necessary
   useEffect(() => {

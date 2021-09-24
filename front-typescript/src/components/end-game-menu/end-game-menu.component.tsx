@@ -17,10 +17,10 @@ const EndGameMenu: React.FC<IButtonProps> = ({result, ...changeGameState}) => {
         <div className='game end'>
             <h1 className="text-6xl">{(result === 'won' || result === "gotAbandoned") ? "YOU WON!" : "YOU LOST!"}</h1>
             {result === 'gotAbandoned' ? <p className='text-xl'>Your opponent has disconnected (or abandoned the game)</p> : null}
-            <button className='text-3xl' {...changeGameState}>RESTART</button>
+            <button className='text-4xl' {...changeGameState}>RESTART</button>
             
 
-            <div className='text-5xl'>
+            <div className='text-3xl'>
                   <Link  to="/"><span className="text-2xl">BACK TO THE MENU</span></Link>
             </div>
 

@@ -18,12 +18,15 @@ export class StatusGateway implements OnGatewayInit {
   connectedClients = {};
   handleConnection(client: Socket, userid)
   {
+    console.log('connection', client.id);
   }
 
   @SubscribeMessage('setUserId')
   writeUserId(client: Socket, userid: number)
   {
+    console.log('setUserId gateway');
     this.connectedClients[client.id] = userid;
+    this.profileService.updateUserById(userid, {status: 1})
   }
 
 
@@ -31,6 +34,7 @@ export class StatusGateway implements OnGatewayInit {
   {}
 
   handleDisconnect(client: Socket) {
+    console.log('disconnection', client.id);
     if (this.connectedClients[client.id])
     {
       this.profileService.updateUserById(this.connectedClients[client.id], {status: 0})

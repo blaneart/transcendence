@@ -51,17 +51,29 @@ const ChangeNameButton: React.FC<ICNBProps> = ({
 
     let history = useHistory();
     const HandleClick = () => {
-      updateName(
-      setUser,
-      setProfileUser,
-      (document.getElementById("name") as HTMLInputElement).value,
-      authToken,
-      history
-      );
+      let newName = document.getElementById("name") as HTMLInputElement;
+      if (newName.value.length < 100)
+      {
+        updateName(
+          setUser,
+          setProfileUser,
+          (document.getElementById("name") as HTMLInputElement).value,
+          authToken,
+          history
+          );
+      }
+      else
+      {
+        let tooLong = document.getElementById("toolong") as HTMLInputElement;
+        tooLong.innerHTML = "Too Long !";
+      }
     }
     
     return (
-    <button type="button" className="cursor-pointer py-2 mx-1 hover:bg-opacity-100 px-4 rounded-lg bg-white bg-opacity-75 text-black font-bold border-0 shadow-lg" onClick={HandleClick}>Submit</button>
+      <div>
+        <button type="button" className="cursor-pointer py-2 mx-1 hover:bg-opacity-100 px-4 rounded-lg bg-white bg-opacity-75 text-black font-bold border-0 shadow-lg" onClick={HandleClick}>Submit</button>
+        <p id="toolong"></p>
+      </div>
     );
 };
 

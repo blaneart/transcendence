@@ -250,16 +250,5 @@ export const db = knex({
 export class SigninController {
     constructor( private readonly signinService: SigninService)
     {
-
-    }
-    @Get()
-    just()
-    {
-        return db;
-    }
-
-    @Post()
-    create(@Body() body, @Res() res) {
-        return this.signinService.create(body, res);
     }
 }

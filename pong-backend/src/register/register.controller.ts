@@ -15,17 +15,4 @@ function makeid(length) {
   
 @Controller('register')
 export class RegisterController {
-    @Post()
-    create(@Body() body, @Res() res) {
-        db('users').returning('*').insert({
-            name: body.name,
-            avatar: makeid(10),
-            // password: body.password,n
-            games: 0,
-            wins: 0,
-        }).then(user => {
-            res.json(user[0]);
-        })
-        .catch(err => res.status(400).json('unable to register'))
-    }
 }

@@ -26,6 +26,7 @@ import Ruleset from "./pages/ruleset/ruleset.component";
 import AdminPanel from "./pages/adminPanel/adminPanel";
 import Watchdog from "./components/watchdog.component";
 import Custom404 from "./pages/error-pages/404.component";
+import { io, Socket } from "socket.io-client";
 
 
 interface IState {
@@ -53,6 +54,7 @@ async function process42ApiRedirect(code: string): Promise<AuthResponse | null> 
     return null;
   const jsonData = await response.json();
   return jsonData as AuthResponse;
+
 }
 
 async function updateStatus(
@@ -106,7 +108,7 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<AuthResp
 }
 
 
-async function set42User(setUser: Function, setAuthToken: Function, code: string) {
+async function set42User(setUser: Function, setAuthToken: Function, code: string, socket: Socket) {
   let authResponse: AuthResponse | null = await process42ApiRedirect(code);
   // If user has 2fa, we need to confirm 2fa first
   if (authResponse?.twofa) {
@@ -121,15 +123,18 @@ async function set42User(setUser: Function, setAuthToken: Function, code: string
       alert('Wrong or expired code. Try again.');
       return;
     }
+
   }
 
   if (authResponse) {
     setUser(authResponse.user);
+    socket.emit("setUserId", authResponse.user?.id)
     setAuthToken(authResponse.access_token);
     updateStatus(setUser, authResponse.access_token, 0);
     // Save token in browser state
     sessionStorage.setItem("pongToken", authResponse.access_token);
   }
+  
 }
 
 async function getMe(authToken: string): Promise<User | null> {
@@ -268,12 +273,22 @@ const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
     </Switch></>);
 }
 
+const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_ONE + "/status";
+
 function App() {
   const [user, setUser] = useState<IState["user"]>();
   const [authToken, setAuthToken] = useState("");
-
   let history = useHistory();
   const { search } = useLocation();
+  const [socket] = useState<Socket>(() => {
+    const initialState = io(ENDPOINT,
+        {
+          auth: {
+            token: authToken
+          }
+        });
+    return initialState;
+  });
 
   const completeLogOut = () => {
     sessionStorage.removeItem("pongToken");
@@ -299,12 +314,10 @@ function App() {
   useEffect(() => {
     return () => {
       if (user) {
-        window.addEventListener("before unload", function (e) {
-          updateStatus(setUser, authToken, 1);
-        })
+        socket.disconnect();
       }
     }
-  }, [authToken, user]);
+  }, [socket, user]);
 
   // On auth token change, re-retreive user state
   useEffect(() => {
@@ -320,11 +333,11 @@ function App() {
     // if we catch an auth redirect from 42 api
     let code: string | null = searchParams.get("code");
     if (code) {
-      set42User(setUser, setAuthToken, code);
+      set42User(setUser, setAuthToken, code, socket);
       history.replace("/");
     }
 
-  }, [search, history]);
+  }, [search, history, socket]);
 
   let difficulty = { number: 4 };
 

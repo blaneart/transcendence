@@ -55,10 +55,10 @@ const Room = () => {
         <div className='game'>
             <GameHeader playerId={0} userName={leftPlayerName} enemyName={rightPlayerName} />
 
-            <h1>WATCHING</h1>
+            <h1 className="text-center text-xl">WATCHING</h1>
 
             <canvas id="forCanvas" width={800} height={600}></canvas>
-            <h1>{room}</h1>
+            <h1 className="text-center text-xl">{room}</h1>
 
             {winner === 'None' ? (null) :
                 (<div className='game end'>

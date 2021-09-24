@@ -148,7 +148,7 @@ export class GameGateway implements OnGatewayInit {
   async roomAvailable(roomName: string, userId: number, gameSettings: Settings): Promise<boolean>
   {
     const theRoom = this.server.sockets.adapter.rooms.get(roomName);
-    if (theRoom.size < 2)
+    if (theRoom.size < 2 && this.rooms[roomName])
     {
       // If this is an empty room, something isn't right.
       if (theRoom.size == 0

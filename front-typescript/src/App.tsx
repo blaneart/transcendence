@@ -322,9 +322,7 @@ function App() {
   // On auth token change, re-retreive user state
   useEffect(() => {
     const emitAndSetUser = (me: User) => {
-      console.log('emitAndSetUser');
       socket.emit('setUserId', me.id);
-      console.log('after emitAndSetUser');
       setUser(me);
     }
     // If getMe fails (we're banned), log out

@@ -82,6 +82,7 @@ export class AppController {
   @Post('account/setName')
   async setName(@Request() req, @Body() body: setNameDto) {
     const bool = await this.profileService.isNameUnique(body.value);
+    console.log('bool isNameUnique', bool);
     if (body.value == '' || bool === false) {
       console.log('name not changed');
       return req.user;

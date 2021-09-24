@@ -217,9 +217,11 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
 
       // Get the password from the user
       let pass = undefined;
-      while (!pass) {
+      while (pass !== null && !pass) {
         pass = window.prompt("Please type in your password", undefined);
       }
+      if (pass === null)
+        history.replace('/chats');
       // Send the event to backend
       socket.emit("login", { roomName: roomName, password: pass });
     })

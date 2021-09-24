@@ -23,12 +23,12 @@ const RoomAdminPanel: React.FC<RoomAdminPanelParams> = ({ authToken, room, userI
 
     // Ask the user for the future password
     let pass = undefined;
-    while (!pass) {
+    while (!pass && pass !== null) {
       pass = window.prompt("Please enter the password to lock the room", undefined);
     }
-
     // Emit an event for the backend
-    socket.emit('restrictRoom', { roomName: room.name, password: pass });
+    if (pass !== null)
+      socket.emit('restrictRoom', { roomName: room.name, password: pass });
   }
 
   // Emit an event to make the room password-protected

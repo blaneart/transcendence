@@ -21,7 +21,17 @@ async function uploadHandler(authToken: string, setUser: Function, onSet: Functi
     body: data
   })
   if (!response.ok)
-    return alert("Error while uploading avatar. Sorry.");
+  {
+    if (response.status === 400)
+    {
+      const jsonError = await response.json();
+      return alert(`Error while uploading avatar: ${jsonError.message}. Sorry.`);
+    }
+    else if (response.status === 413)
+      return alert(`Error while uploading avatar: The file is too large. Sorry.`);
+
+    return alert(`Error while uploading avatar. Sorry.`);
+  }
   const jsonData = await response.json();
   const userUpdate = jsonData as User;
   setUser(userUpdate);
@@ -67,7 +77,7 @@ const AvatarUpload = ({user, authToken, setUser, onSet }: AvatarProps) => {
             <button onClick={() => {removeHandler(authToken, setUser, onSet)}}>Remove your avatar</button>
           :
           <div>
-            <input type="file"/>
+            <input type="file" required/>
             <button onClick={() => {uploadHandler(authToken, setUser, onSet)}}>Upload</button>
           </div>
         }

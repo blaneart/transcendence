@@ -141,13 +141,16 @@ export class AppController {
         },
         filename: function (req, file, cb) {
           // Get the file extension
+          if (!file || !file.originalname)
+            return cb(new AvatarError("No file"), false);
+
           let fileExtension = file.originalname.split('.').pop();
 
           // Check if file extension is there
           if (!fileExtension)
             return cb(new AvatarError("No file extension"), false);
-          
-            // Save the file with a random name
+
+          // Save the file with a random name
           const id = crypto.randomUUID();
           cb(null, id + '.' + fileExtension);
 
@@ -158,7 +161,7 @@ export class AppController {
         let ext = file.originalname.split('.').pop();
         // Check the extension against a whitelist
         if (ext !== 'png' && ext !== 'jpg' && ext !== 'gif' && ext !== 'jpeg') {
-          return callback(new AvatarError('Only images are allowed'), false)
+          return callback(new HttpException('Only images are allowed', HttpStatus.BAD_REQUEST), false)
         }
         callback(null, true);
       },
@@ -167,12 +170,13 @@ export class AppController {
         fileSize: 1024 * 1024
       },
     }
-  ))
+    ))
   async uploadfile(@UploadedFile() file, @Request() req) {
-  const response = await this.profileService.updateUserById(req.user.id, {
-
-    avatar: file.filename,
-    realAvatar: true
+    if (!file)
+      throw new HttpException("No file", HttpStatus.BAD_REQUEST);
+    const response = await this.profileService.updateUserById(req.user.id, {
+      avatar: file.filename,
+      realAvatar: true
     });
 
     return response;
@@ -191,14 +195,12 @@ export class AppController {
   }
 
   @Post('/fakeUser/:newName')
-  async createFakeUser(@Body() body: fakeUserBodyDto, @Param() param: fakeUserParamDto)
-  {
+  async createFakeUser(@Body() body: fakeUserBodyDto, @Param() param: fakeUserParamDto) {
     // Check that the user doesn't exist
     const nowUser = await this.profileService.getUserByName(param.newName);
 
     // If it exists, we can't recreate it.
-    if (nowUser)
-    {
+    if (nowUser) {
       throw new HttpException("User already exists", HttpStatus.CONFLICT);
     }
 

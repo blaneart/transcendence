@@ -22,9 +22,6 @@ const Login = () => {
 
     return (
     <div className="login">
-        {/* <Form></Form> */}
-        {/* <Modal show={show} handleClose={hideModal}> */}
-        {/* </Modal> */}
         <CustomButton isLogged={0} onClick={signUpButtonClicked}>SIGN IN</CustomButton>
     </div>
     );

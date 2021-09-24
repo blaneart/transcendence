@@ -1,7 +1,7 @@
 import { SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { ChatService } from "./chat.service";
-import { UseGuards } from "@nestjs/common";
+import { UseGuards, Logger } from "@nestjs/common";
 import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
 import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSocket, ChatMessageType } from "./chat.types";
 import { UserPublic } from "src/app.types";
@@ -16,6 +16,8 @@ const PORT_TWO = process.env.PORT_TWO ? parseInt(process.env.PORT_TWO) : 3003;
 @WebSocketGateway(PORT_TWO, { cors: true })
 export class ChatGateway {
   constructor (private readonly chatService: ChatService, private readonly profileService: ProfileService) {}
+
+  private readonly logger = new Logger(ChatGateway.name);
 
   @WebSocketServer()
   server: Server;
@@ -96,6 +98,10 @@ export class ChatGateway {
     {
       throw new WsException("Room is open, you should just join");
     }
+
+    // Ensure the user is not banned in this room
+    if (await this.chatService.isBanned(client.user.id, room.id))
+      return this.server.to(client.id).emit("banned");
 
     // Ensure the passworkd is not empty
     if (data.password === "")

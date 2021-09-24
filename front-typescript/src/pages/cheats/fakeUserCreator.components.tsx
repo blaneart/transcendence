@@ -32,12 +32,18 @@ async function getMe(authToken: string): Promise<User | null> {
 
 
 const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToken, setUser, statusSocket}) => {
-  const [newName, setNewName] = useState<string>();
+  const [newName, setNewName] = useState<string>("");
 
   const submitHandler = async (e: any) => {
     e.preventDefault();
-    // Make a response to backend
-
+    
+    if (!newName)
+      setNewName("");
+    if (newName === "")
+    {
+      alert("No empty name please");
+      return null;
+    }
     const data = {
       id: loggedIn
     };

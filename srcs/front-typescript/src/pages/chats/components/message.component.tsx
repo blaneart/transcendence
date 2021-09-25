@@ -112,7 +112,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
       }} >accept</button>
       <button onClick={() =>{
         console.log('gameRoomName', message.id);
-        socket.emit('rejectGame', message.id);
+        socket.emit('rejectGame', message.id, message.senderID);
       }}>reject</button> 
 
   

@@ -566,10 +566,23 @@ export class ChatGateway {
   @SubscribeMessage('acceptGame')
   async acceptGame(client: AuthenticatedSocket, data)
   {
-    let roomName = this.getRoomNameBySocket(client);
-    console.log('accept game : ', data[1]);
+
+    const roomName = this.getRoomNameBySocket(client);
+    const enemyId = data[0];
+    const messageid = data[1];
+    const GameRoomName = data[2];
+    console.log("ROOM NAME: ", roomName);
+    // if (roomName.startsWith('direct_'))
+    //   this.acceptDirect(client, enemyId, messageid, GameRoomName, roomName);
+    // else
+    this.acceptChat(client, enemyId, messageid, GameRoomName, roomName);
+  }
+
+  async acceptChat(client: AuthenticatedSocket, enemyId: number, messageid: number, GameRoomName: string, roomName: string)
+  {
+    console.log('accept game : ', messageid);
     const update: ChatMessageUpdate[] = await this.chatService.getRoomMessageUpdates(roomName);
-    let objIndex = update.findIndex((obj => obj.id == data[1]));
+    let objIndex = update.findIndex((obj => obj.id === messageid));
     update[objIndex].type = ChatMessageType.GAME_INVITE_EXPIRED;
     this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
 
@@ -581,21 +594,61 @@ export class ChatGateway {
     {
       console.log(socket.data.user.id)
 
-      if (socket.data.user && socket.data.user.id === data[0] )
+      if (socket.data.user && socket.data.user.id === enemyId )
       {
         console.log(socket.id)
         this.server.to(socket.id). emit("initialMessages", update);
-        this.server.to(socket.id).emit("challengeAccepted", data[2]);
+        this.server.to(socket.id).emit("challengeAccepted", GameRoomName);
       }
     }
   }
 
-  @UseGuards(JwtWsAuthGuard)
-  @SubscribeMessage('rejectGame')
-  async rejectGame(client: AuthenticatedSocket, messageid: number)
+  @SubscribeMessage('acceptDirectGame')
+  async acceptDirect(client: AuthenticatedSocket,  data: any[])
   {
-    console.log('messageid: ', messageid)
-    let roomName = this.getRoomNameBySocket(client);
+
+    const enemyId = data[0];
+    const messageid = data[1];
+    const GameRoomName = data[2];
+    const roomName = this.getRoomNameBySocket(client);
+    
+    const directConvo = await this.chatService.findDirect(client.user.id, enemyId);
+    
+    // Find the direct conversation in our database
+    let direct = await this.chatService.findDirect(client.user.id, enemyId);
+
+    // Ensure direct conversation exists
+    if (!direct)
+      direct = await this.chatService.createDirect(client.user.id, enemyId);
+
+    // Get all the messages in the room
+    const update = await this.chatService.getAllDirectUpdates(directConvo.id);
+
+    // Find the invitation among them
+    let objIndex = update.findIndex((obj => obj.id == messageid));
+    // let objIndex = update.findIndex((obj => obj.id == data[1]));
+    update[objIndex].type = ChatMessageType.GAME_INVITE_EXPIRED;
+    this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
+
+    const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
+    this.server.to(client.id).emit("initialMessages", update);
+
+    for (let socket of socketsInTheRoom)
+    {
+      console.log(socket.data.user.id)
+
+      if (socket.data.user && socket.data.user.id === enemyId )
+      {
+        console.log(socket.id)
+        this.server.to(socket.id).emit("initialMessages", update);
+        this.server.to(socket.id).emit("challengeAccepted", GameRoomName);
+      }
+    }
+  }
+
+
+  async handleChatGameReject(messageid:number, roomName: string, client: AuthenticatedSocket)
+  {
     const update: ChatMessageUpdate[] = await this.chatService.getRoomMessageUpdates(roomName);
     let objIndex = update.findIndex((obj => obj.id == messageid));
 
@@ -609,12 +662,70 @@ export class ChatGateway {
     {
       console.log(socket.data.user.id)
 
-      if (socket.data.user && socket.data.user.id === update[objIndex].senderID)
-      {      
+      if (socket.data.user && socket.data.user.id === update[objIndex].senderID)      
         this.server.to(socket.id). emit("initialMessages", update);
-      }
     }
     this.server.to(client.id).emit("initialMessages", update);
+  }
+
+  @SubscribeMessage('rejectDirectGame')
+  async handleDirectGameReject(client: AuthenticatedSocket, data: any[])
+  {
+    const enemyId = data[0];
+    const messageid = data[1];
+    const roomName = data[2];
+
+    const directConvo = await this.chatService.findDirect(client.user.id, enemyId);
+
+    // Find the direct conversation in our database
+    let direct = await this.chatService.findDirect(client.user.id, enemyId);
+
+    // Ensure direct conversation exists
+    if (!direct)
+      direct = await this.chatService.createDirect(client.user.id, enemyId);
+
+    // Get all the messages in the room
+    const update = await this.chatService.getAllDirectUpdates(directConvo.id);
+
+    // Find the invitation among them
+    let objIndex = update.findIndex((obj => obj.id == messageid));
+
+    //Log object to Console.
+    //Update object's name property.
+    update[objIndex].type = ChatMessageType.GAME_INVITE_REJECTED;
+    console.log('message: ', update[objIndex])
+    this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
+  
+    // Send the update to all the sockets
+    const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
+    for (let socket of socketsInTheRoom)
+    {
+      console.log(socket.data.user.id);
+
+      if (socket.data.user && socket.data.user.id === update[objIndex].senderID)      
+        this.server.to(socket.id).emit("initialDirectMessages", update);
+    }
+    this.server.to(client.id).emit("initialDirectMessages", update);
+  }
+
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('rejectGame')
+  async rejectGame(client: AuthenticatedSocket, data: any[])
+  {
+    console.log('messageid: ', data)
+    const messageid = data[0];
+    const enemyId = data[1];
+
+    let roomName = this.getRoomNameBySocket(client);
+
+    // if (roomName.startsWith('direct_'))
+    //   this.handleDirectGameReject(client, enemyId, messageid, roomName);
+  
+    this.handleChatGameReject(messageid, roomName, client);
+
+  
+  
   }
 
   @UseGuards(JwtWsAuthGuard)

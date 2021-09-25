@@ -50,20 +50,28 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
     {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
       <> 
     <button onClick={() => {
-        socket.emit('acceptGame', message.senderID, message.id, gameRoomName);
+        socket.emit('acceptDirectGame',  message.senderID, message.id, gameRoomName);
         history.replace(`/play/${gameRoomName}/${meIn}`);
       }} >accept</button>
       <button onClick={() =>{
         console.log('gameRoomName', gameRoomName);
-        socket.emit('rejectGame', message.senderID);
+        socket.emit('rejectDirectGame', message.id, message.senderID);
       }}>reject</button> 
       </>
-      : null}
+      :
+      <>
+      {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
+          <p>You rejected game invitation!</p>}
+        </>
+      }
       
       {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
       <button onClick={() => {
         history.replace(`/play/${gameRoomName}/${userId}`);
       }}>join waiting room</button>
+    }
+              {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
+        <p>Game invitation was rejected!</p>
     }
   </div>);
 };

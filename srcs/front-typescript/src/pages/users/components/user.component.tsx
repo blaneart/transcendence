@@ -103,7 +103,7 @@ const UserComponent: React.FC<IUserProps> = ({
             <MessageAvatar user={user} />
             <p className="px-4 text-white text-xl ">{user.name}</p>
           </div>
-          {friend ? (<button className="cursor-pointer px-8 py-2 mr-2 bg-red-400 rounded-lg text-red-700 text-lg font-bold border-4 border-solid hover:bg-red-500 hover:text-blue-800 border-red-600 hover:border-red-700" onClick={(e) => handlerHandler(e as unknown as Event, () => handleUnfriend(id1, user.id, authToken))}>Unfriend</button>)
+          {friend ? (<button className="cursor-pointer px-8 py-2 mr-2 bg-red-400 rounded-lg text-red-700 text-lg font-bold border-4 border-solid hover:bg-red-500 hover:text-red-800 border-red-600 hover:border-red-700" onClick={(e) => handlerHandler(e as unknown as Event, () => handleUnfriend(id1, user.id, authToken))}>Unfriend</button>)
             : <button className="cursor-pointer px-8 py-2 mr-2 bg-green-400 rounded-lg text-green-700 text-lg font-bold border-4 border-solid hover:bg-green-500 hover:text-green-800 border-green-600 hover:border-green-700" onClick={(e) => handlerHandler(e as unknown as Event, () => handleBefriend(id1, user.id, authToken))} >Befriend</button>}
 
           <div onClick={(e) => linkHandler(e as unknown as Event, `/chats/dms/` + user.name)}>

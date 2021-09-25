@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { User } from "../../../App.types";
 
 import { Direct } from "../chats.types";
@@ -71,10 +71,67 @@ function inDirects(directs: Direct[], id: number)
   return directs.some((direct) => direct.userA === id || direct.userB === id);
 }
 
+// Get the list of all blocked users
+async function getBlockList(authToken: string): Promise<BlockedUserEntry[] | null> {
+  // Send a request to backend
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/chat/block/`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+  if (!response.ok)
+    return null;
+  return await response.json() as BlockedUserEntry[];
+}
+
+function otherInDirect(d: Direct, myId: number)
+{
+  if (d.userA === myId)
+    return d.userB;
+  return d.userA;
+}
+
+// The data we get in the blocklist
+interface BlockedUserEntry {
+  blockedID: number
+}
+
+
 const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
   const [directs, setDirects] = useState<Direct[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>();
+  const [blockList, setBlockList] = useState<Map<number, boolean>>(new Map<number, boolean>());
+
+
+  const updateBlockList = useCallback(() => {
+    // Get all the blocked users
+    getBlockList(authToken).then((users) => {
+
+      if (users === null)
+        return;
+      // Mutate the block list
+      setBlockList((oldBlockList) => {
+      const newBlockList = new Map<number, boolean>(oldBlockList)
+      // For each user, add their ID to the map
+      users.map((user) => newBlockList.set(user.blockedID, true));
+      // Replace the old blocklist state
+      return newBlockList;
+
+      });
+    });
+  }, [authToken]);
+
+  useEffect(() => {
+    // Update the block list
+    updateBlockList();
+  }, [updateBlockList]);
+
+
 
   useEffect(() => {
     // Get all the directs we already have
@@ -105,12 +162,12 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
   }
 
   return (<div>
-    {directs.map((direct) => <DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/>)}
+    {directs.map((direct) => blockList.has(otherInDirect(direct, userId)) ? null : <DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/>)}
     <h5 className="text-xl mb-2 mt-4">Start a direct conversation with:</h5>
     <form className="" onSubmit={handleSubmit}>
        <select className="py-2 px-2 bg-gray-900 text-gray-300 border-gray-600 rounded-lg" onChange={handleChange} value={selectedUserId} defaultValue={-1} required>
         <option disabled value={-1} label="Select a user"></option>
-        {users.map((user) => (user.id === userId || inDirects(directs, user.id))? null : <option key={user.id} value={user.id}>{user.name}</option>)}
+        {users.map((user) => (user.id === userId || inDirects(directs, user.id) || blockList.has(user.id))? null : <option key={user.id} value={user.id}>{user.name}</option>)}
       </select>
       <StyledSubmit value="Start conversation" />
     </form>

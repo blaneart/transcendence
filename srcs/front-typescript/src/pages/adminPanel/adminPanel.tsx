@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Socket, io } from 'socket.io-client';
 import { User } from '../../pages/users/users.types';
 import MessageAvatar from '../chats/components/messageAvatar.component';
 // import UserAvatar from '../friends/components/UserAvatar.component';
@@ -73,12 +72,6 @@ async function demoteUser(authToken: string, userId: number) {
 const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
   const [users, setUsers] = useState<User[]>([]);
 
-  const [socket] = useState<Socket>(() => io(process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_TWO, {
-    auth: {
-      token: authToken
-    }
-  }));
-
   const updateUsers = (authToken: string) => {
     getUsers(authToken).then(update => update === null ? null : setUsers(update));
   }
@@ -88,7 +81,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
   }, [authToken])
 
   const handleBan = (userId: number) => {
-    banUser(authToken, userId).then(() => updateUsers(authToken)).then(()=>socket.emit("banUserWebsite", userId));
+    banUser(authToken, userId).then(() => updateUsers(authToken));
   }
 
   const handlePromote = (userId: number) => {

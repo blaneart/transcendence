@@ -82,7 +82,7 @@ const Admins: React.FC<AdminsProps> = ({authToken, socket, room}) => {
       roomName: room.name
     }
     socket.emit("makeAdmin", request);
-    getAdmins(authToken, room.name).then(newAdmins => newAdmins ? setAdmins(newAdmins) : null);
+    getAdmins(authToken, room.name).then(newAdmins => newAdmins !== null && setAdmins(newAdmins));
   }
 
   return (<div>

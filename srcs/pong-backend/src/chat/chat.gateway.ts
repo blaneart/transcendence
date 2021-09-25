@@ -372,8 +372,10 @@ export class ChatGateway {
     if (client.user.id !== room.ownerID)
       throw new WsException("You must be the owner of the room to add admins");
 
+    if (await this.chatService.isAdmin(data.userId, room.id))
+      throw new WsException("This person is already admin");
     // Make the person admin in the database
-    this.chatService.addAdmin(data.userId, room.id);
+    await this.chatService.addAdmin(data.userId, room.id);
 
     // Let the new admin know
     this.server.to(room.name).emit("promoted", data.userId);

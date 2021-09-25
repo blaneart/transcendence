@@ -47,7 +47,16 @@ const ChangeNameForm: React.FC<ICNFProps> = ({
     });
 
     if (!response.ok)
+    {
+      if (response.status === 409 || 400)
+      {
+        const jsonError = await response.json();
+        alert("Error: " + jsonError.message);
+      }
+      else
+        alert("Error changing name. Sorry.");
       return null;
+    }
 
     const jsonData = await response.json();
     const userUpdated = jsonData as User;

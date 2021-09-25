@@ -83,9 +83,9 @@ export class AppController {
   async setName(@Request() req, @Body() body: setNameDto) {
     const bool = await this.profileService.isNameUnique(body.value);
     console.log('bool isNameUnique', bool);
-    if (body.value == '' || bool === false) {
-      console.log('name not changed');
-      return req.user;
+    if (body.value === '' || bool === false) {
+      throw new HttpException("Sorry, this name is already taken.", HttpStatus.CONFLICT)
+      // return req.user;
     }
     console.log('name changed');
     const response = await this.profileService.updateUserById(

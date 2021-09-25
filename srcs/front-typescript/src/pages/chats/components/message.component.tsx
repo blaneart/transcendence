@@ -106,7 +106,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
       <> 
       <button onClick={() => {
         socket.emit('acceptGame', message.senderID, message.id, gameRoomName);
-        socket.emit('rejectGame', message.id);
+        // socket.emit('w', message.id);
         history.replace(`/play/${gameRoomName}/${meIn}`);
 
       }} >accept</button>
@@ -114,14 +114,24 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
         console.log('gameRoomName', message.id);
         socket.emit('rejectGame', message.id);
       }}>reject</button> 
+
+  
       </>
-      : null}
-      
+      :           
+      <>
+    {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
+        <p>You rejected game invitation!</p>}
+      </>
+    }
       {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
       <button onClick={() => {
         history.replace(`/play/${gameRoomName}/${userId}`);
       }}>join waiting room</button>
     }
+          {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
+        <p>Game invitation was rejected!</p>
+    }
+
       <div>
       {userId === message.senderID ? null 
       : <StyledButton onClick={handleBlock}>Block sender</StyledButton>}

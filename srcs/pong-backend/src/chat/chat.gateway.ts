@@ -494,9 +494,19 @@ export class ChatGateway {
     // Ensure the user is not muted
     if (await this.chatService.isMuted(client.user.id, room.id))
       throw new WsException("You are muted");
+    let enemyName = "you";
+    const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
+    console.log('accept game : ', roomName);
+    for (let socket of socketsInTheRoom)
+    {
+      console.log(socket.data.user.id)
 
+      if (socket.data.user && socket.data.user.id === enemyId )
+         enemyName = socket.data.user.name
+      
+    }
     // Save the new message to our database
-    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "invited you for a game",  ChatMessageType.GAME_INVITE, enemyId);
+    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "invited "+ enemyName+" for a game",  ChatMessageType.GAME_INVITE, enemyId);
 
     // Get the sender info for the update
     const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
@@ -505,7 +515,7 @@ export class ChatGateway {
     const newMessage: ChatMessageUpdate = {
       id: savedMessage.id, // The id comes from our database
       name: client.user.name, // The name is authenticated
-      message: "invited you for a game",
+      message:  "invited "+ enemyName+" for a game",
       senderID: client.user.id,
       sender: senderUser,
       type: ChatMessageType.GAME_INVITE,
@@ -550,7 +560,6 @@ export class ChatGateway {
 
     console.log(enemyId);
     console.log(client.id);
-    this.server.to(client.id).emit('lel');
   }
 
   @UseGuards(JwtWsAuthGuard)
@@ -558,8 +567,16 @@ export class ChatGateway {
   async acceptGame(client: AuthenticatedSocket, data)
   {
     let roomName = this.getRoomNameBySocket(client);
+    console.log('accept game : ', data[1]);
+    const update: ChatMessageUpdate[] = await this.chatService.getRoomMessageUpdates(roomName);
+    let objIndex = update.findIndex((obj => obj.id == data[1]));
+    update[objIndex].type = ChatMessageType.GAME_INVITE_EXPIRED;
+    this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
+
+
     const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
-    console.log('accept game : ', roomName);
+    this.server.to(client.id).emit("initialMessages", update);
+
     for (let socket of socketsInTheRoom)
     {
       console.log(socket.data.user.id)
@@ -567,6 +584,7 @@ export class ChatGateway {
       if (socket.data.user && socket.data.user.id === data[0] )
       {
         console.log(socket.id)
+        this.server.to(socket.id). emit("initialMessages", update);
         this.server.to(socket.id).emit("challengeAccepted", data[2]);
       }
     }
@@ -583,9 +601,19 @@ export class ChatGateway {
 
     //Log object to Console.
     //Update object's name property.
-    update[objIndex].type = ChatMessageType.GAME_INVITE_EXPIRED;
+    update[objIndex].type = ChatMessageType.GAME_INVITE_REJECTED;
     console.log('message: ', update[objIndex])
     this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
+    const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
+    for (let socket of socketsInTheRoom)
+    {
+      console.log(socket.data.user.id)
+
+      if (socket.data.user && socket.data.user.id === update[objIndex].senderID)
+      {      
+        this.server.to(socket.id). emit("initialMessages", update);
+      }
+    }
     this.server.to(client.id).emit("initialMessages", update);
   }
 

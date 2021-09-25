@@ -5,6 +5,7 @@ import Login from '../login/login.component';
 import CustomButton from '../custom-button/custom-button.component';
 import './header.styles.scss';
 import { User } from "../../App.types";
+import { useHistory } from "react-router-dom";
 
 interface IHeaderProps {
     authToken: string;
@@ -19,7 +20,8 @@ async function Click(
   user: User,
   setUser: Function,
   setAuthToken: Function,
-  logoutHandler: Function
+  logoutHandler: Function,
+  history: any
   )
 {
     let newStatus = user.status > 0 ? 0 : 1;
@@ -38,11 +40,14 @@ async function Click(
     logoutHandler();
     setAuthToken(null);
     setUser(null);
+    history.replace('/');
 }
 
 
 const Header: React.FC<IHeaderProps> = ({authToken, user, logoutHandler, setUser, setAuthToken}) => {
-    return(
+  const history = useHistory();
+  
+  return(
     <div className='header'>
         <Link to="/">
             <img src={logo} alt='logo' className='logo' />
@@ -51,7 +56,7 @@ const Header: React.FC<IHeaderProps> = ({authToken, user, logoutHandler, setUser
         {
             user ? 
             <div className='option-right'>
-            <CustomButton isLogged={1} onClick={async () => {await Click(authToken, user, setUser, setAuthToken, logoutHandler);}}
+            <CustomButton isLogged={1} onClick={async () => {await Click(authToken, user, setUser, setAuthToken, logoutHandler, history);}}
              avatar_name={user.realAvatar ? user.avatar : (user.id42 + "")} realAvatar={user.realAvatar} >SIGN OUT</CustomButton>
             </div>
             :

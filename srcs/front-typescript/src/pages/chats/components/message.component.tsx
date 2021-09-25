@@ -4,6 +4,7 @@ import { Socket } from "socket.io-client";
 import { ChatMessageType, MessageType, Room } from "../chats.types";
 import MessageText from "./messageText.component";
 import { Settings } from "../../../App.types";
+import StyledButton from "./styledButton.component";
 
 interface MessageParams {
   message: MessageType
@@ -121,14 +122,16 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
         history.replace(`/play/${gameRoomName}/${userId}`);
       }}>join waiting room</button>
     }
-      
+      <div>
       {userId === message.senderID ? null 
-      : <button onClick={handleBlock}>Block sender</button>}
+      : <StyledButton onClick={handleBlock}>Block sender</StyledButton>}
       
-      {canIBan(userId, room, amAdmin, message) ? <div>
-        <button onClick={handleBan}>Ban sender</button>
-        <button onClick={handleMute}>Mute sender</button>
-      </div> : null}
+      {canIBan(userId, room, amAdmin, message) ? 
+      <>
+        <StyledButton onClick={handleBan}>Ban sender</StyledButton>
+        <StyledButton onClick={handleMute}>Mute sender</StyledButton> </>
+      : null}
+      </div> 
     </div>
   );
 

@@ -170,7 +170,8 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       const newMessage = msg as MessageType; // we receive a single update
       setMessages((oldMessages) => {
         if (userId === newMessage.receiverId || userId === newMessage.senderID) {
-          setGameRoomName(gameRoomName);
+          if (newMessage.roomName)
+            setGameRoomName(newMessage.roomName);
         }
         if (oldMessages) {
           // Add the new one to the end
@@ -265,8 +266,8 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
 
     // Game invitation stuff by ablanar and thervieu
 
-    socket.on("challengeAccepted", (gameRoomName) => {
-      history.replace(`/play/${gameRoomName}/${userId}`);
+    socket.on("challengeAccepted", (sentGameRoomName) => {
+      history.replace(`/play/${sentGameRoomName}/${userId}`);
     })
 
     socket.on("updateRoomStatus", (update: boolean) => {

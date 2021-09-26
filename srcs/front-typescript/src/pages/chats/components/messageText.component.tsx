@@ -98,8 +98,8 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
     if (message.senderID === userId) {
       return <div className="message flex-1 flex flex-row items-center message-text">
         <div className="md:px-2 items-center flex flex-column">
-          <span>Good game with {invitee ? <a href={`/users/${invitee.name}/`}>{invitee.name}</a> : "Someone"}. Well played!</span>
         </div>
+        <span>Good game with {invitee ? <a href={`/users/${invitee.name}/`}>{invitee.name}</a> : "Someone"}. Well played!</span>
       </div>
     }
     return (

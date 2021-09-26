@@ -596,7 +596,7 @@ export class ChatGateway {
       if (socket.data.user && socket.data.user.id === enemyId )
       {
         this.server.to(socket.id). emit("initialMessages", update);
-        this.server.to(socket.id).emit("challengeAccepted", !update[objIndex].roomName);
+        this.server.to(socket.id).emit("challengeAccepted", update[objIndex].roomName);
       }
     }
   }

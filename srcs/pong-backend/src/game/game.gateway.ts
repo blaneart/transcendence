@@ -387,8 +387,8 @@ export class GameGateway implements OnGatewayInit {
       let newMmrs = this.getNewMmr(winner_elo, loser_elo);
       this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
       this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
-      this.server.to(winner_socket).emit('eloChange', winner_elo);
-      this.server.to(loser_socket).emit('eloChange' , loser_elo);
+      this.server.to(winner_socket).emit('eloChange', newMmrs.winner_new_mmr);
+      this.server.to(loser_socket).emit('eloChange' , newMmrs.loser_new_mmr);
     }
   }
 

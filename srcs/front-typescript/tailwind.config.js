@@ -1,5 +1,23 @@
 module.exports = {
-  purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+  purge: {
+    content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+    options: {
+      safelist: ['border-green-400',
+      'border-red-400',
+      'bg-green-300',
+      'bg-red-300',
+      'hover:border-green-600',
+      'hover:border-red-600',
+      'hover:bg-green-400',
+      'hover:bg-green-400',
+      'text-red-600',
+      'text-green-600',
+      'hover:text-red-800',
+      'hover:text-green-800',
+      'border-green-500',
+      'border-red-500',],
+    }
+  },
   darkMode: false, // or 'media' or 'class'
   theme: {
     boxShadow: {

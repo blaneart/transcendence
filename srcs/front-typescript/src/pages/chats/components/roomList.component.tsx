@@ -62,13 +62,13 @@ const RoomList: React.FC<RoomListProps> = ({ authToken, userId }) => {
   }, [refreshRooms]); // We don't really reupdate.
 
   return (
-    <div className="flex flex-row px-4">
-      <div className="flex-1">
+    <div className="flex md:flex-row flex-col px-4">
+      <div className="flex-1 bg-black bg-opacity-50 px-5 py-5 rounded-lg shadow md:mr-2">
         <h2>Direct messages: </h2>
         <DirectList authToken={authToken} userId={userId} />
       </div>
 
-      <div className="px-4 flex-1">
+      <div className="px-4 flex-1 bg-black bg-opacity-50 px-5 py-5 pb-7 rounded-lg shadow mt-2 md:mt-0">
         <h2>My rooms</h2>
         {rooms.map((room) => room.fav ?
             <RoomLink key={room.id} authToken={authToken} room={room} onDelete={refreshRooms} userId={userId} />

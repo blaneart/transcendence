@@ -19,7 +19,7 @@ const Chats: React.FC<ChatsProps> = ({ authToken, setAuthToken, setUser, userId,
 
   return (
     <div>
-    <h2 className="text-xxl">Chats</h2>
+    <h2 className="text-xxl text-center">Chats</h2>
     <Switch>
       <Route path="/chats/dms/:target">
         {authToken === "" ? <p>Please log in.</p> : <DirectView userId={userId} authToken={authToken} gameSettings={gameSettings} />}

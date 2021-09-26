@@ -44,7 +44,7 @@ const CreateRoom: React.FC<CreateRoomProps> = ({ authToken, onCreate }) => {
   return (
     <div>
       <h5 className="text-xl mb-2 mt-4">Create a new room:</h5>
-      <form onSubmit={submitHandler}>
+      <form onSubmit={submitHandler} className="flex flex-row">
         <StyledTextInput onChange={(e: any) => {
           setRoomName(e.target.value)
         }} />

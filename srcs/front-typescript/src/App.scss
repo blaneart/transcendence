@@ -1,7 +1,7 @@
 body {
   background-color: black;
-  background-image: url(/assets/blob-haikei-20.svg);
-  background-repeat: no-repeat;
+  // background-image: url(/assets/blob-haikei-20.svg);
+  // background-repeat: no-repeat;
   background-attachment: fixed;
   // background-position: center; 
   background-position:  55% 170%;
@@ -9,7 +9,14 @@ body {
 	background-size: 400% 400%;
 	animation: gradient 7s ease infinite; */
 }
-
+.bg-img {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;  
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 
 @keyframes gradient {
 	0% {

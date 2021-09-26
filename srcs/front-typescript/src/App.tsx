@@ -27,6 +27,7 @@ import AdminPanel from "./pages/adminPanel/adminPanel";
 import Watchdog from "./components/watchdog.component";
 import Custom404 from "./pages/error-pages/404.component";
 import { io, Socket } from "socket.io-client";
+import  { ReactComponent as Logo }  from "./assets/blob-haikei-20.svg"
 
 
 interface IState {
@@ -280,6 +281,7 @@ function App() {
   const [authToken, setAuthToken] = useState("");
   let history = useHistory();
   const { search } = useLocation();
+  const [blobColor, setBlobColor] = useState<string>("#" + Math.ceil((Math.random() * 9)).toString() + Math.ceil((Math.random() * 9)).toString() +Math.ceil((Math.random() * 9)).toString() +Math.ceil((Math.random() * 9)).toString() + Math.ceil((Math.random() * 9)).toString()+ Math.ceil((Math.random() * 9)).toString());
   const [socket] = useState<Socket>(() => {
     const initialState = io(ENDPOINT,
         {
@@ -351,6 +353,7 @@ function App() {
 
   return (
     <div className="App">
+      <Logo fill={blobColor} stroke={blobColor} className="bg-img"/>
       <Router history={history}>
 
         {!user ? <RouteGuest authToken={authToken}

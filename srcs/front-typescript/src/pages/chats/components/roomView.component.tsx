@@ -170,10 +170,8 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
       const newMessage = msg as MessageType; // we receive a single update
       setMessages((oldMessages) => {
         if (userId === newMessage.receiverId || userId === newMessage.senderID) {
-          console.log('gameRoomName', gameRoomName)
           setGameRoomName(gameRoomName);
         }
-        console.log('no new room name');
         if (oldMessages) {
           // Add the new one to the end
           return [...oldMessages, newMessage];

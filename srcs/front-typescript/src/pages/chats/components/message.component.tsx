@@ -92,7 +92,6 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
     );
   }
   let meIn = -1;
-  console.log(message.receiverId, userId);
   // Else, show the message
   return (
     <div className="flex flex-row items-center py-2">
@@ -106,7 +105,6 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
 
           }} >Accept</button>
           <button className="px-4 py-2 bg-red-400 text-red-800 rounded-lg border-2 border-red-500 border-solid hover:text-white hover:bg-red-500" onClick={() => {
-            console.log('gameRoomName', message.id);
             socket.emit('rejectGame', message.id, message.senderID);
           }}>Reject</button>
         </>

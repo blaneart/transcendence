@@ -42,7 +42,6 @@ export class LocalStrategy extends PassportStrategy(CustomStrategy, "local") {
           const user = this.authService.validate42login(code);
           return callback(null, user);
         } catch (err) {
-          console.log(err);
           return callback(err, null)
         }
       }

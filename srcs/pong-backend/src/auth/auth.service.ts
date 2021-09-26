@@ -91,7 +91,6 @@ export class AuthService {
   }
 
   async login(user: any) {
-    console.log(user);
     // if (user.banned)
     //   throw new HttpException("You're banned", HttpStatus.FORBIDDEN);
 

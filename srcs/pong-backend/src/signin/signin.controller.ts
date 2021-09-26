@@ -226,7 +226,6 @@ async function createTwofa() {
 }
 
 const dbHost = process.env.DB_HOST || "127.0.0.1"
-console.log(`Will be connecting to database at: ${dbHost}`)
 const dbPort = process.env.DB_PORT || "8001"
 
 export const db = knex({

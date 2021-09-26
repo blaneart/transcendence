@@ -82,24 +82,20 @@ export class AppController {
   @Post('account/setName')
   async setName(@Request() req, @Body() body: setNameDto) {
     const bool = await this.profileService.isNameUnique(body.value);
-    console.log('bool isNameUnique', bool);
     if (body.value === '' || bool === false) {
       throw new HttpException("Sorry, this name is already taken.", HttpStatus.CONFLICT)
       // return req.user;
     }
-    console.log('name changed');
     const response = await this.profileService.updateUserById(
       req.user.id, {
       name: body.value,
     });
-    console.log(response.name);
     return response;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('account/setElo')
   async setElo(@Body() body: setEloDto) {
-    console.log('elo changed');
     await this.profileService.updateUserById(
       body.winner_id, {
       elo: body.new_winner_elo,
@@ -113,7 +109,6 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @Post('account/setStatus')
   async setStatus(@Request() req, @Body() body: setStatusDto) {
-    console.log('status changed ->', body.value);
     const response = await this.profileService.updateUserById(
       req.user.id, {
       status: body.value,

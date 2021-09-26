@@ -102,7 +102,6 @@ async function validate2fa(code: string, tempAuthCode: string): Promise<AuthResp
 
   if (!response.ok)
     return null;
-  //   console.log(data);
   const jsonData = await response.json();
   return jsonData as AuthResponse;
 }
@@ -155,7 +154,6 @@ async function getMe(authToken: string): Promise<User | null> {
     alert("Couldn't authenticate");
     return null;
   }
-  //   console.log(data);
   const jsonData = await response.json();
   return jsonData as User;
 }
@@ -178,17 +176,19 @@ interface IGuest {
   bannedHandler: Function
   history: any
   statusSocket: Socket
+  blobColor: string;
+  setBlobColor: React.Dispatch<React.SetStateAction<string>>
 }
 
 const RouteGuest: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
-  setAuthToken, setUser, setSettings, history, statusSocket }) => {
+  setAuthToken, setUser, setSettings, history, statusSocket ,blobColor, setBlobColor}) => {
   return (
     <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
       <Route exact path="/">
         <Menu user={user} />
       </Route>
       <Route exact path="/game-settings">
-        <GameSettings settings={settings} setSettings={setSettings} />
+        <GameSettings settings={settings} setSettings={setSettings}  blobColor={blobColor} setBlobColor={setBlobColor}/>
       </Route>
       <Route exact path="/playbots">
         <Difficulty difficultyLvl={difficulty} />
@@ -207,14 +207,14 @@ const RouteGuest: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
 
 
 const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
-  setAuthToken, setUser, setSettings, bannedHandler, history, statusSocket }) => {
+  setAuthToken, setUser, setSettings, bannedHandler, history, statusSocket , blobColor, setBlobColor}) => {
   return (
     <><Header authToken={authToken} user={user} logoutHandler={logoutHandler()} setUser={setUser} setAuthToken={setAuthToken} /><Switch>
       <Route exact path="/">
         <Menu user={user} />
       </Route>
       <Route path="/game-settings">
-        <GameSettings settings={settings} setSettings={setSettings} />
+        <GameSettings settings={settings} setSettings={setSettings}  blobColor={blobColor} setBlobColor={setBlobColor}/>
       </Route>
       <Route path="/playbots">
         <Difficulty difficultyLvl={difficulty} />
@@ -281,7 +281,7 @@ function App() {
   const [authToken, setAuthToken] = useState("");
   let history = useHistory();
   const { search } = useLocation();
-  const [blobColor, setBlobColor] = useState<string>("#" + Math.ceil((Math.random() * 9)).toString() + Math.ceil((Math.random() * 9)).toString() +Math.ceil((Math.random() * 9)).toString() +Math.ceil((Math.random() * 9)).toString() + Math.ceil((Math.random() * 9)).toString()+ Math.ceil((Math.random() * 9)).toString());
+  const [blobColor, setBlobColor] = useState<string>("#233175");
   const [socket] = useState<Socket>(() => {
     const initialState = io(ENDPOINT,
         {
@@ -358,11 +358,11 @@ function App() {
 
         {!user ? <RouteGuest authToken={authToken}
           user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
-          setSettings={setSettings} bannedHandler={bannedHandler} history={history} statusSocket={socket} />
+          setSettings={setSettings} bannedHandler={bannedHandler} history={history} statusSocket={socket} blobColor={blobColor} setBlobColor={setBlobColor}/>
           :
           <RouteAuth authToken={authToken}
             user={user} setUser={setUser} setAuthToken={setAuthToken} settings={settings} difficulty={difficulty}
-            setSettings={setSettings} bannedHandler={bannedHandler} history={history} statusSocket={socket} />
+            setSettings={setSettings} bannedHandler={bannedHandler} history={history} statusSocket={socket} blobColor={blobColor} setBlobColor={setBlobColor}/>
         }
       </Router>
     </div >

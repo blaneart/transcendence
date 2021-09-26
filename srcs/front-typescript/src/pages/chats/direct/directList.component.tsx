@@ -26,7 +26,6 @@ async function getDirects(authToken: string): Promise<Direct[] | null> {
   // Read response as JSON
   const jsonData = await response.json();
   // Cast response to an array of rooms
-  console.log(jsonData);
   return jsonData as Direct[];
 }
 
@@ -126,11 +125,9 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
 
 
   const updateBlockList = useCallback(() => {
-    console.log('Updated');
     // Get all the blocked users
     getBlockList(authToken).then((users) => {
-      console.log("users is null?", users=== null);
-      console.log(users)
+
       if (users === null)
         return;
       // Mutate the block list

@@ -75,7 +75,6 @@ export class ChatService {
       .insert({ userID: userID, roomID: roomID })
       .onConflict(['userID', 'roomID'])
       .ignore();
-    console.log("insert");
     // Return the created participation
     return new_participation[0];
   }

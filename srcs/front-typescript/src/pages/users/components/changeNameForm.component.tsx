@@ -21,7 +21,6 @@ const ChangeNameForm: React.FC<ICNFProps> = ({
 
   const submitHandler = async (e: any) => {
     e.preventDefault();
-    console.log("newName", newName)
     if (!newName)
       setNewName("");
     if (newName === "" || newName === user.name || newName.length > 100)

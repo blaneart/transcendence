@@ -18,13 +18,11 @@ export class StatusGateway implements OnGatewayInit {
   connectedClients = {};
   handleConnection(client: Socket, userid)
   {
-    console.log('connection', client.id);
   }
 
   @SubscribeMessage('setUserId')
   async writeUserId(client: Socket, userid: number)
   {
-    console.log('setUserId gateway');
     if (this.connectedClients[client.id])
       await this.profileService.updateUserById(this.connectedClients[client.id], {status: 0})
     this.connectedClients[client.id] = userid;
@@ -41,7 +39,6 @@ export class StatusGateway implements OnGatewayInit {
   {}
 
   handleDisconnect(client: Socket) {
-    console.log('disconnection', client.id);
     if (this.connectedClients[client.id])
     {
       this.profileService.updateUserById(this.connectedClients[client.id], {status: 0})

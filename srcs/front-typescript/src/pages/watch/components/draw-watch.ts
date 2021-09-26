@@ -125,8 +125,6 @@ class Watcher
         this.draw();
       })
       this.socket.on('getPosition', (position: number, id) => {
-        console.log(position)
-        console.log(id);
         this.players[id].pos.y = position;
       })
     }

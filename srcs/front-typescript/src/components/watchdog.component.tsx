@@ -28,7 +28,6 @@ async function getMe(authToken: string): Promise<User | null> {
     alert("Couldn't authenticate");
     return null;
   }
-  //   console.log(data);
   const jsonData = await response.json();
   return jsonData as User;
 }

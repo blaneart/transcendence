@@ -23,10 +23,7 @@ interface FrontSettings
 }
 
 const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) => {
-    console.log('game_component');
     const {gameRoomName, userId} = useParams<{ gameRoomName: string, userId: string }>();
-    console.log('userId', userId);
-    console.log('gameRoomName', gameRoomName);
     /* result of the game stored in string; can be 'win' 'lost' and 'game' */
     const [isGameEnded, setIsGameEnded] = useState<string>('game');
 
@@ -69,7 +66,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       if (canvasElement)
         ratio = canvasElement.width / 800;
       var counter = useRef(0);
-      console.log('counter', counter.current++)
       socket.emit('gameSettings', gameSettings);
     /* event listener */
 
@@ -81,26 +77,20 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     
     /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {
-      console.log(socket);
-      console.log(user)
       if (!gameRoomName && user && restart)
       {
-        console.log('gameRoomName doesnt exist, NOT an invite game');
         socket.emit('joinRoom', user.name, user.id, user.elo, gameSettings);
         setRestart(false);
       }
       else if (gameRoomName && user && restart)
       {
-        console.log('gameRoomName exist, INVITE game');
         setRestart(false);
         if (userId === '-1')
         {
-          console.log('userID no, creating room and sending it basic options');
           socket.emit('joinRoomInvite', user.name, user.id, user.elo, null, gameRoomName);
         }
         else
         {
-          console.log('useID yes, creating room w/ my settings');
           socket.emit('joinRoomInvite', user.name, user.id, user.elo, gameSettings, gameRoomName);
         }
       }
@@ -109,8 +99,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       })
 
       socket.on('setFrontSettings', (map, powerUps) => {
-        console.log('map', map)
-        console.log('powerUps', powerUps)
         let tmp = {} as FrontSettings; tmp.maps = map; tmp.powerUps = powerUps;
         setFrontSettings(tmp);
       })
@@ -139,7 +127,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         setReady(true);
       })
       socket.on('getId', function(message: number) {
-        console.log(message);
         setId(message);
      });
      socket.on('gameId', function(message: string) {setGameId(message)})
@@ -177,7 +164,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       {
         canvas.style.opacity = '1';
         pong.current = new Pong(updateGameStats, canvas, authToken, socket, id, {map: frontSettings.maps, powerup: frontSettings.powerUps, sounds: gameSettings.sounds}, ratio);
-          console.log(id)
 
           canvas.addEventListener('mousemove', mouseTracker);
         //   window.addEventListener('keydown', event => {

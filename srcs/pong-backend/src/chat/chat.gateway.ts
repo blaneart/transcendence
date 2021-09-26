@@ -21,7 +21,6 @@ const PORT_TWO = process.env.PORT_TWO ? parseInt(process.env.PORT_TWO) : 3003;
 @Catch(UnauthorizedException)
 export class UnauthorizedChatFilter extends BaseWsExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
-    console.log(host.switchToWs().getClient().emit('unauthorized'));
   }
 }
 
@@ -490,16 +489,13 @@ export class ChatGateway {
     {
       throw new WsException("You must log in the room to write in it");
     }
-    console.log(enemyId);
     // Ensure the user is not muted
     if (await this.chatService.isMuted(client.user.id, room.id))
       throw new WsException("You are muted");
     let enemyName = "you";
     const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
-    console.log('accept game : ', roomName);
     for (let socket of socketsInTheRoom)
     {
-      console.log(socket.data.user.id)
 
       if (socket.data.user && socket.data.user.id === enemyId )
          enemyName = socket.data.user.name
@@ -522,7 +518,6 @@ export class ChatGateway {
       receiverId: enemyId
     };
 
-    console.log('client.user.id,', client.user.id,);
     // Send the update to all other clients, including the sender
     this.server.to(roomName).emit("newInvite", newMessage, uuid.v4());
 
@@ -557,9 +552,6 @@ export class ChatGateway {
 
     // Send the update to other side
     this.server.to(`direct_${directConvo.id}`).emit("newDirectInvite", newMessage, uuid.v4());
-
-    console.log(enemyId);
-    console.log(client.id);
   }
 
   @UseGuards(JwtWsAuthGuard)
@@ -571,7 +563,6 @@ export class ChatGateway {
     const enemyId = data[0];
     const messageid = data[1];
     const GameRoomName = data[2];
-    console.log("ROOM NAME: ", roomName);
     // if (roomName.startsWith('direct_'))
     //   this.acceptDirect(client, enemyId, messageid, GameRoomName, roomName);
     // else
@@ -580,7 +571,6 @@ export class ChatGateway {
 
   async acceptChat(client: AuthenticatedSocket, enemyId: number, messageid: number, GameRoomName: string, roomName: string)
   {
-    console.log('accept game : ', messageid);
     const update: ChatMessageUpdate[] = await this.chatService.getRoomMessageUpdates(roomName);
     let objIndex = update.findIndex((obj => obj.id === messageid));
     update[objIndex].type = ChatMessageType.GAME_INVITE_EXPIRED;
@@ -592,11 +582,9 @@ export class ChatGateway {
 
     for (let socket of socketsInTheRoom)
     {
-      console.log(socket.data.user.id)
 
       if (socket.data.user && socket.data.user.id === enemyId )
       {
-        console.log(socket.id)
         this.server.to(socket.id). emit("initialMessages", update);
         this.server.to(socket.id).emit("challengeAccepted", GameRoomName);
       }
@@ -646,12 +634,10 @@ export class ChatGateway {
     //Log object to Console.
     //Update object's name property.
     update[objIndex].type = ChatMessageType.GAME_INVITE_REJECTED;
-    console.log('message: ', update[objIndex])
     this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
     const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
     for (let socket of socketsInTheRoom)
     {
-      console.log(socket.data.user.id)
 
       if (socket.data.user && socket.data.user.id === update[objIndex].senderID)      
         this.server.to(socket.id). emit("initialMessages", update);
@@ -693,7 +679,6 @@ export class ChatGateway {
   @SubscribeMessage('rejectGame')
   async rejectGame(client: AuthenticatedSocket, data: any[])
   {
-    console.log('messageid: ', data)
     const messageid = data[0];
     const enemyId = data[1];
 
@@ -712,7 +697,6 @@ export class ChatGateway {
   @SubscribeMessage('sendGameInvitation')
   async sendGameInvite(client: AuthenticatedSocket, enemyId: number)
   {
-    console.log('enemyid', enemyId);
     const roomName: string = this.getRoomNameBySocket(client);
     if (roomName.startsWith('direct_'))
     {

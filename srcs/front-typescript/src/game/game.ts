@@ -156,7 +156,6 @@ class Pong {
     this.ratio = ratio;
 
     // MAPS
-    console.log('map', map);
     this.curr_map = map.map;
     this.powerups = map.powerup;
     this.isSound = map.sounds;
@@ -240,11 +239,6 @@ class Pong {
       this.players[1].score = message[1];
       this.draw();
     })
-    // this.socket.emit('launchBall');
-    // this.socket.on('getBallSpeed', (message: Vec) => {
-    //     console.log(message);
-    //     this.ball.pos = message;
-    // })
     if (this.isSound)
     {
       this.socket.on('playOne', () => this.audios[0].play())

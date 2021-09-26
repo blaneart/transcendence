@@ -20,7 +20,6 @@ const Watch = () => {
             socket.disconnect();
         }
     }, [socket])
-    console.log(listOfRooms.length)
     if (listOfRooms.length)
         return (
             <div className="bg-black bg-opacity-75 px-10 py-10 rounded-xl shadow-lg">

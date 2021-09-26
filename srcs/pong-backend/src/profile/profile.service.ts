@@ -65,7 +65,6 @@ export class ProfileService {
 
   async updateUserById(id: number, change: any)
   {
-    console.log('updateUserById id =', id, 'change =', change);
     const response = await db('users').returning('*').where({id: id}).update(change);
     return response[0];
   }
@@ -126,7 +125,6 @@ export class ProfileService {
 
     while (await this.getUserById(tryId) !== null)
     {
-      // console.log('yay');
       tryId = Math.ceil(Math.random()*-100000);
     }
     // Insert a new fake user

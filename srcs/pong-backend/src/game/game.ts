@@ -108,7 +108,6 @@ export class Pong {
 
   constructor(ball: Ball, scores, map: any)
   {
-      console.log(map);
       this.ball = ball;
       this.ball.pos.x = 100;
       this.ball.pos.y = 200;
@@ -291,7 +290,6 @@ export class Pong {
     }
     if (player.empowered === PowerUpType.GREEN)
     {
-      console.log("Player ", player, "got his thing big");
       player.paddle.size.y = 300;
       player.empowered = PowerUpType.NONE;
     }

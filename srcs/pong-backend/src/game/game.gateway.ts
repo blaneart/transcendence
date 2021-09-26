@@ -15,8 +15,6 @@ var uuid = require('uuid');
 
 const PORT_ONE = process.env.PORT_ONE ? parseInt(process.env.PORT_ONE) : 3002;
 
-console.log("PORT_ONE", PORT_ONE);
-
 export class Player {
   name: string;
   userId: number;
@@ -183,12 +181,9 @@ export class GameGateway implements OnGatewayInit {
     // Check all rooms available for joining
     roomName = await findAsyncSequential(this.getActiveRooms(/*userInfo[3]*/), async (roomName) =>
                    await this.roomAvailable(roomName, userId, gameSettings));
-    console.log('foundRoomName: ', roomName);
-    console.log(userId, userName);
     /* creates new room if every room is full*/
     if (!roomName)
     {
-      console.log('createRoom');
       roomName = uuid.v4();
       playerId = Math.random()>=0.5? 1 : 0;;
       if (!this.rooms[roomName])
@@ -198,7 +193,6 @@ export class GameGateway implements OnGatewayInit {
           ball: new Ball(),
           settings: gameSettings,
         }
-        console.log('roomSettings', gameSettings);
         this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
     }
 
@@ -220,8 +214,6 @@ export class GameGateway implements OnGatewayInit {
     this.server.to(socket.id).emit('getId', playerId);
     if (ready)
     {
-      console.log('ready = 1')
-      console.log('this.rooms[roomName].settings', this.rooms[roomName].settings)
       this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
       this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
       this.server.to(roomName).emit('ready');
@@ -234,11 +226,8 @@ export class GameGateway implements OnGatewayInit {
   getRoomByRoomName = (roomName: string) => {
 
     const arr = Array.from(this.server.sockets.adapter.rooms);
-    console.log('arr', arr);
     const filtered = arr.filter(room => room[0] === roomName)
-    console.log('filtered', filtered);
     const res = filtered.map(i => i[0]);
-    console.log('res', res);
     return res[0];
   }
 
@@ -250,11 +239,9 @@ export class GameGateway implements OnGatewayInit {
 
     // Check all rooms available for joining
     let roomNameExists = await this.getRoomByRoomName(roomName);
-    console.log('foundRoomName Duel: ', roomNameExists);
     /* creates new room if every room is full*/
     if (!roomNameExists)
     {
-      console.log('createRoomDuel');
       playerId = Math.random()>=0.5? 1 : 0;;
       if (!this.rooms[roomName])
       {
@@ -264,7 +251,6 @@ export class GameGateway implements OnGatewayInit {
           ball: new Ball(),
           settings: gameSettings,
         }
-        console.log('this.rooms[roomName] CREATE', this.rooms[roomName]);
         this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2,);
       }
     }
@@ -272,7 +258,6 @@ export class GameGateway implements OnGatewayInit {
     /* or assigns player to a room with one player */
     else
     {
-      console.log('this.rooms[roomName]', this.rooms[roomName]);
       ready = true;
       if (!this.rooms[roomName].players[0])
         playerId = 0;
@@ -282,7 +267,6 @@ export class GameGateway implements OnGatewayInit {
       this.rooms[roomName].players[playerId] = new Player(userName, userId, playerId, userElo, socket.id, (600 - 100) / 2)
       if (gameSettings)
       {
-        console.log('changing settings !');
         this.rooms[roomName].settings = gameSettings;
       }
       this.rooms[roomName].ready = true;
@@ -293,7 +277,6 @@ export class GameGateway implements OnGatewayInit {
     this.server.to(socket.id).emit('getId', playerId);
     if (ready)
     {
-      console.log('ready = 1')
       this.server.to(this.rooms[roomName].players[1].socketId).emit('enemyname', this.rooms[roomName].players[0].name);
       this.server.to(this.rooms[roomName].players[0].socketId).emit('enemyname', this.rooms[roomName].players[1].name);
       this.server.to(roomName).emit('setFrontSettings', this.rooms[roomName].settings.maps, this.rooms[roomName].settings.powerUps);
@@ -372,8 +355,6 @@ export class GameGateway implements OnGatewayInit {
 
     mmr.winner_new_mmr = Math.floor(winner_old_mmr + 20 * (1 - win_percentage_winner));
     mmr.loser_new_mmr = Math.floor(loser_old_mmr + 20 * (-win_percentage_loser));
-    
-    console.log(mmr);
     return (mmr);
   }
 
@@ -415,7 +396,6 @@ export class GameGateway implements OnGatewayInit {
       this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
       if (this.rooms[roomName].settings.powerUps)
         this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
-      // console.log('pong.leftPaddle',  this.rooms[roomName].players[0]);
       this.server.to(roomName).emit('getPaddles', this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
 
     };
@@ -467,8 +447,6 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('leaveRoom')
   leaveRoom(socket: Socket)
   {
-    console.log('leaveRoom');
-
     let roomName = this.getRoomNameBySocket(socket);
     if (this.rooms[roomName])
       this.rooms[roomName].ready = false;
@@ -483,7 +461,6 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('joinRoom')
   createRoom(socket: AuthenticatedSocket, userInfo) {
     this.profileService.updateUserById(userInfo[1], {status: 2});
-    console.log('joinRoom', userInfo[0], userInfo[1], userInfo[3]);
   
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
@@ -493,7 +470,6 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('joinRoomInvite')
   createRoomDuel(socket: AuthenticatedSocket, userInfo) {
     this.profileService.updateUserById(userInfo[1], {status: 2});
-    console.log('joinRoomDuel');
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);
   }
@@ -512,8 +488,7 @@ export class GameGateway implements OnGatewayInit {
     roomList = this.getActiveRooms().filter(roomName => 
         this.rooms[roomName]?.ready === true
            )
-    console.log(roomList);
-    console.log(this.getActiveRooms())
+    
     return roomList;
   }
 }

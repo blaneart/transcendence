@@ -96,7 +96,6 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
     if (e?.stopPropagation) e!.stopPropagation();
     handlerFunction();
   }
-  console.log(friendUser?.status);
   return (
     friendUser ?
       <div>

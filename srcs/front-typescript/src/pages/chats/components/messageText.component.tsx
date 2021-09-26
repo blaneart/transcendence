@@ -91,7 +91,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
       <div className="message flex-1 flex flex-row items-center message-text">
         <div className="md:px-2 items-center flex flex-column">
         </div>
-          <span>You rejected <Link to={`/users/${message.name}/`}>{message.sender.name}</a>'s invite for a game</span>
+          <span>You rejected <Link to={`/users/${message.name}/`}>{message.sender.name}</Link>'s invite for a game</span>
       </div>
     );
   }
@@ -107,7 +107,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
       <div className="message flex-1 flex flex-row items-center message-text">
         <div className="md:px-2 items-center flex flex-column">
         </div>
-        <span>Good game with <Link to={`/users/${message.name}/`}>{message.sender.name}</a>. Well played!</span>
+        <span>Good game with <Link to={`/users/${message.name}/`}>{message.sender.name}</Link>. Well played!</span>
       </div>
     );
   }
@@ -127,7 +127,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
           {
             message.senderID === userId ? <span className="px-2">You: </span>
             :
-            <Link to={`/users/${message.name}/`} className="px-2">{message.name}: </a>
+            <Link to={`/users/${message.name}/`} className="px-2">{message.name}: </Link>
           }
         </div>
       </div>

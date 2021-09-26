@@ -46,7 +46,6 @@ const Room: React.FC<IRoomProps> = ({authToken}) => {
             history.push('/404');
         })
         socket.on('getSettings', (settings: Settings) => {
-            console.log(settings);
             setSettings(settings)
         })
         socket.emit('sendSettings', room);

@@ -29,7 +29,7 @@ export class GameService {
     .select('games.id', 'winner.name as winner', 'loser.name as loser', 'games.loserScore', 'games.winner_elo', 'games.loser_elo',
       'games.ranked', 'games.maps', 'games.powerUps')
     .join('users as winner', 'winner.id', '=', 'games.winner_id')
-    .join('users as loser', 'loser.id', '=', 'games.loser_id');
+    .join('users as loser', 'loser.id', '=', 'games.loser_id').orderBy('games.id');
 
     return games;
   }

@@ -9,6 +9,7 @@ import {Pong, Ball, Paddle} from './game';
 import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
 import { AuthenticatedSocket } from 'src/chat/chat.types';
 import { PowerUpType, Settings } from "../app.types";
+import { joinRoomDto, joinRoomInviteDto } from './game.dto';
 var uuid = require('uuid');
 
 // import Ball from './game/game';
@@ -348,7 +349,6 @@ export class GameGateway implements OnGatewayInit {
 
   getNewMmr(winner_old_mmr, loser_old_mmr)
   {
-    console.log('winner_old_mmr', winner_old_mmr, 'loser_old_mmr', loser_old_mmr);
     let mmr = {winner_new_mmr: 0, loser_new_mmr: 0};
   
     let win_percentage_winner = 1 / (1 + (10 ** ((loser_old_mmr - winner_old_mmr) / 400)));
@@ -367,7 +367,6 @@ export class GameGateway implements OnGatewayInit {
     if (this.rooms[roomName].settings.ranked === true)
     {
       let newMmrs = this.getNewMmr(winner_elo, loser_elo);
-      console.log(newMmrs);
       this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
       this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
       this.server.to(winner_socket).emit('eloChange', newMmrs.winner_new_mmr);
@@ -413,8 +412,9 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('watchMatch')
   watchMatch(client: Socket, roomName: string)
   {
-
-    client.join(roomName);
+    if (roomName)
+    {
+      client.join(roomName);
     let playerid = 1;
     if (this.rooms[roomName] && this.rooms[roomName].players[0].id === 0)
       playerid = 0;
@@ -423,6 +423,7 @@ export class GameGateway implements OnGatewayInit {
                             this.rooms[roomName].players[1 - playerid].name)
     else
       this.server.to(client.id).emit('go404');
+    }
   }
 
   
@@ -433,9 +434,12 @@ export class GameGateway implements OnGatewayInit {
 
   @SubscribeMessage('scored')
   playerScored(socket: Socket, who: number) {
+    if (who === 0 || who === 1)
+    {
     if (socket.id != this.rooms[this.getRoomNameBySocket(socket)].players[who].socketId)
       this.rooms[this.getRoomNameBySocket(socket)].scores[who] =  this.rooms[this.getRoomNameBySocket(socket)].scores[who] + 1;
     this.server.emit('changeScore', this.rooms[this.getRoomNameBySocket(socket)].scores)
+    }
   }
 
   getRoomNameBySocket = (socket: Socket) => {
@@ -459,7 +463,7 @@ export class GameGateway implements OnGatewayInit {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  async createRoom(socket: AuthenticatedSocket, userInfo) {
+  async createRoom(socket: AuthenticatedSocket, userInfo: joinRoomDto) {
     this.profileService.updateUserById(userInfo[1], {status: 2});
   
     socket.data.user = socket.user; // Save user data for future use
@@ -468,8 +472,7 @@ export class GameGateway implements OnGatewayInit {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoomInvite')
-  async createRoomDuel(socket: AuthenticatedSocket, userInfo) {
-    console.log(userInfo);
+  async createRoomDuel(socket: AuthenticatedSocket, userInfo: joinRoomInviteDto) {
     this.profileService.updateUserById(userInfo[1], {status: 2});
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], await this.gameService.getEloById(userInfo[1]), userInfo[3], userInfo[4]);
@@ -501,7 +504,6 @@ export class GameGateway implements OnGatewayInit {
       throw new WsException('empty roomname')
     if (this.rooms[roomName] && this.rooms[roomName].settings)
     {
-      console.log(this.rooms[roomName].settings)
       this.server.to(client.id).emit('getSettings', this.rooms[roomName].settings);
     }
   }

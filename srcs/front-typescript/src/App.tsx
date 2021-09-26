@@ -352,7 +352,6 @@ function App() {
   var initSettings = {} as Settings;
   initSettings.ranked = false; initSettings.maps = 0; initSettings.powerUps = false; initSettings.sounds = false;
   const [settings, setSettings] = useState<Settings>(initSettings);
-  console.log(settings);
   return (
     <div className="App">
       <div className="w-full" >

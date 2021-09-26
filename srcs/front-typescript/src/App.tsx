@@ -262,14 +262,14 @@ const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
       </Route>
       <Route exact path="/watch">
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-          <Watch />
+          <Watch authToken={authToken}/>
         </Watchdog>
       </Route>
       <Route
         exact path="/watch/:room"
       >
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
-          <Room />
+          <Room authToken={authToken}/>
         </Watchdog>
       </Route>
       <Route path="*"> <Custom404 authToken={authToken} difficultyLvl={difficulty} map={settings} /></Route>

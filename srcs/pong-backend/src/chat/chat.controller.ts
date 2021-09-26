@@ -88,6 +88,19 @@ export class ChatController {
     return await this.chatService.blockUser(request.user.id, id);
   }
 
+  // Unblock a specific user
+  @UseGuards(JwtAuthGuard)
+  @Delete('/block/:id/')
+  async unblockUser(@Request() request, @Param('id', ParseIntPipe) id: number)
+  {
+    // Ensure the user is not blocking themselves
+    if (request.user.id === id)
+      throw new WsException("Can't block yourself");
+    
+    // Remove a block from our database
+    return await this.chatService.unblockUser(request.user.id, id);
+  }
+
   // Get a list of blocked users (to block them on frontend)
   @UseGuards(JwtAuthGuard)
   @Get('/block/')

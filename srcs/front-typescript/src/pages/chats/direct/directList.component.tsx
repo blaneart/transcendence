@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { User } from "../../../App.types";
 
 import { Direct } from "../chats.types";
+import MessageAvatar from "../components/messageAvatar.component";
+import StyledButton from "../components/styledButton.component";
 import StyledSubmit from "../components/styledSubmit.component";
 import DirectLink from "./directLink.component";
 
@@ -65,6 +67,21 @@ async function createDirect(authToken: string, userB: number) {
   return await response.json();
 }
 
+  // Block a user
+  async function handleUnblock(authToken: string, userID: number, onBlock: Function) {
+    // Send a response to the backend
+    await fetch(
+      `${process.env.REACT_APP_API_URL}/chat/block/${userID}/`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+    onBlock();
+  }
+
 // Return true if a user with a given id is already present in the directs array.
 function inDirects(directs: Direct[], id: number)
 {
@@ -109,14 +126,16 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
 
 
   const updateBlockList = useCallback(() => {
+    console.log('Updated');
     // Get all the blocked users
     getBlockList(authToken).then((users) => {
-
+      console.log("users is null?", users=== null);
+      console.log(users)
       if (users === null)
         return;
       // Mutate the block list
-      setBlockList((oldBlockList) => {
-      const newBlockList = new Map<number, boolean>(oldBlockList)
+      setBlockList(() => {
+      const newBlockList = new Map<number, boolean>()
       // For each user, add their ID to the map
       users.map((user) => newBlockList.set(user.blockedID, true));
       // Replace the old blocklist state
@@ -161,7 +180,7 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
     getDirects(authToken).then((newDirects) => newDirects !== null ? setDirects(newDirects) : null);
   }
 
-  return (<div>
+  return (<>
     {directs.map((direct) => blockList.has(otherInDirect(direct, userId)) ? null : <DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/>)}
     <h5 className="text-xl mb-2 mt-4">Start a direct conversation with:</h5>
     <form className="" onSubmit={handleSubmit}>
@@ -171,7 +190,12 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
       </select>
       <StyledSubmit value="Start conversation" />
     </form>
-  </div>);
+    <h5 className="text-xl mb-3 mt-4">Your block list</h5>
+    {users && users.map(user => blockList.has(user.id)
+        && <div key={user.id} className="flex flex-row items-center">
+            <MessageAvatar user={user}/><span className="px-2 mr-5">{user.name}</span><StyledButton onClick={() => handleUnblock(authToken, user.id, updateBlockList)}>Unblock</StyledButton>
+          </div>)}
+  </>);
 }
 
 export default DirectList;

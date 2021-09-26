@@ -47,8 +47,8 @@ const DirectMessageList: React.FC<DirectMessageListProps> = ({ messages, userId,
       if (users === null)
         return;
       // Mutate the block list
-      setBlockList((oldBlockList) => {
-      const newBlockList = new Map<number, boolean>(oldBlockList)
+      setBlockList(() => {
+      const newBlockList = new Map<number, boolean>()
       // For each user, add their ID to the map
       users.map((user) => newBlockList.set(user.blockedID, true));
       // Replace the old blocklist state

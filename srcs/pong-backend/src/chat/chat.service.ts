@@ -236,6 +236,19 @@ export class ChatService {
     return response[0];
   }
 
+  // Remove a block entry for a given pair of users
+  async unblockUser(blockerID: number, blockedID: number) {
+    // Insert a block entry to the database
+    const response = await db('blocklist').where({ blockerID: blockerID, blockedID: blockedID }).delete();
+    return response[0];
+  }
+
+  async isBlocked(blockerID: number, blockedID: number) 
+  {
+    const response = await db('blocklist').where({ blockerID: blockerID, blockedID: blockedID }).select('id');
+    return response.length;
+  }
+
   // Get all block pairs from our database
   async getBlockList(blockerID: number) {
     // Get all corresponding block entries

@@ -99,7 +99,7 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings
       // socket.disconnect();
     };
 
-  }, [socket, target, authToken]); // We only re-run setup if room name or socket change
+  }, [socket, target, authToken, history, userId]); // We only re-run setup if room name or socket change
   // (In other words, we don't.)
 
   return (

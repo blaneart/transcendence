@@ -55,8 +55,8 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
         return;
 
       // Mutate the block list
-      setBlockList((oldBlockList) => {
-        const newBlockList = new Map<number, boolean>(oldBlockList)
+      setBlockList(() => {
+        const newBlockList = new Map<number, boolean>()
         // For each user, add their ID to the map
         users.map((user) => newBlockList.set(user.blockedID, true));
         // Replace the old blocklist state

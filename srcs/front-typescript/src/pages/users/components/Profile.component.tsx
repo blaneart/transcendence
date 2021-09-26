@@ -162,8 +162,8 @@ const Profile: React.FC<IProfilePageProps> = ({
     refreshGameNumbers();
   }, [refreshGameNumbers]); // We don't really reupdate.
 
-  let color = user && twofa ? "red" : "green";
-  let buttonClass = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid border-${color}-500 bg-${color}-300 text-${color}-900 font-bold hover:bg-${color}-500 hover:text-white border-${color}-500`;
+  let green: boolean = user && twofa ? false : true;
+  let buttonClass = `cursor-pointer px-6 py-2 rounded-lg border-1 border-solid ${green? 'border-green-500' : 'border-red-500'} ${green ? 'bg-green-300' : 'bg-red-300' } ${green? 'text-green-900':'text-red-900'} font-bold ${green ? 'hover:bg-green-500' : 'hover:bg-red-500'} hover:text-white ${green? 'border-green-500' : 'border-red-500'}`;
 
   return (
     <div className="account-page py-10">

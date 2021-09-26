@@ -49,6 +49,7 @@ async function toggleTwofa(
 
   if (data.value === true) {
     setAuthToken(resp.resp.access_token);
+    sessionStorage.setItem("pongToken", resp.resp.access_token);
     setTwofa(true);
     setTwofaSecret(resp.secret);
     setQrModal(true);

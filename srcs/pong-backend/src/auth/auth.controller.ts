@@ -68,7 +68,7 @@ export class AuthController {
       await this.authService.addUserTwofa(req.user.id, newSecret.secret);
 
       // Add 2FA achievement
-      if (!this.achievementService.achievementExists(req.user.id, 2))
+      if (!await this.achievementService.achievementExists(req.user.id, 2))
         this.achievementService.addAchievement(req.user.id, 2);
 
       return ({resp: await this.authService.loginAndTwofa(req.user), secret: newSecret.secret});

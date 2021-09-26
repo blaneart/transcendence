@@ -190,7 +190,7 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
       </select>
       <StyledSubmit value="Start conversation" />
     </form>
-    <h5 className="text-xl mb-3 mt-4">Your block list</h5>
+    {blockList.size ? <h5 className="text-xl mb-3 mt-4">Your block list</h5> : null}
     {users && users.map(user => blockList.has(user.id)
         && <div key={user.id} className="flex flex-row items-center">
             <MessageAvatar user={user}/><span className="px-2 mr-5">{user.name}</span><StyledButton onClick={() => handleUnblock(authToken, user.id, updateBlockList)}>Unblock</StyledButton>

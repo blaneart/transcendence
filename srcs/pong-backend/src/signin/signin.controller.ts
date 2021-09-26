@@ -107,6 +107,7 @@ async function createMessage() {
         t.text('message');
         t.integer('type').default(0);
         t.integer('receiverId');
+        t.string('roomName', 100).nullable();
         t.foreign('userID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
         t.foreign('roomID').references('room.id').onDelete('CASCADE'); // will be destroyed with corresponding room
       });
@@ -192,6 +193,7 @@ async function createDirectMessages() {
         t.text('message');
         t.integer('type').default(0);
         t.integer('receiverId');
+        t.string('roomName', 100).nullable();
         t.foreign('directID').references('directs.id').onDelete('CASCADE'); // will be destroyed with corresponding direct
         t.foreign('senderID').references('users.id').onDelete('CASCADE'); // will be destroyed with corresponding user
       });

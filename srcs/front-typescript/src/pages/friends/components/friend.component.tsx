@@ -29,26 +29,32 @@ async function getFriendById(id2: number, authToken: string): Promise<User | nul
   return jsonData as User;
 }
 
-async function addBackFriend(id1: number, id2: number, authToken: string, setBool: Function) {
-  setBool(true);
-  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
+async function addBackFriend(id1: number, id2: number, authToken: string, setBool: Function, bannedHandler: Function) {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (response.ok)
+    setBool(true);
+  if (response.status === 401)
+    bannedHandler();
 }
 
-async function removeFriend(id1: number, id2: number, authToken: string, setBool: Function) {
-  setBool(false);
-  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
+async function removeFriend(id1: number, id2: number, authToken: string, setBool: Function, bannedHandler: Function) {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (response.ok)
+    setBool(false);
+  if (response.status === 401)
+    bannedHandler();
 }
 
 const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
@@ -57,6 +63,11 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
 
   const [friendUser, setFriend] = useState<User>();
   const [bool, setBool] = useState<Boolean>(true);
+
+  const bannedHandler = () => {
+    alert("You're banned");
+    history.replace('/');
+  }
 
   const refreshFriend = useCallback(() => {
     getFriendById(id2, authToken).then(newFriend => {
@@ -67,12 +78,12 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
   }, [authToken, id2]);
 
   const handleUnfriend = async (id1: number, id2: number, authToken: string, setBool: Function) => {
-    await removeFriend(id1, id2, authToken, setBool);
+    await removeFriend(id1, id2, authToken, setBool, bannedHandler);
     refreshFriend();
   };
 
   const handleAddBackFriend = async (id1: number, id2: number, authToken: string, setBool: Function) => {
-    await addBackFriend(id1, id2, authToken, setBool);
+    await addBackFriend(id1, id2, authToken, setBool, bannedHandler);
     refreshFriend();
   };
 

@@ -97,7 +97,7 @@ export class ChatService {
     return newMessage[0];
   }
 
-  async sendMessage(userID: number, roomName: string, text: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null) {
+  async sendMessage(userID: number, roomName: string, text: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null, gameRoomName: string | null = null) {
     // Add a new message entry in the database
     const roomID = await this.findRoomId(roomName);
     const newMessage = await db('message').returning('*').insert({
@@ -105,7 +105,8 @@ export class ChatService {
       roomID: roomID,
       message: text,
       receiverId: receiverId,
-      type: type
+      type: type,
+      roomName: gameRoomName
     });
     // Return the newly created message
     return newMessage[0];
@@ -118,7 +119,7 @@ export class ChatService {
     // Return the messages populated with user names.
     const messages = await db('message').where({ roomID: roomID })
       .join('users', 'users.id', '=', 'message.userID')
-      .select('message.id', 'message.message', 'message.type', 'message.receiverId',
+      .select('message.id', 'message.message', 'message.type', 'message.receiverId', 'message.roomName',
         'users.name', 'users.id as senderID', 'users.id42', 'users.avatar', 'users.realAvatar', 'users.owner', 'users.banned', 'users.banned');
     return messages;
   }
@@ -149,7 +150,8 @@ export class ChatService {
         senderID: message.senderID,
         sender: senderObject,
         type: message.type,
-        receiverId: message.receiverId
+        receiverId: message.receiverId,
+        roomName: message.roomName
       }
       return messageObject;
     })
@@ -398,7 +400,7 @@ export class ChatService {
     const messages = await db('directmessages').where({ directID: directId })
       .join('users', 'users.id', '=', 'directmessages.senderID')
       .select(
-        'directmessages.id', 'directmessages.message', 'directmessages.senderID', 'directmessages.type', 'directmessages.receiverId',
+        'directmessages.id', 'directmessages.message', 'directmessages.senderID', 'directmessages.type', 'directmessages.receiverId', 'directmessages.roomName',
         'users.name as name', 'users.id42', 'users.avatar', 'users.owner', 'users.banned', 'users.admin', 'users.realAvatar');
     return messages;
   }
@@ -430,7 +432,8 @@ export class ChatService {
         senderID: message.senderID,
         sender: sender,
         type: message.type,
-        receiverId: message.receiverId
+        receiverId: message.receiverId,
+        roomName: message.roomName
       }
       return update;
     });
@@ -438,10 +441,10 @@ export class ChatService {
   }
 
   // Save a newly sent direct message to our database
-  async sendDirectMessage(directId: number, senderId: number, message: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null) {
+  async sendDirectMessage(directId: number, senderId: number, message: string, type: ChatMessageType = ChatMessageType.TEXT, receiverId: number | null = null, roomName: string | null = null) {
     // Create the message instance
     const response = await db('directmessages').returning('*')
-      .insert({ directID: directId, senderID: senderId, message: message, type: type, receiverId: receiverId });
+      .insert({ directID: directId, senderID: senderId, message: message, type: type, receiverId: receiverId, roomName: roomName });
     return response[0]
   }
 

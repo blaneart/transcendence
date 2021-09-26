@@ -500,12 +500,16 @@ export class ChatGateway {
          enemyName = socket.data.user.name
       
     }
+
+    const gameRoomName = uuid.v4();
+
     // Save the new message to our database
-    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "invited "+ enemyName+" for a game",  ChatMessageType.GAME_INVITE, enemyId);
+    const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "invited "+ enemyName+" for a game",  ChatMessageType.GAME_INVITE, enemyId, gameRoomName);
 
     // Get the sender info for the update
     const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
     
+
     // Create a new update for the clients
     const newMessage: ChatMessageUpdate = {
       id: savedMessage.id, // The id comes from our database
@@ -514,11 +518,12 @@ export class ChatGateway {
       senderID: client.user.id,
       sender: senderUser,
       type: ChatMessageType.GAME_INVITE,
-      receiverId: enemyId
+      receiverId: enemyId,
+      roomName: gameRoomName
     };
 
     // Send the update to all other clients, including the sender
-    this.server.to(roomName).emit("newInvite", newMessage, uuid.v4());
+    this.server.to(roomName).emit("newInvite", newMessage, gameRoomName);
 
   }
 
@@ -532,13 +537,16 @@ export class ChatGateway {
       throw new WsException("Direct conversation not found");
     }
 
+    const gameRoomName = uuid.v4();
+
     // Save the new message to our database
     // const savedMessage = await this.chatService.sendMessage(client.user.id, roomName, "keklol");
-    const savedMessage = await this.chatService.sendDirectMessage(directConvo.id, client.user.id, 'game invite', ChatMessageType.GAME_INVITE, enemyId);
+    const savedMessage = await this.chatService.sendDirectMessage(directConvo.id, client.user.id, 'game invite', ChatMessageType.GAME_INVITE, enemyId, gameRoomName);
 
     // Get the sender info for the update
     const senderUser = await this.profileService.getUserById(client.user.id) as UserPublic;
     
+
     const newMessage: DirectMessageUpdate = {
       id: savedMessage.id,
       name: client.user.name,
@@ -546,28 +554,29 @@ export class ChatGateway {
       senderID: client.user.id,
       sender: client.user as UserPublic,
       type: ChatMessageType.GAME_INVITE,
-      receiverId: enemyId
+      receiverId: enemyId,
+      roomName: gameRoomName
     }
 
     // Send the update to other side
-    this.server.to(`direct_${directConvo.id}`).emit("newDirectInvite", newMessage, uuid.v4());
+    this.server.to(`direct_${directConvo.id}`).emit("newDirectInvite", newMessage, roomName);
   }
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('acceptGame')
   async acceptGame(client: AuthenticatedSocket, data: AcceptGameDto)
   {
-    const roomName = this.getRoomNameBySocket(client);
+  const roomName = data.roomName;
     const enemyId = data.enemyID;
     const messageid = data.messageID;
-    const GameRoomName = data.gameRoomName;
+    // const GameRoomName = data.gameRoomName;
     // if (roomName.startsWith('direct_'))
     //   this.acceptDirect(client, enemyId, messageid, GameRoomName, roomName);
     // else
-    this.acceptChat(client, enemyId, messageid, GameRoomName, roomName);
+    this.acceptChat(client, enemyId, messageid, roomName);
   }
 
-  async acceptChat(client: AuthenticatedSocket, enemyId: number, messageid: number, GameRoomName: string, roomName: string)
+  async acceptChat(client: AuthenticatedSocket, enemyId: number, messageid: number, roomName: string)
   {
     const update: ChatMessageUpdate[] = await this.chatService.getRoomMessageUpdates(roomName);
     let objIndex = update.findIndex((obj => obj.id === messageid));
@@ -578,13 +587,16 @@ export class ChatGateway {
     const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
     this.server.to(client.id).emit("initialMessages", update);
 
+    if (!update[objIndex].roomName)
+      throw new WsException("No room name");
+
     for (let socket of socketsInTheRoom)
     {
 
       if (socket.data.user && socket.data.user.id === enemyId )
       {
         this.server.to(socket.id). emit("initialMessages", update);
-        this.server.to(socket.id).emit("challengeAccepted", GameRoomName);
+        this.server.to(socket.id).emit("challengeAccepted", !update[objIndex].roomName);
       }
     }
   }
@@ -619,8 +631,11 @@ export class ChatGateway {
     // Refresh all users in the room
     this.server.to(roomName).emit('initialMessages', await this.chatService.getAllDirectUpdates(direct.id));
     
+    if (!update[objIndex].roomName)
+      throw new WsException('No room name');
+
     // Let the invite sender know we want to play
-    this.server.to(roomName).emit('challengeAccepted', GameRoomName);
+    this.server.to(roomName).emit('challengeAccepted', update[objIndex].roomName);
   }
 
 

@@ -40,7 +40,8 @@ export interface ChatMessageUpdate {
   senderID: number
   sender: UserPublic
   type: ChatMessageType
-  receiverId?: number   
+  receiverId?: number
+  roomName?: string
 }
 
 // The update we send to frontend to show messages
@@ -50,6 +51,7 @@ export interface DirectMessageUpdate {
   message: string,
   senderID: number
   sender: UserPublic
+  roomName?: string
 }
 
 interface User {

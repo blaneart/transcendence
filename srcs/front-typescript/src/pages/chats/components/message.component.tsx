@@ -102,10 +102,10 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
             socket.emit('acceptGame', {
               enemyID: message.senderID,
               messageID: message.id,
-              gameRoomName: gameRoomName
+              roomName: room.name
             });
             // socket.emit('w', message.id);
-            history.replace(`/play/${gameRoomName}/${meIn}`);
+            history.replace(`/play/${message.roomName}/${meIn}`);
 
           }} >Accept</button>
           <button className="px-4 py-2 bg-red-400 text-red-800 rounded-lg border-2 border-red-500 border-solid hover:text-white hover:bg-red-500" onClick={() => {
@@ -120,7 +120,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
       }
       {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
         <button className="px-4 py-2 bg-green-400 text-green-800 rounded-lg border-2 border-green-500 border-solid hover:text-white hover:bg-green-500" onClick={() => {
-          history.replace(`/play/${gameRoomName}/${userId}`);
+          history.replace(`/play/${message.roomName}/${userId}`);
         }}>Join waiting room</button>
       }
 

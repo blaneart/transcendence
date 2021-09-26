@@ -1,11 +1,21 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_ONE;
 
-const Watch = () => {
+interface IWatchProps {
+    authToken: string
+}
+
+const Watch: React.FC<IWatchProps> = ({authToken}) => {
+    
     const [socket] = useState<Socket>(() => {
-        const initialState = io(ENDPOINT);
+    const initialState = io(ENDPOINT,
+        {
+          auth: {
+            token: authToken
+          }
+        });
         return initialState;
     });
 

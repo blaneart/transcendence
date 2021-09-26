@@ -1,5 +1,5 @@
 import { Logger, UseGuards } from '@nestjs/common';
-import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
+import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, WsResponse } from '@nestjs/websockets';
 import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
 import { Socket, Server } from 'socket.io';
@@ -413,12 +413,16 @@ export class GameGateway implements OnGatewayInit {
   @SubscribeMessage('watchMatch')
   watchMatch(client: Socket, roomName: string)
   {
+
     client.join(roomName);
     let playerid = 1;
-    if (this.rooms[roomName].players[0].id === 0)
+    if (this.rooms[roomName] && this.rooms[roomName].players[0].id === 0)
       playerid = 0;
-    this.server.to(client.id).emit('playersNames', this.rooms[roomName].players[playerid].name,
+    if (this.rooms[roomName])
+      this.server.to(client.id).emit('playersNames', this.rooms[roomName].players[playerid].name,
                             this.rooms[roomName].players[1 - playerid].name)
+    else
+      this.server.to(client.id).emit('go404');
   }
 
   // @SubscribeMessage('quitGame')
@@ -476,9 +480,9 @@ export class GameGateway implements OnGatewayInit {
     this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], await this.gameService.getEloById(userInfo[1]), userInfo[3], userInfo[4]);
   }
 
-
+  @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('getListOfRooms')
-  sendRooms(client: Socket)
+  sendRooms(client: AuthenticatedSocket)
   {
     this.server.to(client.id).emit('getListOfRooms', this.showRooms());
   }
@@ -492,6 +496,19 @@ export class GameGateway implements OnGatewayInit {
            )
     
     return roomList;
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('sendSettings')
+  sendSettingsWatch(client: Socket, roomName: string)
+  {
+    if (!roomName)
+      throw new WsException('empty roomname')
+    if (this.rooms[roomName] && this.rooms[roomName].settings)
+    {
+      console.log(this.rooms[roomName].settings)
+      this.server.to(client.id).emit('getSettings', this.rooms[roomName].settings);
+    }
   }
 }
 

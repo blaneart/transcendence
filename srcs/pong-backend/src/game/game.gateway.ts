@@ -348,6 +348,7 @@ export class GameGateway implements OnGatewayInit {
 
   getNewMmr(winner_old_mmr, loser_old_mmr)
   {
+    console.log('winner_old_mmr', winner_old_mmr, 'loser_old_mmr', loser_old_mmr);
     let mmr = {winner_new_mmr: 0, loser_new_mmr: 0};
   
     let win_percentage_winner = 1 / (1 + (10 ** ((loser_old_mmr - winner_old_mmr) / 400)));
@@ -366,6 +367,7 @@ export class GameGateway implements OnGatewayInit {
     if (this.rooms[roomName].settings.ranked === true)
     {
       let newMmrs = this.getNewMmr(winner_elo, loser_elo);
+      console.log(newMmrs);
       this.profileService.updateUserById(winner_id, {elo: newMmrs.winner_new_mmr});
       this.profileService.updateUserById(loser_id, {elo: newMmrs.loser_new_mmr});
       this.server.to(winner_socket).emit('eloChange', newMmrs.winner_new_mmr);
@@ -459,19 +461,19 @@ export class GameGateway implements OnGatewayInit {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
-  createRoom(socket: AuthenticatedSocket, userInfo) {
+  async createRoom(socket: AuthenticatedSocket, userInfo) {
     this.profileService.updateUserById(userInfo[1], {status: 2});
   
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoom(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3]);
+    this.getWaitingRoom(socket, userInfo[0], userInfo[1], await this.gameService.getEloById(userInfo[1]), userInfo[3]);
   }
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoomInvite')
-  createRoomDuel(socket: AuthenticatedSocket, userInfo) {
+  async createRoomDuel(socket: AuthenticatedSocket, userInfo) {
     this.profileService.updateUserById(userInfo[1], {status: 2});
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], userInfo[2], userInfo[3], userInfo[4]);
+    this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], await this.gameService.getEloById(userInfo[1]), userInfo[3], userInfo[4]);
   }
 
 

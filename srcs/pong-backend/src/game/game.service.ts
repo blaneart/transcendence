@@ -71,4 +71,13 @@ export class GameService {
 
     return losses[0].count;
   }
+
+
+  async getEloById(userid: number) {
+    const elo = await db('users')
+    .where({ id: userid })
+    .select('elo');
+
+    return elo[0].elo;
+  }
 }

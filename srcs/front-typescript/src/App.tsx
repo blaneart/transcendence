@@ -225,12 +225,12 @@ const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
       <Route path="/cheats">
         <FakeUserCreator loggedIn={user?.id} setAuthToken={setAuthToken} setUser={setUser} statusSocket={statusSocket} />
       </Route>
-      <Route path="/play">
+      <Route exact path="/play">
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
           <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
         </Watchdog>
       </Route>
-      <Route path="/play/:gameRoomName/:userId">
+      <Route exact path="/play/:gameRoomName/:userId">
         <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
           <Game user={user} setUser={setUser} authToken={authToken} gameSettings={settings} />
         </Watchdog>
@@ -352,7 +352,7 @@ function App() {
   var initSettings = {} as Settings;
   initSettings.ranked = false; initSettings.maps = 0; initSettings.powerUps = false; initSettings.sounds = false;
   const [settings, setSettings] = useState<Settings>(initSettings);
-
+  console.log(settings);
   return (
     <div className="App">
       <div className="w-full" >

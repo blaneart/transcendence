@@ -43,7 +43,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       frontSettings.maps = gameSettings.maps;
       frontSettings.powerUps = gameSettings.powerUps;
     }
-    else if (gameRoomName && userId)
+    else if (gameRoomName && userId !== '-1')
     {
       frontSettings.maps = gameSettings.maps;
       frontSettings.powerUps = gameSettings.powerUps;
@@ -100,6 +100,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       socket.on('setFrontSettings', (map, powerUps) => {
         let tmp = {} as FrontSettings; tmp.maps = map; tmp.powerUps = powerUps;
         setFrontSettings(tmp);
+        console.log('hehere');
       })
       socket.on('eloChange', (newEloUser) => {
         
@@ -179,7 +180,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       else if (canvas)
         canvas.style.opacity = '0.5';
     }
-}, [ready, authToken, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user, isGameEnded, gameSettings.sounds]);
+}, [ready, authToken,frontSettings, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user, isGameEnded, gameSettings.sounds]);
 
 
 /* willUnmount game destruction */

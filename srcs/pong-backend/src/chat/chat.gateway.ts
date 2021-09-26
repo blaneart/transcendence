@@ -21,6 +21,7 @@ const PORT_TWO = process.env.PORT_TWO ? parseInt(process.env.PORT_TWO) : 3003;
 @Catch(UnauthorizedException)
 export class UnauthorizedChatFilter extends BaseWsExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
+    host.switchToWs().getClient().emit('unauthorized');
   }
 }
 

@@ -402,9 +402,9 @@ export class GameGateway implements OnGatewayInit {
       //   clearInterval(interval)
       if (this.rooms[roomName]  && this.rooms[roomName].players[0].id === 0)
         pong.update(dt /1000, this.rooms[roomName].players[0], this.rooms[roomName].players[1], this.server, roomName);
-      else 
+      else if (this.rooms[roomName])
         pong.update(dt /1000, this.rooms[roomName].players[1], this.rooms[roomName].players[0], this.server, roomName);
-      if (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10)
+      if (this.rooms[roomName] && (this.rooms[roomName].scores[0] >= 10 || this.rooms[roomName].scores[1] >= 10))
       {
         if (this.rooms[roomName].ready) // if it is not ready, the game has been settled by abandon, no need to resettle
           this.endGame(roomName);

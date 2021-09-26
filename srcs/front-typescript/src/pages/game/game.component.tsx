@@ -64,9 +64,8 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
           });
       return initialState;
     });
+
     var ratio = 0.5;
-    var counter = useRef(0);
-    console.log('counter', counter.current++)
     socket.emit('gameSettings', gameSettings);
     /* event listener */
 
@@ -74,6 +73,8 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
 
     const pong = useRef<Pong|null>(null);
 
+
+    
     /* connection function, called in the beginning and restart to establish connection to server */
     useEffect(() => {
       console.log(socket);
@@ -154,30 +155,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     }
     
     function updateGameStats(result: string, authToken: string){
-      // if (user)
-      // {
-      //   var data = {
-      //     value: user.id,
-      //   }
-      //   const response = await fetch(process.env.REACT_APP_API_URL + "/userById", {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'Authorization': `Bearer ${authToken}`
-      //     },
-      //     body: JSON.stringify(data),
-      //   });
-
-      //   document.getElementById('forCanvas')?.removeEventListener('mousemove', mouseTracker);
-        
-      //   if (!response.ok)
-      //     return null;
-        
-      //   const jsonData = await response.json();
-      //   const userUpdate = jsonData as User;
-      //   setUser(userUpdate);
-      // }
-
       setIsGameEnded(result);
       return null;
     }

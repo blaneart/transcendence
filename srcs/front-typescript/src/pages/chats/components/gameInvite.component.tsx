@@ -15,8 +15,7 @@ interface gameInviteProps {
 const GameInvite: React.FC<gameInviteProps> = ({ socket, enemy }) => {
 
     let history = useHistory();
-    
-    socket.emit('gameInvite', enemy.id);
+
     let meIn = -1;
     socket.on('acceptedInvitation', (roomName)=>{
         history.replace(`/play/${roomName}/${meIn}`)

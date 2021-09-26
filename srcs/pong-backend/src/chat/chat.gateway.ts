@@ -6,7 +6,7 @@ import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
 import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSocket, ChatMessageType } from "./chat.types";
 import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
-import { LoginAttempt, DirectMessage, BanRequest, ChatMessage, RejectDirectGameDto, AcceptDirectGameDto } from "./chat.dto";
+import { LoginAttempt, DirectMessage, BanRequest, ChatMessage, RejectDirectGameDto, AcceptDirectGameDto, AcceptGameDto, RejectGameDto } from "./chat.dto";
 import { Settings } from "http2";
 
 
@@ -471,8 +471,6 @@ export class ChatGateway {
 
   async handleChatGameInvite(client: AuthenticatedSocket, roomName: string, enemyId: number)
   {
-
-
     const room = await this.chatService.findRoomByName(roomName);
 
     // Ensure room exists
@@ -556,13 +554,12 @@ export class ChatGateway {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('acceptGame')
-  async acceptGame(client: AuthenticatedSocket, data)
+  async acceptGame(client: AuthenticatedSocket, data: AcceptGameDto)
   {
-
     const roomName = this.getRoomNameBySocket(client);
-    const enemyId = data[0];
-    const messageid = data[1];
-    const GameRoomName = data[2];
+    const enemyId = data.enemyID;
+    const messageid = data.messageID;
+    const GameRoomName = data.gameRoomName;
     // if (roomName.startsWith('direct_'))
     //   this.acceptDirect(client, enemyId, messageid, GameRoomName, roomName);
     // else
@@ -592,7 +589,7 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('acceptDirectGame')
-  async acceptDirect(client: AuthenticatedSocket,  data: AcceptDirectGameDto)
+  async acceptDirect(client: AuthenticatedSocket, data: AcceptDirectGameDto)
   {
     const enemyId = data.interlocutorID;
     const messageid = data.inviteID;
@@ -677,10 +674,10 @@ export class ChatGateway {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('rejectGame')
-  async rejectGame(client: AuthenticatedSocket, data: any[])
+  async rejectGame(client: AuthenticatedSocket, data: RejectGameDto)
   {
-    const messageid = data[0];
-    const enemyId = data[1];
+    const messageid = data.messageID;
+    const enemyId = data.enemyID;
 
     let roomName = this.getRoomNameBySocket(client);
 
@@ -697,6 +694,8 @@ export class ChatGateway {
   @SubscribeMessage('sendGameInvitation')
   async sendGameInvite(client: AuthenticatedSocket, enemyId: number)
   {
+    if ((!enemyId && enemyId !== 0) || enemyId < 0 || !Number.isInteger(enemyId))
+      throw new WsException('Bad enemy id');
     const roomName: string = this.getRoomNameBySocket(client);
     if (roomName.startsWith('direct_'))
     {

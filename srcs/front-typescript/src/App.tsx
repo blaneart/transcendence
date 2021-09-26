@@ -214,7 +214,9 @@ const RouteAuth: React.FC<IGuest> = ({ user, settings, difficulty, authToken,
         <Menu user={user} />
       </Route>
       <Route path="/game-settings">
-        <GameSettings settings={settings} setSettings={setSettings}  blobColor={blobColor} setBlobColor={setBlobColor}/>
+        <Watchdog authToken={authToken} bannedHandler={bannedHandler}>
+          <GameSettings settings={settings} setSettings={setSettings}  blobColor={blobColor} setBlobColor={setBlobColor}/>
+        </Watchdog>
       </Route>
       <Route path="/playbots">
         <Difficulty difficultyLvl={difficulty} />

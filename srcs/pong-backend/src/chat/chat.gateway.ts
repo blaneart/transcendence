@@ -325,7 +325,7 @@ export class ChatGateway {
       throw new WsException("Room not found");
 
     // Ensure the sender is the room owner
-    if (!(await this.chatService.isAdmin(room.id, client.user.id))
+    if (!(await this.chatService.isAdmin(client.user.id, room.id))
             && client.user.id !== room.ownerID)
       throw new WsException("You must be the room owner or an administrator to mute people");
 

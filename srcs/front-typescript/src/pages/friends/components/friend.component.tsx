@@ -108,18 +108,18 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
             {bool ? <button className="cursor-pointer px-8 py-2 mr-2 bg-red-400 rounded-lg text-red-700 text-lg font-bold border-4 border-red-500 border-solid hover:bg-red-500 hover:text-red-800 hover:border-red-600" onClick={(e) => handlerHandler(e as unknown as Event, () => handleUnfriend(id1, friendUser.id, authToken, setBool))}>Unfriend</button> 
            : <button className="cursor-pointer px-8 py-2 mr-2 bg-green-400 rounded-lg text-green-700 text-lg font-bold border-4 border-green-500 border-solid hover:bg-green-500 hover:text-green-800 hover:border-green-600" onClick={(e) => handlerHandler(e as unknown as Event, () => handleAddBackFriend(id1, friendUser.id, authToken, setBool))}>Add Back</button>}
             <div onClick={(e) => linkHandler(e as unknown as Event, `/chats/dms/${friendUser.name}`)}>
-              <div className="font-ok font-bold px-8 py-2 bg-blue-400 text-lg text-blue-700 hover:bg-blue-500 hover:text-blue-800 rounded-lg border-4 border-solid border-blue-500 hover:border-blue-600">
+              <div className="font-ok font-bold px-8 py-2 bg-blue-400 text-lg mr-2 text-blue-700 hover:bg-blue-500 hover:text-blue-800 rounded-lg border-4 border-solid border-blue-500 hover:border-blue-600">
               Direct message
               </div>
             </div>
             {friendUser.status === 0 ? 
-            <p className="px-5 py-2 text-lg text-red-800 bg-red-400 rounded-lg border-4 border-solid border-red-600" >
+            <p className="font-ok font-bold px-5 py-2 text-lg text-red-800 bg-red-400 rounded-lg border-4 border-solid border-red-600" >
                 Offline
             </p> : friendUser.status === 1 ?
-            <p className="px-5 py-2 text-lg text-green-800 bg-green-400 rounded-lg border-4 border-solid border-green-600" >
+            <p className="font-ok font-bold px-5 py-2 text-lg text-green-800 bg-green-400 rounded-lg border-4 border-solid border-green-600" >
                 Online
             </p> :
-            <p className="px-5 py-2 text-lg text-yellow-800 bg-yellow-400 rounded-lg border-4 border-solid border-yellow-600" >
+            <p className="font-ok font-bold px-5 py-2 text-lg text-yellow-800 bg-yellow-400 rounded-lg border-4 border-solid border-yellow-600" >
                 In a game
             </p>}
           </div>

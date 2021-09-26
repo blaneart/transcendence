@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { User } from '../../pages/users/users.types';
 import MessageAvatar from '../chats/components/messageAvatar.component';
 // import UserAvatar from '../friends/components/UserAvatar.component';
@@ -90,18 +90,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ authToken, user }) => {
 
   const history = useHistory();
 
-  const demotedChecker = () => {
+  const demotedChecker = useCallback(() => {
     alert("You've been demoted from admins.");
     history.replace('/');
-  }
+  }, [history]);
 
-  const updateUsers = (authToken: string) => {
+  const updateUsers = useCallback((authToken: string) => {
     getUsers(authToken, demotedChecker).then(update => update === null ? null : setUsers(update));
-  }
+  }, [demotedChecker]);
 
   useEffect(() => {
     updateUsers(authToken);
-  }, [authToken])
+  }, [authToken, updateUsers])
 
 
 

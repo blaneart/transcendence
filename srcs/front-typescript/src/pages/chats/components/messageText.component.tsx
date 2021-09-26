@@ -4,6 +4,7 @@ import { ChatMessageType, MessageType, UserPublic } from "../chats.types";
 import MessageAvatar from "./messageAvatar.component";
 import UserTooltip from "./userTooltip.component";
 import { Settings } from "../../../App.types";
+import { Link } from "react-router-dom";
 
 interface MessageTextProps {
   message: MessageType,
@@ -47,7 +48,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
     if (message.senderID === userId) {
       return <div className="message flex-1 flex flex-row items-center message-text">
         <div className="md:px-2">
-          <p>You invited {invitee ? <a href={`/users/${invitee.name}/`}>{invitee.name}</a> : "someone"} for a game</p>
+          <p>You invited {invitee ? <Link to={`/users/${invitee.name}/`}>{invitee.name}</Link> : "someone"} for a game</p>
         </div>
       </div>
     }
@@ -64,7 +65,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
             </div>
           </div>
         </div>
-        <p><a href={`/users/${message.name}/`}>{message.sender.name}</a> invited you for a game</p>
+        <p><Link to={`/users/${message.name}/`}>{message.sender.name}</Link> invited you for a game</p>
       </div>
     );
   }
@@ -83,14 +84,14 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
           </div>
         </div>
         }
-        <span>{invitee ? <a href={`/users/${invitee.name}/`}>{invitee.name}</a> : "Someone"} rejected your invitation for a game</span>
+        <span>{invitee ? <Link to={`/users/${invitee.name}/`}>{invitee.name}</Link> : "Someone"} rejected your invitation for a game</span>
       </div>
     }
     return (
       <div className="message flex-1 flex flex-row items-center message-text">
         <div className="md:px-2 items-center flex flex-column">
         </div>
-          <span>You rejected <a href={`/users/${message.name}/`}>{message.sender.name}</a>'s invite for a game</span>
+          <span>You rejected <Link to={`/users/${message.name}/`}>{message.sender.name}</Link>'s invite for a game</span>
       </div>
     );
   }
@@ -99,14 +100,14 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
       return <div className="message flex-1 flex flex-row items-center message-text">
         <div className="md:px-2 items-center flex flex-column">
         </div>
-        <span>Good game with {invitee ? <a href={`/users/${invitee.name}/`}>{invitee.name}</a> : "Someone"}. Well played!</span>
+        <span>Good game with {invitee ? <Link to={`/users/${invitee.name}/`}>{invitee.name}</Link> : "Someone"}. Well played!</span>
       </div>
     }
     return (
       <div className="message flex-1 flex flex-row items-center message-text">
         <div className="md:px-2 items-center flex flex-column">
         </div>
-        <span>Good game with <a href={`/users/${message.name}/`}>{message.sender.name}</a>. Well played!</span>
+        <span>Good game with <Link to={`/users/${message.name}/`}>{message.sender.name}</Link>. Well played!</span>
       </div>
     );
   }
@@ -126,7 +127,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
           {
             message.senderID === userId ? <span className="px-2">You: </span>
             :
-            <a href={`/users/${message.name}/`} className="px-2">{message.name}: </a>
+            <Link to={`/users/${message.name}/`} className="px-2">{message.name}: </Link>
           }
         </div>
       </div>

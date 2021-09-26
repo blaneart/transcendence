@@ -5,7 +5,7 @@ import './game.styles.scss';
 import GameHeader from "./components/game-header/game-header.component";
 import { io, Socket } from 'socket.io-client';
 import { User, Settings } from "../../App.types";
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 
 const ENDPOINT = process.env.REACT_APP_SOCKET_BASE + ":" + process.env.REACT_APP_PORT_ONE;
 
@@ -36,6 +36,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     /* id of the player of this client can be 0 or 1, default on three rendomly set on server */
     const [id, setId] = useState<number>(3);
 
+    const history = useHistory();
 
     const [frontSettings, setFrontSettings] = useState<FrontSettings>({} as FrontSettings);
     if (!gameRoomName)
@@ -129,11 +130,19 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       socket.on('getId', function(message: number) {
         setId(message);
      });
+
+     socket.on("disconnect", (reason) => {
+      // If our socket has disconnected not because we wanted it to
+      if (reason !== "io client disconnect") {
+        alert("Sorry, we've lost connection to the server :(");
+        history.replace('/');
+      }
+    })
      socket.on('gameId', function(message: string) {setGameId(message)})
      socket.on('won', function(result: string, authToken: string) {
       socket.emit('leaveRoom');
     })
-  }, [restart, user, gameRoomName, userId, gameSettings, socket, setUser]);
+  }, [restart, user, gameRoomName, userId, gameSettings, socket, setUser, history]);
 
 
 

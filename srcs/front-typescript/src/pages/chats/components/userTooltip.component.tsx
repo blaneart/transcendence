@@ -4,6 +4,7 @@ import { MessageType } from "../chats.types";
 import GameInvite from "./gameInvite.component";
 import MessageAvatar from "./messageAvatar.component";
 import { Settings } from "../../../App.types";
+import { Link } from "react-router-dom";
 
 interface UserTooltipProps {
   message: MessageType,
@@ -52,7 +53,7 @@ const UserTooltip: React.FC<UserTooltipProps> = ({ message, socket, userId, game
   return (<div className="mt-2">
     <MessageAvatar user={message.sender} />
 
-    <p className=""><a className="text-black font-normal underline" href={`/users/${message.sender.name}`}>{message.sender.name}</a></p>
+    <p className=""><Link className="text-black font-normal underline" to={`/users/${message.sender.name}`}>{message.sender.name}</Link></p>
     <p className="mt-0 leading-normal">Games: {gameNumbers ? gameNumbers[1] : null} <br />
       Wins: {gameNumbers ? gameNumbers[0] : null}<br />
       Losses: {gameNumbers ? gameNumbers[2] : null}<br /></p>

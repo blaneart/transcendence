@@ -50,7 +50,7 @@ const Room: React.FC<IRoomProps> = ({authToken}) => {
             setSettings(settings)
         })
         socket.emit('sendSettings', room);
-    }, [socket, room])
+    }, [socket, room, history])
     var ratio = 0.5;
     const canvasElement = document.querySelector('canvas');
     if (canvasElement)

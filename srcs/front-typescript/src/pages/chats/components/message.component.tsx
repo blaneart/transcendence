@@ -25,10 +25,8 @@ interface BanRequest {
   minutes: number
 }
 
-function canIBan(userId: number, room: Room, amAdmin: boolean, message: MessageType): boolean
-{
-  if ((amAdmin || userId === room.ownerID) && message.senderID !== userId && message.senderID !== room.ownerID)
-  {
+function canIBan(userId: number, room: Room, amAdmin: boolean, message: MessageType): boolean {
+  if ((amAdmin || userId === room.ownerID) && message.senderID !== userId && message.senderID !== room.ownerID) {
     return true;
   }
   return false;
@@ -49,7 +47,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
           Authorization: `Bearer ${authToken}`,
         },
       });
-      onBlock();
+    onBlock();
   }
 
   let history = useHistory();
@@ -58,8 +56,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
 
     // Get the duration from the user
     let min = undefined
-    while (!min)
-    {
+    while (!min) {
       min = window.prompt("How long should the ban be in integer minutes?");
     }
     // Send a request
@@ -75,8 +72,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
   const handleMute = async () => {
     // Get the duration from the user
     let min = undefined
-    while (!min)
-    {
+    while (!min) {
       min = window.prompt("How long should the mute be in integer minutes?");
     }
     // Send a request
@@ -89,8 +85,7 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
   }
 
   // If the sender of the message is blocked
-  if (blockList.has(message.senderID))
-  {
+  if (blockList.has(message.senderID)) {
     // Don't show the message
     return (
       <p>Message blocked</p>
@@ -100,48 +95,40 @@ const Message: React.FC<MessageParams> = ({ message, authToken, blockList,
   console.log(message.receiverId, userId);
   // Else, show the message
   return (
-    <div className="flex flex-row py-2">
-      <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} authToken={authToken}/>
-      {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
-      <> 
-      <button onClick={() => {
-        socket.emit('acceptGame', message.senderID, message.id, gameRoomName);
-        // socket.emit('w', message.id);
-        history.replace(`/play/${gameRoomName}/${meIn}`);
+    <div className="flex flex-row items-center py-2">
+      <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} authToken={authToken} />
+      {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ?
+        <>
+          <button className="px-4 py-2 bg-green-400 text-green-800 rounded-lg border-2 border-green-500 border-solid hover:text-white hover:bg-green-500" onClick={() => {
+            socket.emit('acceptGame', message.senderID, message.id, gameRoomName);
+            // socket.emit('w', message.id);
+            history.replace(`/play/${gameRoomName}/${meIn}`);
 
-      }} >accept</button>
-      <button onClick={() =>{
-        console.log('gameRoomName', message.id);
-        socket.emit('rejectGame', message.id, message.senderID);
-      }}>reject</button> 
-
-  
-      </>
-      :           
-      <>
-    {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
-        <p>You rejected game invitation!</p>}
-      </>
-    }
+          }} >Accept</button>
+          <button className="px-4 py-2 bg-red-400 text-red-800 rounded-lg border-2 border-red-500 border-solid hover:text-white hover:bg-red-500" onClick={() => {
+            console.log('gameRoomName', message.id);
+            socket.emit('rejectGame', message.id, message.senderID);
+          }}>Reject</button>
+        </>
+        :
+        null
+      }
       {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
-      <button onClick={() => {
-        history.replace(`/play/${gameRoomName}/${userId}`);
-      }}>join waiting room</button>
-    }
-          {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
-        <p>Game invitation was rejected!</p>
-    }
+        <button className="px-4 py-2 bg-green-400 text-green-800 rounded-lg border-2 border-green-500 border-solid hover:text-white hover:bg-green-500" onClick={() => {
+          history.replace(`/play/${gameRoomName}/${userId}`);
+        }}>Join waiting room</button>
+      }
 
-      <div>
-      {userId === message.senderID ? null 
-      : <StyledButton onClick={handleBlock}>Block sender</StyledButton>}
-      
-      {canIBan(userId, room, amAdmin, message) ? 
-      <>
-        <StyledButton onClick={handleBan}>Ban sender</StyledButton>
-        <StyledButton onClick={handleMute}>Mute sender</StyledButton> </>
-      : null}
-      </div> 
+      <div className="ml-4">
+        {userId === message.senderID ? null
+          : <StyledButton onClick={handleBlock}>Block sender</StyledButton>}
+
+        {canIBan(userId, room, amAdmin, message) ?
+          <>
+            <StyledButton onClick={handleBan}>Ban sender</StyledButton>
+            <StyledButton onClick={handleMute}>Mute sender</StyledButton> </>
+          : null}
+      </div>
     </div>
   );
 

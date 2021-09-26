@@ -6,7 +6,7 @@ import { JwtWsAuthGuard } from "../auth/jwt-ws-auth.guard";
 import { Room, Direct, ChatMessageUpdate, DirectMessageUpdate, AuthenticatedSocket, ChatMessageType } from "./chat.types";
 import { UserPublic } from "src/app.types";
 import { ProfileService } from "src/profile/profile.service";
-import { LoginAttempt, DirectMessage, BanRequest, ChatMessage, RejectDirectGameDto } from "./chat.dto";
+import { LoginAttempt, DirectMessage, BanRequest, ChatMessage, RejectDirectGameDto, AcceptDirectGameDto } from "./chat.dto";
 import { Settings } from "http2";
 
 
@@ -604,46 +604,37 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('acceptDirectGame')
-  async acceptDirect(client: AuthenticatedSocket,  data: any[])
+  async acceptDirect(client: AuthenticatedSocket,  data: AcceptDirectGameDto)
   {
+    const enemyId = data.interlocutorID;
+    const messageid = data.inviteID;
+    const GameRoomName = data.gameRoomName;
 
-    const enemyId = data[0];
-    const messageid = data[1];
-    const GameRoomName = data[2];
-    const roomName = this.getRoomNameBySocket(client);
-    
-    const directConvo = await this.chatService.findDirect(client.user.id, enemyId);
-    
     // Find the direct conversation in our database
     let direct = await this.chatService.findDirect(client.user.id, enemyId);
+    const roomName = `direct_${direct.id}`
 
     // Ensure direct conversation exists
     if (!direct)
-      direct = await this.chatService.createDirect(client.user.id, enemyId);
+      throw new WsException("Direct conversation not found");
 
     // Get all the messages in the room
-    const update = await this.chatService.getAllDirectUpdates(directConvo.id);
+    const update = await this.chatService.getAllDirectUpdates(direct.id);
 
     // Find the invitation among them
-    let objIndex = update.findIndex((obj => obj.id == messageid));
-    // let objIndex = update.findIndex((obj => obj.id == data[1]));
-    update[objIndex].type = ChatMessageType.GAME_INVITE_EXPIRED;
-    this.chatService.updateMessageById(update[objIndex].id, {type: update[objIndex].type})
+    let objIndex = update.findIndex((obj => obj.id === messageid));
 
-    const socketsInTheRoom =  await this.server.in(roomName).fetchSockets()
-    this.server.to(client.id).emit("initialMessages", update);
+    if (objIndex === -1)
+      throw new WsException("Invitation not found");
 
-    for (let socket of socketsInTheRoom)
-    {
-      console.log(socket.data.user.id)
+    // Mark the invitation as accepted
+    this.chatService.updateDirectMessageById(update[objIndex].id, {type: ChatMessageType.GAME_INVITE_EXPIRED})
 
-      if (socket.data.user && socket.data.user.id === enemyId )
-      {
-        console.log(socket.id)
-        this.server.to(socket.id).emit("initialMessages", update);
-        this.server.to(socket.id).emit("challengeAccepted", GameRoomName);
-      }
-    }
+    // Refresh all users in the room
+    this.server.to(roomName).emit('initialMessages', await this.chatService.getAllDirectUpdates(direct.id));
+    
+    // Let the invite sender know we want to play
+    this.server.to(roomName).emit('challengeAccepted', GameRoomName);
   }
 
 

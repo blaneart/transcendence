@@ -60,3 +60,14 @@ export class RejectDirectGameDto {
   @IsInt()
   interlocutorID: number
 }
+
+export class AcceptDirectGameDto {
+  @IsInt()
+  inviteID: number
+
+  @IsInt()
+  interlocutorID: number
+
+  @IsString()
+  gameRoomName: string
+}

@@ -5,6 +5,7 @@ import { DirectMessageUpdate } from "../chats.types";
 import DirectMessageList from "./directMessageList.component";
 import DirectMessageComposer from "./directMessageComposer.component";
 import { Settings } from "../../../App.types";
+import { useHistory } from 'react-router-dom';
 // var uuid = require('uuid');
 
 interface DirectViewProps {
@@ -28,6 +29,7 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings
   }));
   const [messages, setMessages] = useState<DirectMessageUpdate[]>([]);
   const [gameRoomName, setGameRoomName] = useState<string>('no game room');
+  let history = useHistory();
 
   useEffect(() => {
 
@@ -67,6 +69,10 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings
         return [newMessage];
       });
     });
+
+    socket.on("challengeAccepted", (gameRoomName) => {
+      history.replace(`/play/${gameRoomName}/${userId}`);
+    })
 
     socket.on("disconnect", (reason) => {
       // If our socket has disconnected not because we wanted it to

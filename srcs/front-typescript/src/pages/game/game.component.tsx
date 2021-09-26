@@ -65,7 +65,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       const canvasElement = document.querySelector('canvas');
       if (canvasElement)
         ratio = canvasElement.width / 800;
-      var counter = useRef(0);
       socket.emit('gameSettings', gameSettings);
     /* event listener */
 

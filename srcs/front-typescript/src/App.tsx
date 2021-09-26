@@ -353,7 +353,9 @@ function App() {
 
   return (
     <div className="App">
-      <Logo fill={blobColor} stroke={blobColor} className="bg-img"/>
+      <div className="w-full" >
+      <Logo fill={blobColor} stroke={blobColor} className="bg-img" style={{width:"inherit"}}/>
+      </div>
       <Router history={history}>
 
         {!user ? <RouteGuest authToken={authToken}

@@ -17,7 +17,7 @@ const RuleSet: React.FC<IRuleSetProps> = ({
     },
     {
       header: "PLAY ONLINE",
-      rule: "You can play against other players online! Just press online and we'll find forthy opponent for you! Choose map, choose ranked/not ranked, choose power-ups or no in game settings and enjoy!"
+      rule: "You can play against other players online! Just press online and we'll find a worthy opponent for you! Choose map, choose ranked/not ranked, choose power-ups or no in game settings and enjoy!"
     },
     {
       header: "PLAY BOTS",

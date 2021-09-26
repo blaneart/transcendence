@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Settings } from "../../App.types";
-
+import {isSafari} from "react-device-detect";
 
 
 interface ISettingsProps {
@@ -172,7 +172,7 @@ const GameSettings: React.FC<ISettingsProps> = ({settings, setSettings, blobColo
             <div className="flex flex-row justify-center">
                   <button className={buttonSoundClassOn} onClick={()=>
                   {
-                      if (navigator.userAgent.indexOf("Safari") !== -1)
+                      if (isSafari)
                         alert('Sounds do not work in your browser, sorry:(')
                       else
                         setSettings({

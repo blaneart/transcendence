@@ -21,7 +21,7 @@ const Menu: React.FC<IMenuProps> = ({ user }) => {
           <MenuItem title="CHATS" linkUrl='chats' key="4" />
           <MenuItem title="ACCOUNT" linkUrl={`users/${user.name}`} key="5" />
           <MenuItem title="USERS" linkUrl='users' key="6" />
-          <MenuItem title="Friends" linkUrl='friends' key="7" />
+          <MenuItem title="FRIENDS" linkUrl='friends' key="7" />
           <MenuItem title="RULESET" linkUrl='ruleset' key="10" />
           <MenuItem title="CHEATS" linkUrl='cheats' key="8" />
           {

@@ -223,7 +223,6 @@ class Watcher
       this.socket.on('getPaddles', (leftPaddle: Player, rightPaddle: Player) => {
   
         if (leftPaddle && rightPaddle && leftPaddle.paddle.size && rightPaddle.paddle.size) {
-          console.log('lol', leftPaddle, rightPaddle);
           this.players[0].size.x = leftPaddle.paddle.size.x * this.ratio;
           this.players[0].size.y = leftPaddle.paddle.size.y * this.ratio;
           this.players[0].empowered = leftPaddle.empowered;

@@ -1,4 +1,4 @@
-import { IsString, IsInt } from "class-validator";
+import { IsString, IsInt, IsIn } from "class-validator";
 
 export class LoginAttempt {
   @IsString()
@@ -51,4 +51,12 @@ export class ChatMessage {
 export class RoomNameDto {
   @IsString()
   name: string
+}
+
+export class RejectDirectGameDto {
+  @IsInt()
+  inviteID: number
+
+  @IsInt()
+  interlocutorID: number
 }

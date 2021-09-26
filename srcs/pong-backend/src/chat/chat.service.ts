@@ -453,4 +453,10 @@ export class ChatService {
     const response = await db('message').returning('*').where({id: mId}).update(updates);
     return response[0];
   }
+
+  async updateDirectMessageById(mId: number, updates: any)
+  {
+    const response = await db('directmessages').returning('*').where({id: mId}).update(updates);
+    return response[0];
+  }
 }

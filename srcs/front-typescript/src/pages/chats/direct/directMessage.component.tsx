@@ -54,8 +54,10 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
         history.replace(`/play/${gameRoomName}/${meIn}`);
       }} >accept</button>
       <button onClick={() =>{
-        console.log('gameRoomName', gameRoomName);
-        socket.emit('rejectDirectGame', message.id, message.senderID);
+        socket.emit('rejectDirectGame', {
+          inviteID: message.id,
+          interlocutorID: message.senderID
+        });
       }}>reject</button> 
       </>
       :

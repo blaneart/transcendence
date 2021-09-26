@@ -22,14 +22,21 @@ export class StatusGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('setUserId')
-  writeUserId(client: Socket, userid: number)
+  async writeUserId(client: Socket, userid: number)
   {
     console.log('setUserId gateway');
+    if (this.connectedClients[client.id])
+      await this.profileService.updateUserById(this.connectedClients[client.id], {status: 0})
     this.connectedClients[client.id] = userid;
     this.profileService.updateUserById(userid, {status: 1})
   }
 
+  // @SubscribeMessage('changeConnectedUser')
+  // keklol(client:Socket, userid: number)
+  // {
 
+
+  // }
   afterInit(server: any)
   {}
 

@@ -71,6 +71,7 @@ const FakeUserCreator: React.FC<FakeUserCreatorProps> = ({ loggedIn, setAuthToke
     getMe(json.access_token).then((me) => {
       // Set user state
       statusSocket.emit('setUserId', me?.id);
+      
       setUser(me);
     });
     // Save persistent token state

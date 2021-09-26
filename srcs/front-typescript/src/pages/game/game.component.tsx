@@ -51,23 +51,26 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       frontSettings.maps = gameSettings.maps;
       frontSettings.powerUps = gameSettings.powerUps;
     }
-
+    
     /* uid of the game room */
     const [gameId, setGameId] = useState<string>('no id');
-
+    
     const [socket] = useState<Socket>(() => {
       const initialState = io(ENDPOINT,
-          {
-            auth: {
-              token: authToken
-            }
-          });
-      return initialState;
-    });
-    var ratio = 0.5;
-    var counter = useRef(0);
-    console.log('counter', counter.current++)
-    socket.emit('gameSettings', gameSettings);
+        {
+          auth: {
+            token: authToken
+          }
+        });
+        return initialState;
+      });
+      var ratio = 0.5;
+      const canvasElement = document.querySelector('canvas');
+      if (canvasElement)
+        ratio = canvasElement.width / 800;
+      var counter = useRef(0);
+      console.log('counter', counter.current++)
+      socket.emit('gameSettings', gameSettings);
     /* event listener */
 
     const [enemyName, setEnemyName] = useState<string>('None');

@@ -425,12 +425,6 @@ export class GameGateway implements OnGatewayInit {
       this.server.to(client.id).emit('go404');
   }
 
-  // @SubscribeMessage('quitGame')
-  // quitGame(clinet: Socket, score1: number, score2: number) 
-  // {
-  //   if ((score1  < 10 && score2 < 10))
-  //     this.server.emit('won');
-  // }
   
   afterInit(server: any)
   {
@@ -475,6 +469,7 @@ export class GameGateway implements OnGatewayInit {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoomInvite')
   async createRoomDuel(socket: AuthenticatedSocket, userInfo) {
+    console.log(userInfo);
     this.profileService.updateUserById(userInfo[1], {status: 2});
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], await this.gameService.getEloById(userInfo[1]), userInfo[3], userInfo[4]);

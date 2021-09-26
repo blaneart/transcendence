@@ -5,6 +5,7 @@ import { DirectMessageUpdate } from "../chats.types";
 import MessageText from "../components/messageText.component";
 import { Settings } from "../../../App.types";
 import { ChatMessageType } from "../chats.types";
+import StyledButton from "../components/styledButton.component";
 
 interface DirectMessageProps {
   message: DirectMessageUpdate
@@ -43,42 +44,38 @@ const DirectMessageComponent: React.FC<DirectMessageProps> = ({ message, userId,
     );
   }
   let meIn = -1;
-  return (<div className="flex flex-row py-2">
+  return (<div className="flex flex-row py-2 items-center">
     {/* <a href={`/users/${message.name}/`}>{message.name}: </a>{message.message} */}
-    <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} authToken={authToken}/>
-    {userId === message.senderID ? null : <button onClick={handleBlock}>Block sender</button>}
-    {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ? 
-      <> 
-    <button onClick={() => {
-        socket.emit('acceptDirectGame', {
-          interlocutorID: message.senderID,
-          inviteID: message.id,
-          gameRoomName: gameRoomName
-        });
-        history.replace(`/play/${gameRoomName}/${meIn}`);
-      }} >accept</button>
-      <button onClick={() =>{
-        socket.emit('rejectDirectGame', {
-          inviteID: message.id,
-          interlocutorID: message.senderID
-        });
-      }}>reject</button> 
+    <MessageText message={message} socket={socket} userId={userId} gameSettings={gameSettings} authToken={authToken} />
+    {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE ?
+      <>
+        <button  className="px-4 py-2 bg-green-400 text-green-800 rounded-lg border-2 border-green-500 border-solid hover:text-white hover:bg-green-500" onClick={() => {
+          socket.emit('acceptDirectGame', {
+            interlocutorID: message.senderID,
+            inviteID: message.id,
+            gameRoomName: gameRoomName
+          });
+          history.replace(`/play/${gameRoomName}/${meIn}`);
+        }} >Accept</button>
+        <button className="px-4 py-2 bg-red-400 text-red-800 rounded-lg border-2 border-red-500 border-solid hover:text-white hover:bg-red-500" onClick={() => {
+          socket.emit('rejectDirectGame', {
+            inviteID: message.id,
+            interlocutorID: message.senderID
+          });
+        }}>Reject</button>
       </>
       :
-      <>
-      {message.receiverId === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
-          <p>You rejected game invitation!</p>}
-        </>
-      }
-      
-      {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
-      <button onClick={() => {
+      null
+    }
+
+    {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE &&
+      <button className="px-4 py-2 bg-green-400 text-green-800 rounded-lg border-2 border-green-500 border-solid hover:text-white hover:bg-green-500" onClick={() => {
         history.replace(`/play/${gameRoomName}/${userId}`);
-      }}>join waiting room</button>
+      }}>Join waiting room</button>
     }
-              {message.senderID === userId && message.type === ChatMessageType.GAME_INVITE_REJECTED &&
-        <p>Game invitation was rejected!</p>
-    }
+    <div className="ml-4">
+      {userId === message.senderID ? null : <StyledButton onClick={handleBlock}>Block sender</StyledButton>}
+    </div>
   </div>);
 };
 

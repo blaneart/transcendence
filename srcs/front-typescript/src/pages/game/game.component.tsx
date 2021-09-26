@@ -79,7 +79,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     useEffect(() => {
       if (!gameRoomName && user && restart)
       {
-        socket.emit('joinRoom', user.name, user.id, user.elo, gameSettings);
+        socket.emit('joinRoom', {userName: user.name, userId: user.id, userElo: user.elo, gameSettings: gameSettings});
         setRestart(false);
       }
       else if (gameRoomName && user && restart)
@@ -87,11 +87,11 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         setRestart(false);
         if (userId === '-1')
         {
-          socket.emit('joinRoomInvite', user.name, user.id, user.elo, null, gameRoomName);
+          socket.emit('joinRoomInvite', {userName: user.name, userId: user.id, userElo: user.elo, gameSettings: gameSettings, gameRoomName: gameRoomName});
         }
         else
         {
-          socket.emit('joinRoomInvite', user.name, user.id, user.elo, gameSettings, gameRoomName);
+          socket.emit('joinRoomInvite', {userName: user.name, userId: user.id, userElo: user.elo, gameSettings: gameSettings, gameRoomName: gameRoomName});
         }
       }
       socket.on('enemyname', (eName) => {
@@ -101,7 +101,6 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       socket.on('setFrontSettings', (map, powerUps) => {
         let tmp = {} as FrontSettings; tmp.maps = map; tmp.powerUps = powerUps;
         setFrontSettings(tmp);
-        console.log('hehere');
       })
       socket.on('eloChange', (newEloUser) => {
         

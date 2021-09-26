@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { User } from "../../../App.types";
 import { Direct } from "../chats.types";
 import MessageAvatar from "../components/messageAvatar.component";
@@ -55,7 +56,7 @@ const DirectLink: React.FC<DirectLinkProps> = ({ authToken, userId, direct }) =>
     return (
       <div className="flex flex-row items-center py-2">
         <MessageAvatar user={interlocutor} />
-        <a className="px-2" href={`/chats/dms/${interlocutor.name}`}>{interlocutor.name}</a>
+        <Link className="px-2" to={`/chats/dms/${interlocutor.name}`}>{interlocutor.name}</Link>
       </div>
     );
   }

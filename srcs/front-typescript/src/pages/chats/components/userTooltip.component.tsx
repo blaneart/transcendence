@@ -39,10 +39,10 @@ const UserTooltip: React.FC<UserTooltipProps> = ({ message, socket, userId, game
   // useCallback to prevent infinite state updates
   const refreshGameNumbers = useCallback(() => {
     // Get all users from the backend and add them to state
-    getGameNumbers(authToken, userId).then(newGameNumbers => {
+    getGameNumbers(authToken, message.sender.id).then(newGameNumbers => {
       setGameNumbers(newGameNumbers);
     });
-  }, [authToken, userId]);
+  }, [authToken, message.sender.id]);
 
   useEffect(() => {
     // On setup, we update the users

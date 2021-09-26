@@ -74,6 +74,13 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings
       history.replace(`/play/${gameRoomName}/${userId}`);
     })
 
+    // When we get kicked out of the website, we get back to the main page and 
+    // log out
+    socket.on("unauthorized", () => {
+      socket.disconnect();
+      history.replace("/");
+    })
+
     socket.on("disconnect", (reason) => {
       // If our socket has disconnected not because we wanted it to
       if (reason !== "io client disconnect") {

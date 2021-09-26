@@ -81,7 +81,7 @@ export class AcceptGameDto
   messageID: number
 
   @IsInt()
-  gameRoomName: string
+  roomName: string
 }
 
 export class RejectGameDto

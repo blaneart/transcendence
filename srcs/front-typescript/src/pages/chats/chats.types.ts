@@ -35,6 +35,7 @@ export interface MessageType {
   sender: UserPublic
   type: ChatMessageType
   receiverId?: number
+  roomName?: string
 }
 
 export interface Direct {
@@ -62,4 +63,5 @@ export interface DirectMessageUpdate {
   sender: UserPublic
   type: ChatMessageType
   receiverId?: number
+  roomName?: string
 }

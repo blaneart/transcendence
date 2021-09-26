@@ -71,3 +71,24 @@ export class AcceptDirectGameDto {
   @IsString()
   gameRoomName: string
 }
+
+export class AcceptGameDto
+{
+  @IsInt()
+  enemyID: number
+
+  @IsInt()
+  messageID: number
+
+  @IsInt()
+  gameRoomName: string
+}
+
+export class RejectGameDto
+{
+  @IsInt()
+  messageID: number
+
+  @IsInt()
+  enemyID: number
+}

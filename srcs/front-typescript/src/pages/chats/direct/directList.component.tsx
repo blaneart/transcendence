@@ -180,22 +180,22 @@ const DirectList: React.FC<DirectListProps> = ({ authToken, userId }) => {
     getDirects(authToken).then((newDirects) => newDirects !== null ? setDirects(newDirects) : null);
   }
 
-  return (<>
+  return (<div>
     {directs.map((direct) => blockList.has(otherInDirect(direct, userId)) ? null : <DirectLink key={direct.id} authToken={authToken} userId={userId} direct={direct}/>)}
     <h5 className="text-xl mb-2 mt-4">Start a direct conversation with:</h5>
-    <form className="" onSubmit={handleSubmit}>
-       <select className="py-2 px-2 bg-gray-900 text-gray-300 border-gray-600 rounded-lg" onChange={handleChange} value={selectedUserId} defaultValue={-1} required>
+    <form className="flex flex-row" onSubmit={handleSubmit}>
+       <select className="py-2 px-2 bg-gray-900 text-gray-300 border-gray-600 flex-1 rounded-lg" onChange={handleChange} value={selectedUserId} defaultValue={-1} required>
         <option disabled value={-1} label="Select a user"></option>
         {users.map((user) => (user.id === userId || inDirects(directs, user.id) || blockList.has(user.id))? null : <option key={user.id} value={user.id}>{user.name}</option>)}
       </select>
       <StyledSubmit value="Start conversation" />
     </form>
-    <h5 className="text-xl mb-3 mt-4">Your block list</h5>
+    {blockList.size ? <h5 className="text-xl mb-3 mt-4">Your block list</h5> : null}
     {users && users.map(user => blockList.has(user.id)
         && <div key={user.id} className="flex flex-row items-center">
             <MessageAvatar user={user}/><span className="px-2 mr-5">{user.name}</span><StyledButton onClick={() => handleUnblock(authToken, user.id, updateBlockList)}>Unblock</StyledButton>
           </div>)}
-  </>);
+  </div>);
 }
 
 export default DirectList;

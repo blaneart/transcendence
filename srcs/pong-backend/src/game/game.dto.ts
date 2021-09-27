@@ -22,9 +22,6 @@ export class joinRoomInviteDto {
     @IsNumber()
     userId: number
 
-    @IsNumber()
-    userElo: number
-
     gameSettings?: Settings | null
 
     @IsString()

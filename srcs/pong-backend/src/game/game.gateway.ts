@@ -464,18 +464,18 @@ export class GameGateway implements OnGatewayInit {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
   async createRoom(socket: AuthenticatedSocket, userInfo: joinRoomDto) {
-    this.profileService.updateUserById(userInfo[1], {status: 2});
+    this.profileService.updateUserById(userInfo.userId, {status: 2});
   
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoom(socket, userInfo[0], userInfo[1], await this.gameService.getEloById(userInfo[1]), userInfo[3]);
+    this.getWaitingRoom(socket, userInfo.userName, userInfo.userId, await this.gameService.getEloById(userInfo.userId), userInfo.gameSettings);
   }
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoomInvite')
   async createRoomDuel(socket: AuthenticatedSocket, userInfo: joinRoomInviteDto) {
-    this.profileService.updateUserById(userInfo[1], {status: 2});
+    this.profileService.updateUserById(userInfo.userId, {status: 2});
     socket.data.user = socket.user; // Save user data for future use
-    this.getWaitingRoomDuel(socket, userInfo[0], userInfo[1], await this.gameService.getEloById(userInfo[1]), userInfo[3], userInfo[4]);
+    this.getWaitingRoomDuel(socket, userInfo.userName, userInfo.userId, await this.gameService.getEloById(userInfo.userId), userInfo.gameSettings, userInfo.gameRoomName);
   }
 
   @UseGuards(JwtWsAuthGuard)

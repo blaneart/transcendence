@@ -87,11 +87,11 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
         setRestart(false);
         if (userId === '-1')
         {
-          socket.emit('joinRoomInvite', {userName: user.name, userId: user.id, userElo: user.elo, gameSettings: gameSettings, gameRoomName: gameRoomName});
+          socket.emit('joinRoomInvite', {userName: user.name, userId: user.id, gameSettings: null, gameRoomName: gameRoomName});
         }
         else
         {
-          socket.emit('joinRoomInvite', {userName: user.name, userId: user.id, userElo: user.elo, gameSettings: gameSettings, gameRoomName: gameRoomName});
+          socket.emit('joinRoomInvite', {userName: user.name, userId: user.id, gameSettings: gameSettings, gameRoomName: gameRoomName});
         }
       }
       socket.on('enemyname', (eName) => {

@@ -83,6 +83,10 @@ export class ChatController {
     // Ensure the user is not blocking themselves
     if (request.user.id === id)
       throw new WsException("Can't block yourself");
+
+    // If the person is already blocked, that's OK
+    if (await this.chatService.isBlocked(request.user.id, id))
+      return null;
     
       // Add a block to our database
     return await this.chatService.blockUser(request.user.id, id);

@@ -79,7 +79,7 @@ async function demoteUser(authToken: string, userId: number, demotedHandler: Fun
       Authorization: `Bearer ${authToken}`,
     },
   });
-  if (response.status === 401) {
+  if (response.status === 403) {
     return demotedHandler();
   }
 }

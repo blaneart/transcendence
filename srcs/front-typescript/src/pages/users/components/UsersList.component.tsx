@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { User } from '../users.types';
 import UserComponent from './user.component';
+import { useHistory } from "react-router-dom";
 
 import './usersList.styles.scss';
 import './friend.styles.scss';
@@ -12,7 +13,7 @@ interface IUsersListProps {
   setAuthToken: React.Dispatch<React.SetStateAction<string>>;
 }
 
-async function getUsers(authToken: string, userId: number): Promise<User[] | null> {
+async function getUsers(authToken: string, userId: number, onBan: Function): Promise<User[] | null> {
 
   const response = await fetch(process.env.REACT_APP_API_URL + "/users", {
     method: "GET",
@@ -21,6 +22,12 @@ async function getUsers(authToken: string, userId: number): Promise<User[] | nul
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok)
+  {
+    if (response.status === 401)
+      onBan();
+    return null;
+  }
   const jsonData = await response.json();
 
   return jsonData as User[];
@@ -34,13 +41,20 @@ const UsersList: React.FC<IUsersListProps> = ({
 
   const [users, setUsers] = useState<User[]>([(user_logged as User),]);
 
+  const history = useHistory();
+  
+  const bannedHandler = useCallback(() => {
+    alert("You're banned");
+    history.replace('/');
+  }, [history]);
+
   const refreshUsers = useCallback(() => {
-    if (user_logged) getUsers(authToken, user_logged.id).then(newUsers => {
+    if (user_logged) getUsers(authToken, user_logged.id, bannedHandler).then(newUsers => {
       if (newUsers === null)
         return;
       setUsers(newUsers);
     });
-  }, [authToken, user_logged]);
+  }, [authToken, user_logged, bannedHandler]);
 
   useEffect(() => {
     // On setup, we update the users

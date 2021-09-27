@@ -47,6 +47,10 @@ export class ProfileController {
     if (target.owner)
       throw new HttpException("You can't ban the owner of the site.", HttpStatus.FORBIDDEN);
 
+    // If the user was actually admin at this point, demote them
+    if (target.admin)
+      await this.profileService.demote(target.id);
+
     return await this.profileService.banUser(param.id);
   }
 
@@ -80,6 +84,10 @@ export class ProfileController {
     // Ensure the user exists
     if (!target)
       throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
+
+    // If a person is actually banned at the same time, forgive them
+    if (target.banned)
+      await this.profileService.forgiveUser(target.id);
 
     return await this.profileService.makeUserAdmin(param.id);
   }

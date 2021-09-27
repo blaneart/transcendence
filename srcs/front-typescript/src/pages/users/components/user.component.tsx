@@ -9,7 +9,7 @@ interface IUserProps {
   authToken: string;
 }
 
-async function getFriend(id1: number, id2: number, authToken: string): Promise<boolean | null> {
+async function getFriend(id1: number, id2: number, authToken: string, onBan: Function): Promise<boolean | null> {
 
   const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/exist/${id1}/${id2}`, {
     method: "GET",
@@ -19,32 +19,42 @@ async function getFriend(id1: number, id2: number, authToken: string): Promise<b
     },
   });
   if (!response.ok)
+  {
+    if (response.status === 401)
+    {
+      onBan();
+    }
     return null;
+  }
   const jsonData = await response.json();
 
   return jsonData as boolean;
 }
 
-async function addFriend(id1: number, id2: number, authToken: string) {
+async function addFriend(id1: number, id2: number, authToken: string, onBan: Function) {
 
-  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok && response.status === 401)
+    onBan();
 }
 
-async function removeFriend(id1: number, id2: number, authToken: string) {
+async function removeFriend(id1: number, id2: number, authToken: string, onBan: Function) {
 
-  await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/friends/${id1}/${id2}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${authToken}`,
     },
   });
+  if (!response.ok && response.status === 401)
+    onBan();
 }
 
 const UserComponent: React.FC<IUserProps> = ({
@@ -55,23 +65,28 @@ const UserComponent: React.FC<IUserProps> = ({
 
   let history = useHistory();
 
+  const bannedHandler = useCallback(() => {
+    alert("You're banned");
+    history.replace('/');
+  }, [history]);
+
   const [friend, setFriend] = useState<boolean>(false);
 
   const refreshFriend = useCallback(() => {
-    getFriend(id1, user.id, authToken).then(newRelationship => {
+    getFriend(id1, user.id, authToken, bannedHandler).then(newRelationship => {
       if (newRelationship === null)
         return;
       setFriend(newRelationship);
     });
-  }, [authToken, id1, user.id]);
+  }, [authToken, id1, user.id, bannedHandler]);
 
   const handleBefriend = async (id1: number, id2: number, authToken: string) => {
-    await addFriend(id1, id2, authToken);
+    await addFriend(id1, id2, authToken, bannedHandler);
     refreshFriend();
   };
 
   const handleUnfriend = async (id1: number, id2: number, authToken: string) => {
-    await removeFriend(id1, id2, authToken);
+    await removeFriend(id1, id2, authToken, bannedHandler);
     refreshFriend();
   };
 

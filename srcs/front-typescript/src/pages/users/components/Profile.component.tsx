@@ -12,6 +12,8 @@ import GameHistory from "./gameHistory.component";
 import "./usersList.styles.scss";
 import { User } from "../../../App.types";
 
+import { useHistory } from "react-router-dom";
+
 interface NameRouteParams {
   paramName?: string
 }
@@ -30,6 +32,7 @@ async function toggleTwofa(
   twofa: boolean,
   setTwofa: Function,
   setTwofaSecret: Function,
+  onBan: Function
 ) {
   const data = {
     value: twofa ? false : true, // toggle to the inverse of the actual value
@@ -43,7 +46,11 @@ async function toggleTwofa(
     body: JSON.stringify(data),
   });
   if (!response.ok)
+  {
+    if (response.status === 401)
+      onBan();
     return null;
+  }
 
   const resp = await response.json();
 
@@ -59,7 +66,7 @@ async function toggleTwofa(
   }
 }
 
-async function getUserByName(authToken: string, name: string): Promise<User | null> {
+async function getUserByName(authToken: string, name: string, onBan: Function): Promise<User | null> {
   const data = {
     value: name,
   };
@@ -72,13 +79,17 @@ async function getUserByName(authToken: string, name: string): Promise<User | nu
     body: JSON.stringify(data),
   });
   if (!response.ok)
+  {
+    if (response.status === 401)
+      onBan();
     return null;
+  }
   const jsonData = await response.json();
 
   return jsonData as User;
 }
 
-async function getGameNumbers(authToken: string, id: number): Promise<number[]> {
+async function getGameNumbers(authToken: string, id: number, onBan: Function): Promise<number[]> {
   const data = {
     id: id,
   };
@@ -91,14 +102,18 @@ async function getGameNumbers(authToken: string, id: number): Promise<number[]> 
     body: JSON.stringify(data),
   });
   if (!response.ok)
+  {
+    if (response.status === 401)
+      onBan();
     return [0, 0, 0];
+  }
 
   const jsonData = await response.json();
 
   return jsonData as number[];
 }
 
-async function getMyTwofa(authToken: string): Promise<boolean | null>
+async function getMyTwofa(authToken: string, onBan: Function): Promise<boolean | null>
 {
   const response = await fetch(process.env.REACT_APP_API_URL + "/auth/my2fa", {
     method: 'GET',
@@ -108,7 +123,11 @@ async function getMyTwofa(authToken: string): Promise<boolean | null>
     },
   });
   if (!response.ok)
+  {
+    if (response.status === 401)
+      onBan();
     return null;
+  }
   const jsonData = await response.json();
 
   return jsonData as boolean;
@@ -128,13 +147,20 @@ const Profile: React.FC<IProfilePageProps> = ({
   const [twofa, setTwofa] = useState<boolean>(false);
   const [twofaSecret, setTwofaSecret] = useState<string>("");
 
+  const history = useHistory();
+
+  const bannedHanlder = useCallback(() => {
+    alert("You're banned.");
+    history.replace('/');
+  }, [history]);
+
   // useCallback to prevent infinite state updates
   const refreshUsers = useCallback(() => {
     // Get all users from the backend and add them to state
-    getUserByName(authToken, (paramName as string)).then(user_ => {
+    getUserByName(authToken, (paramName as string), bannedHanlder).then(user_ => {
       setProfileUser(user_);
     });
-  }, [authToken, paramName]);
+  }, [authToken, paramName, bannedHanlder]);
 
   useEffect(() => {
     // On setup, we update the users
@@ -142,8 +168,8 @@ const Profile: React.FC<IProfilePageProps> = ({
   }, [refreshUsers]); // We don't really reupdate.
 
   const refreshTwofa = useCallback(() => {
-    getMyTwofa(authToken).then(response => response !== null && setTwofa(response));
-  }, [authToken]);
+    getMyTwofa(authToken, bannedHanlder).then(response => response !== null && setTwofa(response));
+  }, [authToken, bannedHanlder]);
 
   useEffect(() => {
     refreshTwofa();
@@ -153,10 +179,10 @@ const Profile: React.FC<IProfilePageProps> = ({
   const refreshGameNumbers = useCallback(() => {
     // Get all users from the backend and add them to state
     if (profile_user)
-      getGameNumbers(authToken, profile_user.id).then(newGameNumbers => {
+      getGameNumbers(authToken, profile_user.id, bannedHanlder).then(newGameNumbers => {
         setGameNumbers(newGameNumbers);
       });
-  }, [authToken, profile_user]);
+  }, [authToken, profile_user, bannedHanlder]);
 
   useEffect(() => {
     // On setup, we update the users
@@ -184,7 +210,7 @@ const Profile: React.FC<IProfilePageProps> = ({
                     <p className="items-center text-gray-200 text-opacity-50 ">2FA enabled: </p>{twofa === true ? <span className="px-2 py-1 ml-1 bg-green-500 rounded px-3 text-white text-xs">Yes</span> : <span className="px-2 py-1 ml-1 bg-red-500 rounded px-3 text-white text-xs">NO</span>}
                   </div>
                   <button className={buttonClass}
-                    onClick={(e) => toggleTwofa(authToken, setQrModal, setAuthToken, twofa, setTwofa, setTwofaSecret)}
+                    onClick={(e) => toggleTwofa(authToken, setQrModal, setAuthToken, twofa, setTwofa, setTwofaSecret, bannedHanlder)}
                   >
                     {twofa ? "Disable 2FA" : "Enable 2FA"}
                   </button>

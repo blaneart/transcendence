@@ -92,14 +92,14 @@ const RuleSet: React.FC<IRuleSetProps> = ({
   {
       return (
       <div className="flex items-center justify-center h-screen space-x-40" >
-        <img src={leftArrow} alt="Previous ruleset button" className="w-10" onClick={()=> {
+        <img src={leftArrow} alt="Previous ruleset button" className="w-10 cursor-pointer" onClick={()=> {
             counter.current = counter.current === 0 ?  max_c : counter.current - 1;
             setFiller(rules[counter.current])}}/>
       <div className="w-8/12 h-4/6 bg-black rounded-lg text-center border border-white-800 border-solid">
         <p className="text-white-600 text-7xl">{filler.header}</p>
           {filler.rule}
           </div>
-    <img src={rightArrow} alt="Next ruleset button" className="w-10" onClick={()=> {
+    <img src={rightArrow} alt="Next ruleset button" className="w-10 cursor-pointer" onClick={()=> {
             counter.current = counter.current === max_c ?  0 : counter.current + 1;
             setFiller(rules[counter.current])}}/>
 
@@ -112,14 +112,14 @@ else
     counter.current = 0;
   return (
       <div className="flex items-center justify-center h-screen space-x-40" >
-        <img src={leftArrow} alt="Previous ruleset button" className="w-10" onClick={()=> {
+        <img src={leftArrow} alt="Previous ruleset button" className="w-10 cursor-pointer" onClick={()=> {
             counter.current = counter.current === 0 ?  max_unlog : counter.current - 1;
             setFiller(unlog_rules[counter.current])}}/>
       <div className="w-8/12 h-4/6 bg-black rounded-lg text-center border border-white-800 border-solid">
         <p className="text-white-600 text-7xl">{filler.header}</p>
           {filler.rule}
     </div>
-    <img src={rightArrow} alt="Next ruleset button" className="w-10" onClick={()=> {
+    <img src={rightArrow} alt="Next ruleset button" className="w-10 cursor-pointer" onClick={()=> {
             counter.current = counter.current === max_unlog ?  0 : counter.current + 1;
             setFiller(rules[counter.current])}}/>
 

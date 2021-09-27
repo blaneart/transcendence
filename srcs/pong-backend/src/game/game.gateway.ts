@@ -466,10 +466,16 @@ export class GameGateway implements OnGatewayInit {
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('joinRoom')
   async createRoom(socket: AuthenticatedSocket, userInfo: joinRoomDto) {
+    let cur_user = await this.profileService.getUserById(userInfo.userId);
+    if (cur_user.status !== 2)
+    {
     this.profileService.updateUserById(userInfo.userId, {status: 2});
   
     socket.data.user = socket.user; // Save user data for future use
     this.getWaitingRoom(socket, userInfo.userName, userInfo.userId, await this.gameService.getEloById(userInfo.userId), userInfo.gameSettings);
+    }
+    else
+      this.server.to(socket.id).emit('alreadyInAGame');
   }
 
   @UseGuards(JwtWsAuthGuard)

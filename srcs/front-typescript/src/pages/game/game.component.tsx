@@ -97,7 +97,10 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       socket.on('enemyname', (eName) => {
         setEnemyName(eName);
       })
-
+      socket.on('alreadyInAGame', () => {
+        alert('Already in a game');
+        history.push('/');
+      })
       socket.on('setFrontSettings', (map, powerUps) => {
         let tmp = {} as FrontSettings; tmp.maps = map; tmp.powerUps = powerUps;
         setFrontSettings(tmp);

@@ -136,6 +136,8 @@ export class GameGateway implements OnGatewayInit {
       // Settle this game via a 10:0 TKO
       this.endGame(abandonedRoomName, true, abandoningPlayerIndex);
     }
+    if (client.data.user)
+      this.profileService.updateUserById(client.data.user.id, {status: 1});
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );

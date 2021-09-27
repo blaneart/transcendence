@@ -11,7 +11,6 @@ const PORT_ONE = process.env.PORT_ONE ? parseInt(process.env.PORT_ONE) : 3002;
 export class StatusGateway implements OnGatewayInit {
   constructor(private readonly profileService: ProfileService){}
 
-
   @WebSocketServer() 
   server: Server;
   

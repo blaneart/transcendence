@@ -41,7 +41,7 @@ interface DangerButtonProps {
 
 const DangerButton: React.FC<DangerButtonProps> = ({onClick, children}) => {
   return (
-  <button className="py-2 px-4 hover:bg-red-400 hover:text-white bg-red-300 text-red-600 shadow rounded-lg border-solid border-1 border-red-400 " onClick={onClick}>{children}</button>
+  <button className="cursor-pointer py-2 px-4 hover:bg-red-400 hover:text-white bg-red-300 text-red-600 shadow rounded-lg border-solid border-1 border-red-400 " onClick={onClick}>{children}</button>
   );
 }
 

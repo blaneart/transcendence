@@ -8,7 +8,7 @@ async function createUsers() {
   if (!exists) {
     await db.schema.createTable('users', function(t) {
       t.increments('id').primary();
-      t.string('name', 100).unique();
+      t.string('name', 30).unique();
       t.string('avatar', 100).defaultTo('TyomaRules');
       t.integer('id42').unique(); // mustn't be able to sign up twice
       t.integer('elo').defaultTo(100);

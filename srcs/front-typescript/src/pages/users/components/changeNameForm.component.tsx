@@ -23,14 +23,14 @@ const ChangeNameForm: React.FC<ICNFProps> = ({
     e.preventDefault();
     if (!newName)
       setNewName("");
-    if (newName === "" || newName === user.name || newName.length > 100)
+    if (newName === "" || newName === user.name || newName.length > 30)
     {
       if (newName === "")
         alert("No empty name please")
       else if (newName === user.name)
         alert("Please type in a different username than your own");
       else
-        alert("Please write a name with less than 100 characters");
+        alert("Please write a name with less than 30 characters");
       return null;
     }
     const data = {

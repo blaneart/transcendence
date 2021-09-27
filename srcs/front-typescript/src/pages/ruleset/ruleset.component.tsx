@@ -102,7 +102,6 @@ const RuleSet: React.FC<IRuleSetProps> = ({
     <img src={rightArrow} alt="Next ruleset button" className="w-10 cursor-pointer" onClick={()=> {
             counter.current = counter.current === max_c ?  0 : counter.current + 1;
             setFiller(rules[counter.current])}}/>
-
       </div>
     );
   }

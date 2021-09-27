@@ -188,7 +188,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       else if (canvas)
         canvas.style.opacity = '0.5';
     }
-}, [ready, authToken,frontSettings, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user, isGameEnded, gameSettings.sounds]);
+}, [ready, authToken, frontSettings.maps, frontSettings.powerUps, id, ratio, setUser, socket, user, isGameEnded, gameSettings.sounds]);
 
 
 /* willUnmount game destruction */

@@ -50,7 +50,8 @@ export class ProfileController {
     // If the user was actually admin at this point, demote them
     if (target.admin)
       await this.profileService.demote(target.id);
-
+  
+    await this.profileService.updateUserById(param.id, {status: 0});
     return await this.profileService.banUser(param.id);
   }
 

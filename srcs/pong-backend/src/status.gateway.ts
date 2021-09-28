@@ -28,12 +28,15 @@ export class StatusGateway implements OnGatewayInit {
     this.profileService.updateUserById(userid, {status: 1})
   }
 
-  // @SubscribeMessage('changeConnectedUser')
-  // keklol(client:Socket, userid: number)
-  // {
 
+  @SubscribeMessage('setOnline')
+  setOnline(client: Socket, userid: number)
+  {
+    if (this.connectedClients[client.id])
+      this.profileService.updateUserById(userid, {status: 1})
 
-  // }
+  }
+
   afterInit(server: any)
   {}
 

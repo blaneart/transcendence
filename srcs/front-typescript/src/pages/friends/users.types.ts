@@ -7,4 +7,5 @@ export interface User {
   wins: number;
   realAvatar: boolean
   status: number;
+  banned: boolean;
 }

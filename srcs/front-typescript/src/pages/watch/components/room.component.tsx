@@ -43,7 +43,7 @@ const Room: React.FC<IRoomProps> = ({authToken}) => {
             setWinner(winner)
         })
         socket.on('go404', () => {
-            history.push('/404');
+            history.push('/watch');
         })
         socket.on('getSettings', (settings: Settings) => {
             setSettings(settings)

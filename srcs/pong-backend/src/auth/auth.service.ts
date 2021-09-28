@@ -20,26 +20,38 @@ interface User42 {
 }
 
 async function getAuthToken(authCode: string): Promise<string> {
-  const response = await axios.post(`https://api.intra.42.fr/oauth/token`, {
-    grant_type: 'authorization_code',
-    client_id: API_UID,
-    client_secret: API_SECRET,
-    redirect_uri: FRONTEND_URL,
-    code: authCode,
-  });
-  return response.data.access_token;
+  try {
+      const response = await axios.post(`https://api.intra.42.fr/oauth/token`, {
+      grant_type: 'authorization_code',
+      client_id: API_UID,
+      client_secret: API_SECRET,
+      redirect_uri: FRONTEND_URL,
+      code: authCode,
+    });
+    return response.data.access_token;
+  }
+  catch (err) {
+    throw new HttpException("42 API Failed", 500);
+  }
+  
 }
 
 async function getLogin(authToken: string): Promise<User42> {
-  const response = await axios({
-    url: 'https://api.intra.42.fr/v2/me',
-    headers: { Authorization: `Bearer ${authToken}` },
-  });
-  const ret: User42 = {
-    id: response.data.id,
-    login: response.data.login,
-  };
-  return ret;
+  try {
+    const response = await axios({
+      url: 'https://api.intra.42.fr/v2/me',
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    const ret: User42 = {
+      id: response.data.id,
+      login: response.data.login,
+    };
+    return ret;
+  }
+  catch (err) {
+    throw new HttpException("42 API Failed", 500);
+  }
+  
 }
 
 @Injectable()

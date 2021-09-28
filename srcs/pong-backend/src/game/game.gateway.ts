@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException, WsResponse } from '@nestjs/websockets';
 import { WSASERVICE_NOT_FOUND } from 'constants';
 import { SocketAddress } from 'net';
@@ -10,8 +10,10 @@ import { JwtWsAuthGuard } from 'src/auth/jwt-ws-auth.guard';
 import { AuthenticatedSocket } from 'src/chat/chat.types';
 import { PowerUpType, Settings } from "../app.types";
 import { joinRoomDto, joinRoomInviteDto } from './game.dto';
-var uuid = require('uuid');
+import { Catch, ArgumentsHost, UseFilters } from '@nestjs/common';
+import { BaseWsExceptionFilter } from '@nestjs/websockets';
 
+var uuid = require('uuid');
 // import Ball from './game/game';
 
 const PORT_ONE = process.env.PORT_ONE ? parseInt(process.env.PORT_ONE) : 3002;
@@ -84,6 +86,14 @@ async function findAsyncSequential<T>(
   return undefined;
 }
 
+@Catch(UnauthorizedException)
+export class UnauthorizedChatFilter extends BaseWsExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    host.switchToWs().getClient().emit('unauthorized');
+  }
+}
+
+@UseFilters(new UnauthorizedChatFilter())
 @WebSocketGateway(PORT_ONE, { cors: true })
 export class GameGateway implements OnGatewayInit {
   rooms = {};
@@ -136,8 +146,6 @@ export class GameGateway implements OnGatewayInit {
       // Settle this game via a 10:0 TKO
       this.endGame(abandonedRoomName, true, abandoningPlayerIndex);
     }
-    if (client.data.user)
-      this.profileService.updateUserById(client.data.user.id, {status: 1});
     this.logger.log(
       `Client disconnected: ${client.id} - ${this.connectedClients.length} connected clients.`
     );
@@ -364,8 +372,8 @@ export class GameGateway implements OnGatewayInit {
   saveAndUpdate(roomName: string, winner_id: number, winner_elo: number, winner_socket: string, loser_id: number, loser_elo: number,loser_socket: string,  loser_score: number)
   {
     this.gameService.saveGame(winner_id, loser_id, loser_score, winner_elo, loser_elo, this.rooms[roomName].settings);
-    this.profileService.updateUserById(winner_id, {status: 1});
-    this.profileService.updateUserById(loser_id, {status: 1});
+    this.profileService.updateUserById(winner_id, {status: 0});
+    this.profileService.updateUserById(loser_id, {status: 0});
     if (this.rooms[roomName].settings.ranked === true)
     {
       let newMmrs = this.getNewMmr(winner_elo, loser_elo);
@@ -395,11 +403,14 @@ export class GameGateway implements OnGatewayInit {
         clearInterval(interval);
       }
 
-      this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
-      this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
-      if (this.rooms[roomName].settings.powerUps)
-        this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
-      this.server.to(roomName).emit('getPaddles', this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
+      if (this.rooms[roomName])
+      {
+        this.server.to(roomName).emit('changeScore', this.rooms[roomName].scores);
+        this.server.to(roomName).emit('getBallPosition', pong.ball.pos);
+        if (this.rooms[roomName].settings.powerUps)
+          this.server.to(roomName).emit('getPowerUp', pong.curr_powerUp);
+        this.server.to(roomName).emit('getPaddles', this.rooms[roomName].players[0], this.rooms[roomName].players[1]);
+      }
 
     };
 
@@ -506,7 +517,7 @@ export class GameGateway implements OnGatewayInit {
 
   @UseGuards(JwtWsAuthGuard)
   @SubscribeMessage('sendSettings')
-  sendSettingsWatch(client: Socket, roomName: string)
+  sendSettingsWatch(client: AuthenticatedSocket, roomName: string)
   {
     if (!roomName)
       throw new WsException('empty roomname')
@@ -514,6 +525,21 @@ export class GameGateway implements OnGatewayInit {
     {
       this.server.to(client.id).emit('getSettings', this.rooms[roomName].settings);
     }
+  }
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('setOnline')
+  setOnline(client: AuthenticatedSocket)
+  {
+      this.profileService.updateUserById(client.user.id, {status: 1})
+  }
+
+
+  @UseGuards(JwtWsAuthGuard)
+  @SubscribeMessage('setOffline')
+  setOffline(client: AuthenticatedSocket)
+  {
+      this.profileService.updateUserById(client.user.id, {status: 0})
   }
 }
 

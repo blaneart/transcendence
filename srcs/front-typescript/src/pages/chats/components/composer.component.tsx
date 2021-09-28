@@ -29,6 +29,8 @@ const Composer: React.FC<ComposerProps> = ({ socket, roomName, muted, amOwner })
 
   const sendMessage = (e: any) => {
     e.preventDefault();
+    if (messageText === "")
+      return alert("Please enter message text");
     const newMessage: ChatMessage = {
       type: ChatMessageType.TEXT,
       room: roomName,

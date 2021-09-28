@@ -109,8 +109,8 @@ export class Pong {
   constructor(ball: Ball, scores, map: any)
   {
       this.ball = ball;
-      this.ball.pos.x = 100;
-      this.ball.pos.y = 200;
+      this.ball.pos.x = 800 / 2;
+      this.ball.pos.y = 600 / 2;
       this.ball.vel.x = -10;
       this.ball.vel.y = 20;
       this.curr_powerUp = new PowerUp();

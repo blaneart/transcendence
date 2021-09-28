@@ -81,6 +81,12 @@ const DirectView: React.FC<DirectViewProps> = ({ authToken, userId, gameSettings
       history.replace("/");
     })
 
+    socket.on("notFound", () => {
+      socket.disconnect();
+      alert("Direct conversation not found :(");
+      history.replace("/");
+    })
+
     socket.on("disconnect", (reason) => {
       // If our socket has disconnected not because we wanted it to
       if (reason !== "io client disconnect") {

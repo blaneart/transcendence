@@ -298,6 +298,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
   if (room)
     amOwner = room.ownerID === userId;
 
+  const mainClasses = "flex-1 px-4 py-4 border border-b-0 bg-gray-900 text-gray-300 border-gray-600 rounded-tr-lg border-solid" + ( amOwner ? "" : " rounded-tl-lg");
   return (
     <div>
 
@@ -306,7 +307,7 @@ const RoomView: React.FC<RoomParams> = ({ authToken, userId, gameSettings }) => 
         {room && (room.ownerID === userId) ? <RoomAdminPanel authToken={authToken} room={room}
           userId={userId} socket={socket} /> : null}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1">
+          <div className={mainClasses}>
             {room ? <MessageList messages={messages} userId={userId} authToken={authToken} room={room}
               socket={socket} amAdmin={amAdmin} amOwner={amOwner}
               gameRoomName={gameRoomName} gameSettings={gameSettings} /> : null}

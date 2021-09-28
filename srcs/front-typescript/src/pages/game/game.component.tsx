@@ -137,6 +137,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
       // If our socket has disconnected not because we wanted it to
       if (reason !== "io client disconnect") {
         alert("Sorry, we've lost connection to the server :(");
+        socket.emit('setOffline');
         history.replace('/');
       }
     })
@@ -158,6 +159,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
     
     function updateGameStats(result: string, authToken: string){
       setIsGameEnded(result);
+      socket.emit('setOnline');
       return null;
     }
 
@@ -198,6 +200,7 @@ const Game: React.FC<IGameProps> = ({user, setUser, authToken, gameSettings}) =>
 useEffect(() => {
   return () => {
     socket?.disconnect();
+
   }
 }, [socket])
 

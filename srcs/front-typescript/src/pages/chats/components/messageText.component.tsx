@@ -131,7 +131,7 @@ const MessageText: React.FC<MessageTextProps> = ({ message, socket, userId, game
           }
         </div>
       </div>
-      <span>{message.message}</span>
+      <span className="break-all">{message.message}</span>
     </div>
 
   );

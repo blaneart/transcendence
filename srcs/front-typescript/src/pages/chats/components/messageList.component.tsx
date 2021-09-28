@@ -69,10 +69,8 @@ const MessageList: React.FC<MessageListParams> = ({ messages, authToken, userId,
     updateBlockList();
   }, [updateBlockList]);
 
-  const mainClasses = "px-4 py-4 border border-b-0 bg-gray-900 text-gray-300 border-gray-600 rounded-tr-lg border-solid h-full" + ( amOwner ? "" : " rounded-tl-lg");
-
   return (
-    <div className={mainClasses}>
+    <div className='px-4 py-4'>
       <h5 className="text-xl mt-2 mb-4">Messages</h5>
       {messages?.filter((msg) => {
       if (msg.type === ChatMessageType.TEXT || msg.senderID === userId  || msg.receiverId === userId)

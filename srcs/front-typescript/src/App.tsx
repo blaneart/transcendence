@@ -321,7 +321,10 @@ function App() {
     }
   }, [socket]);
 
-
+  useEffect(() => {
+    if (user)
+      socket.emit('setOnline', user.id);
+  })
 
   // On auth token change, re-retreive user state
   useEffect(() => {

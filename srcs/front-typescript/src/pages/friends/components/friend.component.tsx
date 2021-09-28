@@ -123,10 +123,10 @@ const Friend: React.FC<IFriendProps> = ({ id1, id2, authToken }) => {
               Direct message
               </div>
             </div>
-            {friendUser.status === 0 ? 
+            {friendUser.status === 0  || friendUser.banned ? 
             <p className="font-ok font-bold px-5 py-2 text-lg text-red-800 bg-red-400 rounded-lg border-4 border-solid border-red-600" >
                 Offline
-            </p> : friendUser.status === 1 ?
+            </p> : friendUser.status === 1?
             <p className="font-ok font-bold px-5 py-2 text-lg text-green-800 bg-green-400 rounded-lg border-4 border-solid border-green-600" >
                 Online
             </p> :

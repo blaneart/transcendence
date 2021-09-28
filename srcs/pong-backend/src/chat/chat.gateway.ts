@@ -286,8 +286,11 @@ export class ChatGateway {
       throw new WsException("You must be the room owner or an administrator to ban people");
 
     // Ensure the number of minutes is correct
-    if (data.minutes <= 0 || isNaN(data.minutes))
+    if (data.minutes <= 0 || isNaN(data.minutes) || !Number.isInteger(data.minutes))
+    {
+      client.emit('error', "Wrong number of minutes");
       throw new WsException("Incorrect number of minutes");
+    }
 
     // Ensure the user is not already banned
     const alreadyBanned = await this.chatService.isBanned(data.userId, room.id);
@@ -330,8 +333,11 @@ export class ChatGateway {
       throw new WsException("You must be the room owner or an administrator to mute people");
 
     // Ensure the number of minutes is correct
-    if (data.minutes <= 0 || isNaN(data.minutes))
+    if (data.minutes <= 0 || isNaN(data.minutes) || !Number.isInteger(data.minutes))
+    {
+      client.emit("error", "Wrong number of minutes");
       throw new WsException("Incorrect number of minutes");
+    }
 
 
     // Ensure the user is not already muted
@@ -401,14 +407,20 @@ export class ChatGateway {
 
     // Manually validate username
     if (!userName || userName === "")
+    {
+      client.emit("notFound");
       throw new WsException("Bad request");
+    }
 
       // Find the user instance in our database
     const user = await this.profileService.getUserByName(userName);
 
     // Ensure the user we're talking about exists
-    if (!user)
+    if (!user || user.id === client.user.id)
+    {
+      client.emit("notFound");
       throw new WsException("User not found");
+    }
 
     // Find the direct conversation in our database
     let direct = await this.chatService.findDirect(client.user.id, user.id);

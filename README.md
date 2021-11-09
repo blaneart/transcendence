@@ -1,8 +1,8 @@
-Typescript, NestJs, PostGreSQL
-
 # ft_transcendence
 
 ft_transcendence is the last project of the 42CommonCore.
+
+Made with Typescript, NestJs and  PostGreSQL 
 
 ## What is it about ?
 

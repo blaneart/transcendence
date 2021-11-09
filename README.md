@@ -17,16 +17,16 @@ You can simply run `docker-compose up --build` in the folder downloaded and ... 
 
 Please note that we did not spend as much time on front as we did on backend/functionnalities
 
-![alt text](https://github.com/blaneart/transcendence/mdImages/loggedOut.png "Logged Out")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/loggedOut.png "Logged Out")
 
-![alt text](https://github.com/blaneart/transcendence/mdImages/loggedIn.png "Logged In")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/loggedIn.png "Logged In")
 
-![alt text](https://github.com/blaneart/transcendence/mdImages/GameOn.png "Game On")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/GameOn.png "Game On")
 
-![alt text](https://github.com/blaneart/transcendence/mdImages/EndGame.png "End Game Menu")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/EndGame.png "End Game Menu")
 
-![alt text](https://github.com/blaneart/transcendence/mdImages/Chats.png "Chats")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/Chats.png "Chats")
 
-![alt text](https://github.com/blaneart/transcendence/mdImages/Dms.png "Dms")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/Dms.png "Dms")
 
-![alt text](https://github.com/blaneart/transcendence/mdImages/AccountPage.png "Account Page")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/AccountPage.png "Account Page")

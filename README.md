@@ -17,9 +17,9 @@ You can simply run `docker-compose up --build` in the folder downloaded and ... 
 
 Please note that we did not spend as much time on front as we did on backend/functionnalities
 
-![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/loggedOut.png "Logged Out")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/LoggedOut.png "Logged Out")
 
-![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/loggedIn.png "Logged In")
+![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/LoggedIn.png "Logged In")
 
 ![alt text](https://github.com/blaneart/transcendence/blob/main/mdImages/GameOn.png "Game On")
 
